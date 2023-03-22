@@ -1,0 +1,18 @@
+{% extends "base_loggedin.html" %}
+{% block CONTENT %}
+  <script>
+    navigateTo("/dashboard/gc/");
+    {% for network in networks %}
+      $.ajax({
+        url: '/{{ network.get_file.url }}',
+        dataType: 'html',
+        success: function (data) {
+          loadNetworkFile('{{ network.get_name }} (sample)', data);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          errorAlert("Error occurred loading sample networks.");
+        }
+      });
+    {%  endfor %}
+  </script>
+{% endblock %}

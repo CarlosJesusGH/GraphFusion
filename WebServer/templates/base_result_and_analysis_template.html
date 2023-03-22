@@ -1,0 +1,76 @@
+<div class="" id="loginModal">
+  <h3>{% block TITLE %}
+
+  {% endblock %}</h3>
+
+  <div class="well">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#analysis" data-toggle="tab">{% block ANALYSIS_TAB_HEADING %} {% endblock %}</a></li>
+      <li><a href="#previousResults" data-toggle="tab">Results</a></li>
+      {% block EXTRA_TABS %} {% endblock %}
+    </ul>
+    <div id="myTabContent" class="tab-content">
+      {% block EXTRA_TABS_CONTENT %} {% endblock %}
+      <div class="tab-pane active in" id="analysis">
+        <br>
+        {% block ANALYSIS_TAB %}
+        {% endblock %}
+      </div>
+      <div id="previousResults" class="tab-pane fade">
+        <div class="padding-10">
+          <br>
+          <h5>Please select the task to view results</h5>
+
+          <div class="row-fluid">
+            <form class="form-inline">
+              <div class="form-group">
+                <select id="previouslyComputedTasksList" class="form-control col-sm-4" style="min-width: 250px;">
+
+                </select>
+              </div>
+              <div class="form-group">
+                <div class="col-sm-2" style="padding-right:30px;">
+                  <button class="btn btn-primary" 
+                          onclick="updateTaskList(); return false;">
+                          <span class="glyphicon glyphicon-refresh"></span>
+                  </button>
+                </div>
+                <div class="col-sm-3">
+                  <button class="btn btn-primary"
+                          onclick="processDisplayResult();return false;"
+                          id="analyseButton">View Results
+                  </button>
+                </div>
+                <div class="col-sm-3 col-sm-offset-1">
+                  <a class="btn btn-primary"
+                     id="downloadResultsButton"><i class="fa fa-lg fa-download"></i> Download Result
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+          <br>
+
+          <div id="task_result" class="row-fluid" style="padding:5px;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  updateTaskList();
+  var downloadResultsButton = $("#downloadResultsButton");
+  downloadResultsButton.hide();
+
+  function processDisplayResult() {
+    var taskId = $('#previouslyComputedTasksList').val();
+    displayTaskView(taskId, $('#task_result'));
+    downloadResultsButton.fadeIn();
+    downloadResultsButton.attr('href', "/TaskFactory/DownloadResult/" + taskId.toString() + "/");
+  }
+  function updateTaskList() {
+    console.log("updateTaskList - {{ task_type }}");
+    getSuccessfulTasksForUser("{{ task_type }}", $("#previouslyComputedTasksList"));
+  }
+</script>

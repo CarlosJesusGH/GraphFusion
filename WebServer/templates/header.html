@@ -1,0 +1,63 @@
+{% load staticfiles %}
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A graph analysis tool">
+<meta name="author" content="Barcelona Supercomputing Center">
+
+<link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+<link href="{% static "css/style.css" %}" rel="stylesheet">
+<link href="{% static "css/plugins/morris.css" %}" rel="stylesheet">
+<link href="{% static "font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
+<link href="{% static "alertify/css/alertify-bootstrap-3.css" %}" rel="stylesheet">
+<link href="{% static "Vis/vis.min.css" %}" rel="stylesheet">
+<link href="{% static "Vex/css/vex.css" %}" rel="stylesheet">
+<link href="{% static "Vex/css/vex-theme-default.css" %}" rel="stylesheet">
+<link href="{% static "DataTables/css/jquery.dataTables.css" %}" rel="stylesheet">
+<link href="{% static "Pace/pace.css" %}" rel="stylesheet">
+<link href="{% static "Hint/hint.css" %}" rel="stylesheet">
+<link href="{% static "multiple-select/css/bootstrap-multiselect.css" %}" rel="stylesheet">
+<link href="{% static "animate/animate.css" %}" rel="stylesheet">
+<link href="{% static "fancybox/jquery.fancybox.css" %}" rel="stylesheet">
+
+<script type="text/javascript" src="{% static "js/jquery.js" %}"></script>
+<script type="text/javascript" src="{% static "list/list.js" %}"></script>
+<script type="text/javascript" src="{% static "Pace/pace.min.js" %}"></script>
+<script type="text/javascript" src="{% static "moment/moment.js" %}"></script>
+{#<script type="text/javascript" src="{% static "moment/moment-with-locales.js" %}"></script>#}
+<script type="text/javascript" src="{% static "DataTables/js/jquery.dataTables.js" %}"></script>
+<script type="text/javascript" src="{% static "list/list.pagination.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/PostForms.js" %}"></script>
+<script type="text/javascript" src="{% static "js/bootstrap.min.js" %}"></script>
+<script type="text/javascript" src="{% static "js/get_csrf_token.js" %}"></script>
+<script type="text/javascript" src="{% static "js/Tasks.js" %}"></script>
+<script type="text/javascript" src="{% static "js/on_demand_file_upload.js" %}"></script>
+<script type="text/javascript" src="{% static "js/singlePageNavigation.js" %}"></script>
+<script type="text/javascript" src="{% static "js/visualisation.js" %}"></script>
+<script type="text/javascript" src="{% static "js/VexAlertMessages.js" %}"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+<script type="text/javascript" src="{% static "Vis/vis.min.js" %}"></script>
+<script type="text/javascript" src="{% static "heatmap/heatmap.min.js" %}"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="{% static "alertify/js/alertify.js" %}"></script>
+<script type="text/javascript" src="{% static "Vex/js/vex.combined.min.js" %}"></script>
+<script type="text/javascript" src="{% static "multiple-select/js/bootstrap-multiselect.js" %}"></script>
+<script type="text/javascript" src="{% static "js/alertify-common-alerts.js" %}"></script>
+<script type="text/javascript" src="{% static "fancybox/jquery.fancybox.js" %}"></script>
+<script>
+  google.load('visualization', '1.1', {packages: ['line']});
+  vex.defaultOptions.className = 'vex-theme-default';
+  paceOptions = {
+    ajax: true, // disabled
+    document: true, // disabled
+    eventLag: true
+  };
+</script>
+
+<!-- include headers for drugstone -->
+<script src="https://cdn.drugst.one/latest/drugstone.js"></script>
+<link rel="stylesheet" href="https://cdn.drugst.one/latest/styles.css">
+
+
+   

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.drugst.one/latest/drugstone.js"></script>
+    <link rel="stylesheet" href="https://cdn.drugst.one/latest/styles.css">
+    <!-- <script src="https://cdn.drugst.one/latest/drugstone.js"></script>
+    <link rel="stylesheet" href="https://cdn.drugst.one/latest/styles.css"> -->
+  </head>
+  <style>
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .drugstone-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+  </style>
+  <body>
+    <div class="container">
+      <h1>My new app</h1>
+      <div>
+        <p>
+          With Drugst.One, any list of resulting genes from your program can be
+          visualized as a network. Additional functionalities like network based
+          drug repurposing and loading related diseases are also included!
+        </p>
+        <p>
+          This is a simple demo app including the django project structure and a
+          demo program that produces a list of genes. This result is then
+          visualized using Drugst.One with the default configuration. Feel free
+          to extend it to your needs.
+        </p>
+      </div>
+
+      <form method="GET" id="run" action="/my_app/home/5">
+        <label>Number of genes (max 20):</label>
+        <input type="number" id="k" value="5" onchange="updateAction()" />
+        <button type="submit">Run program</button>
+      </form>
+
+      <form method="GET" action="/my_app/home/">
+        <button type="submit">Reset</button>
+      </form>
+
+      {% if network %}
+      <div class="drugstone-container">
+        <drugst-one
+          id="drugstone-component-id"
+          groups="{{ groups }}"
+          config="{{ config }}"
+          network="{{ network }}"
+        >
+        </drugst-one>
+      </div>
+      {% endif %}
+
+      <!-- create gene_list with sample data -->
+      <!-- { gene_list = ["a", "b", "c"] } -->
+
+      <h2>Gene list</h2>
+      <ul>
+        {% for gene in gene_list %}
+        <li>{{ gene }}</li>
+        {% empty %}
+        <li>Run the program to view the result</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <script>
+      function updateAction() {
+        const k = document.getElementById("k").value;
+        const action = `/my_app/home/${k}`;
+        document.getElementById("run").action = action;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,186 @@
+{% extends 'base_result_and_analysis_template.html' %}
+
+{% block ANALYSIS_TAB %}
+  <div class="row-fluid">
+    {% csrf_token %}
+    <h5>Select Networks from list below to submit a network alignment task</h5>
+  </div>
+
+  <div class="row-fluid" style="padding:5px;">
+    <div class="row-fluid">
+      <form class="form-horizontal">
+        <fieldset>
+          <div class="form-group">
+            <div class="col-lg-12">
+              <div class="col-lg-5">
+                <label class="control-label">Network 1</label>
+              </div>
+              <div class="col-sm-1">
+              </div>
+              <div class="col-lg-5">
+                <label class="control-label">Network 2</label>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="col-lg-5">
+                <select id="networkNamesList1" multiple class="form-control">
+                </select>
+              </div>
+              <div class="col-sm-1">
+                <h4>Vs</h4>
+              </div>
+              <div class="col-lg-5">
+                <select id="networkNamesList2" multiple class="form-control">
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="distancesOptions">Select Distances</label>
+            </div>
+            <div class="col-lg-8">
+              <select id="distancesOptions" class="form-control" multiple="multiple">
+                {% for code, name in distances %}
+                  <option value="{{ code }}">{{ name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-10 form-group">
+
+            {#            <fieldset id="modelsCheckbox">#}
+            {#              {% for code, name in distances %}#}
+            {#                <div class="checkbox row">#}
+            {#                  <input class="checkboxModel" id="checkboxModel{{ code }}" type="checkbox" value="{{ code }}"/>#}
+            {#                  {{ name }}#}
+            {#                </div>#}
+            {#              {% endfor %}#}
+            {#            </fieldset>#}
+          </div>
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="taskNameInput">Task Name</label>
+            </div>
+            <div class="col-lg-5">
+              <input class="form-control" id="taskNameInput" type="text">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-lg-12">
+              <br>
+
+              <div class="col-lg-2">
+                <button class="btn btn-success" onclick="sendNetworksForAnalysis();return false;"
+                        id="analyseButton">Submit Analysis
+                </button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <script>
+    var $networkNamesList1 = $('#networkNamesList1');
+    var $networkNamesList2 = $('#networkNamesList2');
+    var $taskName = $("#taskNameInput");
+    var $distancesOptions = $("#distancesOptions");
+
+    $distancesOptions.multiselect({
+      includeSelectAllOption: true,
+      numberDisplayed: 0
+    });
+    $distancesOptions.multiselect('selectAll', false);
+    $distancesOptions.multiselect('updateButtonText');
+
+    updateNetworks();
+    function updateNetworks() {
+      $networkNamesList1.empty();
+      updateNetworkNamesInList($networkNamesList1);
+      $networkNamesList2.empty();
+      updateNetworkNamesInList($networkNamesList2);
+    }
+
+    function getAllSelectedDistances() {
+      var options = [];
+      $distancesOptions.find("option:selected").each(function () {
+        options.push($(this).val());
+      });
+      return options;
+    }
+
+    function run_input_checks(net1, net2, task_name, selectedDistances) {
+      var error_message = "";
+      if (net1.length == 0) {
+        error_message = "Please select network(s) from first list.";
+      }
+      if (error_message.length == 0 && net2.length == 0) {
+        error_message = "Please select network(s) from second list.";
+      }
+      if (error_message.length == 0 && selectedDistances.length == 0) {
+        error_message = "Please select distance(s) for comparing two networks."
+      }
+      if (error_message.length == 0 && task_name == "") {
+        error_message = "Task name shouldn't be empty";
+      }
+      if (error_message != "") {
+        vexErrorAlert(error_message);
+        return true;
+      }
+      return false;
+    }
+
+    function sendNetworksForAnalysis() {
+      var net1 = [];
+      var net2 = [];
+      $networkNamesList1.find(":selected").each(function (i, selected) {
+        net1.push(networkFiles[$(selected).val()]);
+      });
+
+      $networkNamesList2.find(":selected").each(function (i, selected) {
+        net2.push(networkFiles[$(selected).val()]);
+      });
+      var task_name = $taskName.val();
+      var selectedDistances = getAllSelectedDistances();
+
+      if (run_input_checks(net1, net2, task_name, selectedDistances)) {
+        return;
+      }
+      var data = {
+        'Networks': [net1, net2]
+      };
+
+      Pace.track(function () {
+        $.ajax({
+          // flag:NewTaskTemplate
+          url: '/SimpletsPairwiseAnalysis/analyse/',
+          type: 'POST',
+          data: {
+            'data': JSON.stringify(data),
+            'distances': JSON.stringify(selectedDistances),
+            'name': task_name
+          },
+          success: function (data) {
+            successAlert(data);
+            refreshRunningTasks();
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.log('ERRORS: ' + textStatus);
+            errorAlert("Error occurred while computing pairwise analysis: " + xhr.responseText);
+          }
+        });
+      });
+    }
+  </script>
+{% endblock %}
+
+{% block ANALYSIS_TAB_HEADING %}
+  Clustering Analysis
+{% endblock %}
+{% block TITLE %}
+  Clustering & Enrichment
+{% endblock %}

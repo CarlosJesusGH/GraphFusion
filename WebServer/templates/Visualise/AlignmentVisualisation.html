@@ -1,0 +1,60 @@
+<div class="panel-group" id="accordion" aria-multiselectable="true">
+  {% for id,name,_,_ in graphs %}
+    <div class="panel panel-green">
+      <div class="panel-heading change-to-hand-on-hover" id="headingTwo">
+        <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ id }}"
+            aria-expanded="false"
+            aria-controls="collapseTwo">
+          Network Name: {{ name }}
+        </h4>
+      </div>
+      <div id="collapse{{ id }}" class="panel-collapse collapse in" aria-labelledby="headingTwo">
+        <div class="panel-body" style="height: 400px;">
+          <div id="visualisationGraph{{ id }}" style="height: 100%"></div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<script>
+  {% for id,_,_,_ in graphs %}
+    var network{{ id }} = null;
+  {% endfor %}
+  {% for id,_,_ in graphs %}
+    draw{{ id }}();
+  {% endfor %}
+
+  function destroy() {
+    {% for id,_,_,_ in graphs %}
+      if (network{{ id }} !== null) {
+        network{{ id }}.destroy();
+        network{{ id }} = null;
+      }
+    {% endfor %}
+  }
+
+  {% for id,_,nodes,edges in graphs %}
+    function draw{{ id }}() {
+      destroy();
+      var nodes = [];
+      var edges = [];
+      {% for nodeName, nodeID, nodeColour in nodes %}
+        nodes.push({
+          id: {{ nodeID }},
+          label: String("{{ nodeName|safe }}"),
+          color: '{{ nodeColour }}'
+        });
+      {% endfor %}
+
+      {% for from,to in edges %}
+        edges.push({
+          from: "{{ from }}",
+          to: "{{ to }}"
+        });
+      {% endfor %}
+      drawGraph(document.getElementById('visualisationGraph{{ id }}'), nodes, edges, network{{ id }});
+    }
+  {% endfor %}
+
+</script>

@@ -1,0 +1,60 @@
+<h3>Admin Center</h3>
+<br>
+<div class="well">
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#tasksPane" data-toggle="tab">Tasks</a></li>
+    <li><a href="#usersPane" data-toggle="tab">Users</a></li>
+  </ul>
+  <div id="myTabContent" class="tab-content">
+    <div class="tab-pane active in" id="tasksPane">
+      <br>
+      <table id="tasks" cellpadding="0" cellspacing="0" border="0" class="display"></table>
+    </div>
+    <div class="tab-pane" id="usersPane">
+      <br>
+      <table id="users" cellpadding="0" cellspacing="0" border="0" class="display"></table>
+    </div>
+  </div>
+</div>
+<script>
+  var tasks = [];
+  {% for t in tasks %}
+    tasks.push([
+      "{{ t.get_task_name }}",
+      "{{ t.get_user }}",
+      "{{ t.get_status }}",
+      moment("{{ t.get_start_time }}", "MMM D, YYYY, hh:mm a").fromNow(),
+      "{{ t.get_task_type }}",
+      {% if t.finished %}
+        '<a class="btn btn-danger btn-sm" onclick="processRemoveTask({{ task.get_task_id }});return false;"><i class= "fa fa-trash-o fa-lg white-color"></i></a>'
+      {% else %}
+        '<a class="change-to-hand-on-hover" onclick="processTerminateTask({{ task.get_task_id }});return false;"><i class="fa fa-times-circle fa-2x error-color"></i> </a>'
+      {% endif %}
+    ]);
+  {% endfor %}
+  $('#tasks').dataTable({
+    "data": tasks,
+    "columns": [
+      {"title": "Name"},
+      {"title": "User"},
+      {"title": "Status"},
+      {"title": "Start Time", "class": "center"},
+      {"title": "Task Type", "class": "center"},
+      {"title": "Stop", "class": "center"}
+    ]
+  });
+
+  var users = [];
+  {% for user in users %}
+    users.push(["{{ user.get_name }}", "{{ user.get_username }}", "{{ user.get_email }}", "{{ user.get_number_of_tasks }}"]);
+  {% endfor %}
+  $('#users').dataTable({
+    "data": users,
+    "columns": [
+      {"title": "Name"},
+      {"title": "Username"},
+      {"title": "Email"},
+      {"title": "Number of Running Tasks", "class": "center"},
+    ]
+  });
+</script>

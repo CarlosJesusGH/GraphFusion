@@ -1,0 +1,382 @@
+
+
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i>Please select the data to analyse</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-lg-3">
+        <select id="factPsb" class="form-control">
+          <option value="-1">Select one factorization</option>
+          {% for fact in facts %}
+            <option value="{{ fact.get_counter }}">{{ fact.get_title }} &emsp; i.e. &emsp; X_{{ fact.get_counter }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROC curve -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i>ROC curve</h3>
+  </div>
+  <div class="panel-body">
+    <br/>    
+      <div class="col-lg-3">
+        <button class="btn btn-primary" onclick="computeROC(); return false;" id="computeROC">Compute ROC curve</button>
+      </div>
+    <div class="row">
+      <div class="col-lg-12" id="rocImageDiv" style="display:none;">
+        <img id="rocImage" width="80%" height="80%" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PR curve -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i>PR curve & F1-score threshold</h3>
+  </div>
+  <div class="panel-body">
+    <br/>    
+      <div class="col-lg-3">
+        <button class="btn btn-primary" onclick="computePR(); return false;" id="computePR">Compute PR curve</button>
+      </div>
+    <div class="row">
+      <div class="col-lg-12" id="prImageDiv" style="display:none;">
+        <img id="prImage" width="80%" height="80%" src="data:image/png;base64,{{ result.get_graph_image }}"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- F1-score threshold -->
+<div class="panel panel-green" style="display:none;">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i>F1-score threshold</h3>
+  </div>
+  <div class="panel-body">
+    <br/>    
+      <div class="col-lg-3">
+        <button class="btn btn-primary" onclick="computeF1score(); return false;" id="computeF1score">Compute f1-score threshold</button>
+      </div>
+    <div class="row">
+      <div class="col-lg-12" id="f1scoreImageDiv" style="display:none;">
+        <img id="f1scoreImage" width="80%" height="80%" src="data:image/png;base64,{{ result.get_graph_image }}"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Matrix completion -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i>Matrix completion</h3>
+  </div>
+  <div class="panel-body">
+    <br/>
+    <div class="row">
+      <div class="col-lg-6">
+        <h5>Select the entity list file for the ROWS in R matrix:</h5>
+        <form enctype="multipart/form-data">
+          <input id="psb_matcomp_entitylist_rows" name="file" type="file" />             
+        </form>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col-lg-6">
+        <h5>Select the entity list file for the COLUMNS in R matrix:</h5>
+        <form enctype="multipart/form-data">
+          <input id="psb_matcomp_entitylist_cols" name="file" type="file" />             
+        </form>
+      </div>
+    </div>
+    <br/>   
+    <div class="col-lg-3">
+      <button class="btn btn-primary" onclick="computeMatComp(); return false;" id="computeMatComp">Compute matrix completion</button>
+    </div>
+    <div class="row">
+      <div class="col-lg-12" id="matcompImageDiv" style="display:none;">
+        <img id="matcompImage" width="80%" height="80%" src="data:image/png;base64,{{ result.get_graph_image }}"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Predictions -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i>Predictions</h3>
+  </div>
+  <div class="panel-body">
+    <table id="pred_table" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>
+            PREDICTED ROW
+          </th>
+          <th>
+            PREDICTED COLUMN
+          </th>
+          <th>
+            SCORE
+          </th>
+        </tr>
+        </thead>
+      <tbody id="pred_table_body">
+      </tbody>
+    </table>
+  </div>  
+</div>
+
+<!-- ---------------------------------------------------- -->
+
+<script type="text/javascript">
+
+function computeROC() {
+  var psb_fact = $("#factPsb").val();
+  if (psb_fact == -1) {
+    vexErrorAlert("You should select a factorization for the PSB analysis.");
+    return;
+  }
+  // -----
+  var fd = new FormData();
+  var read = new FileReader();
+  // -----
+  var data = {
+    'psb_fact': psb_fact,
+    'task_dir': "{{task.operational_directory}}",
+  };
+  fd.append("data", JSON.stringify(data));
+  // -----
+  Pace.track(function () {
+    $.ajax({
+    url: '/DataFusion/compute_psb_roc',
+    type: 'POST',
+    data: fd,
+    // async: false,
+    processData: false,  // tell jQuery not to process the data
+    contentType: false,  // tell jQuery not to set contentType
+    success: function (params) {
+      var jsonparams = JSON.parse(params);
+      var msg = jsonparams.msg;
+      var roc_img = jsonparams['psb_roc_img'];
+      document.getElementById('rocImage').setAttribute('src', 'data:image/png;base64,' + roc_img);
+      $("#rocImageDiv").fadeIn();
+      // refreshRunningTasks();
+      successAlert(msg);
+    },
+    beforeSend: function (xhr, settings) {
+      xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      $("#rocImageDiv").fadeOut();
+    },
+    error: function (xhr, textStatus, errorThrown) {
+      console.log('ERRORS: ' + textStatus);
+      errorAlert("Error occurred while computing the roc: " + xhr.responseText);
+      }
+    });
+  })
+}
+
+function computePR(){
+  var psb_fact = $("#factPsb").val();
+  if (psb_fact == -1) {
+    vexErrorAlert("You should select a factorization for the PSB analysis.");
+    return;
+  }
+  // -----
+  var fd = new FormData();
+  var read = new FileReader();
+  // -----
+  var data = {
+    'psb_fact': psb_fact,
+    'task_dir': "{{task.operational_directory}}",
+  };
+  fd.append("data", JSON.stringify(data));
+  // -----
+  Pace.track(function () {
+    $.ajax({
+    url: '/DataFusion/compute_psb_pr',
+    type: 'POST',
+    data: fd,
+    // async: false,
+    processData: false,  // tell jQuery not to process the data
+    contentType: false,  // tell jQuery not to set contentType
+    success: function (params) {
+      var jsonparams = JSON.parse(params);
+      var msg = jsonparams.msg;
+      var pr_img = jsonparams['psb_pr_img'];
+      document.getElementById('prImage').setAttribute('src', 'data:image/png;base64,' + pr_img);
+      $("#prImageDiv").fadeIn();
+      // refreshRunningTasks();
+      successAlert(msg);
+    },
+    beforeSend: function (xhr, settings) {
+      xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      $("#prImageDiv").fadeOut();
+    },
+    error: function (xhr, textStatus, errorThrown) {
+      console.log('ERRORS: ' + textStatus);
+      errorAlert("Error occurred while computing the pr: " + xhr.responseText);
+      }
+    });
+  })
+}
+
+function computeF1score(){
+  var psb_fact = $("#factPsb").val();
+  if (psb_fact == -1) {
+    vexErrorAlert("You should select a factorization for the PSB analysis.");
+    return;
+  }
+  // -----
+  var fd = new FormData();
+  var read = new FileReader();
+  // -----
+  var data = {
+    'psb_fact': psb_fact,
+    'task_dir': "{{task.operational_directory}}",
+  };
+  fd.append("data", JSON.stringify(data));
+  // -----
+  Pace.track(function () {
+    $.ajax({
+    url: '/DataFusion/compute_psb_f1score',
+    type: 'POST',
+    data: fd,
+    // async: false,
+    processData: false,  // tell jQuery not to process the data
+    contentType: false,  // tell jQuery not to set contentType
+    success: function (params) {
+      var jsonparams = JSON.parse(params);
+      var msg = jsonparams.msg;
+      var f1score_img = jsonparams['psb_f1score_img'];
+      document.getElementById('f1scoreImage').setAttribute('src', 'data:image/png;base64,' + f1score_img);
+      $("#f1scoreImageDiv").fadeIn();
+      // refreshRunningTasks();
+      successAlert(msg);
+    },
+    beforeSend: function (xhr, settings) {
+      xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      $("#f1scoreImageDiv").fadeOut();
+    },
+    error: function (xhr, textStatus, errorThrown) {
+      console.log('ERRORS: ' + textStatus);
+      errorAlert("Error occurred while computing the f1score: " + xhr.responseText);
+      }
+    });
+  })
+}
+
+function computeMatComp(){
+  var psb_fact = $("#factPsb").val();
+  if (psb_fact == -1) {
+    vexErrorAlert("You should select a factorization for the PSB analysis.");
+    return;
+  }
+  // -----
+  var fd = new FormData();
+  var read = new FileReader();
+  var read2 = new FileReader();
+  if(document.getElementById("psb_matcomp_entitylist_rows").value == "") {
+    vexErrorAlert("You should select an entity list file for ROWS to compute psb_matcomp.");
+    return;
+  } else if (psb_matcomp_entitylist_rows.name.includes(".edgelist") || psb_matcomp_entitylist_rows.name.includes(".csv")) {
+    console.log("readAsText:" + psb_matcomp_entitylist_rows.name);
+    read.readAsText(psb_matcomp_entitylist_rows);
+  } else{
+    console.log("readAsArrayBuffer:" + psb_matcomp_entitylist_rows.name);
+    // read.readAsBinaryString(files[i]);
+    read.readAsArrayBuffer(psb_matcomp_entitylist_rows);
+  }
+  // ---
+  if(document.getElementById("psb_matcomp_entitylist_cols").value == "") {
+    vexErrorAlert("You should select an entity list file for COLUMNS to compute psb_matcomp.");
+    return;
+  } else if (psb_matcomp_entitylist_cols.name.includes(".edgelist") || psb_matcomp_entitylist_cols.name.includes(".csv")) {
+    console.log("readAsText:" + psb_matcomp_entitylist_cols.name);
+    read2.readAsText(psb_matcomp_entitylist_cols);
+  } else{
+    console.log("readAsArrayBuffer:" + psb_matcomp_entitylist_cols.name);
+    // read2.readAsBinaryString(files[i]);
+    read2.readAsArrayBuffer(psb_matcomp_entitylist_cols);
+  }
+  // ---
+  read.onloadend = function () {
+    fd.append("psb_matcomp_entitylist_rows", new Blob([read.result]), "File0");
+    read2.onloadend = function () {
+      fd.append("psb_matcomp_entitylist_cols", new Blob([read2.result]), "File1");
+      var data = {
+        'psb_fact': psb_fact,
+        'task_dir': "{{task.operational_directory}}",
+      };
+      fd.append("data", JSON.stringify(data));
+      // -----
+      Pace.track(function () {
+        $.ajax({
+        url: '/DataFusion/compute_psb_matcomp',
+        type: 'POST',
+        data: fd,
+        // async: false,
+        processData: false,  // tell jQuery not to process the data
+        contentType: false,  // tell jQuery not to set contentType
+        success: function (params) {
+          var jsonparams = JSON.parse(params);
+          var msg = jsonparams.msg;
+          var matcomp_img = jsonparams['psb_matcomp_img'];
+          document.getElementById('matcompImage').setAttribute('src', 'data:image/png;base64,' + matcomp_img);
+          $("#matcompImageDiv").fadeIn();
+          // 
+          var predictions = jsonparams['psb_matcomp_pred'];
+          var $tablePredictions = $("#pred_table_body");
+          $tablePredictions.empty();
+          for (var i in predictions) {
+            $tablePredictions.append("<tr><td>" + predictions[i][0] + 
+              // " <a href=\"https://www.proteinatlas.org/ENSG00000141510-TP53/pathology\" target=\"_blank\">(link to HPA)</a>" + 
+              "</td><td>" + predictions[i][1] + "</td><td>" + predictions[i][2] + "</td></tr>")
+          }
+          // refreshRunningTasks();
+          successAlert(msg);
+        },
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          $("#matcompImageDiv").fadeOut();
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          console.log('ERRORS: ' + textStatus);
+          errorAlert("Error occurred while computing the matcomp: " + xhr.responseText);
+          }
+        });
+      })  
+    }
+  }
+}
+
+var psb_matcomp_entitylist_rows;
+$('#psb_matcomp_entitylist_rows').on('change', function () {
+  psb_matcomp_entitylist_rows = this.files[0];
+  if (psb_matcomp_entitylist_rows.size > 10000000) {
+    alert('max upload size is 1MB');
+  } else {
+    // Also see .name, .type
+    console.log('psb_matcomp_entitylist_rows loaded: ' + psb_matcomp_entitylist_rows.name);
+  }
+});
+
+var psb_matcomp_entitylist_cols;
+$('#psb_matcomp_entitylist_cols').on('change', function () {
+  psb_matcomp_entitylist_cols = this.files[0];
+  if (psb_matcomp_entitylist_cols.size > 10000000) {
+    alert('max upload size is 1MB');
+  } else {
+    // Also see .name, .type
+    console.log('psb_matcomp_entitylist_cols loaded: ' + psb_matcomp_entitylist_cols.name);
+  }
+});
+
+</script>

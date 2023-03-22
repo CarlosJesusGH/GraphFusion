@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en" ng-app="graphcrunch">
+<head>
+  <title>
+    GraphCrunch 3.0
+  </title>
+  {% block HEADER %}
+    {% include "header.html" %}
+    {% block ANGULAR_JS_FILES %}
+    {% endblock %}
+    {% block CUSTOM_IMPORTS %}
+    {% endblock %}
+  {% endblock %}
+</head>
+
+<body>
+{% block  NAVBAR %}
+  <nav class="navbar brown-navbar navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                data-target="#bs-example-navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand brand-name" href="/"
+           style="vertical-align: middle !important; height: 100%;">GraphCrunch</a>
+      </div>
+
+      {% block NAVBAR_DROP_DOWN %}
+
+      {% endblock %}
+    </div>
+  </nav>
+
+{% endblock %}
+
+{% block MAIN_CONTENT %}
+
+  <div class="container pull-left" style="width: 100%;">
+    <div class="row-fluid">
+      <br><br><br>
+      {% block SIDE_MENU %}
+      {% endblock %}
+    </div>
+    <div class="col-lg-8 col-lg-offset-2" style="padding: 10px">
+      <div id="mainContent">
+        {% block CONTENT %}
+        {% endblock %}
+      </div>
+    </div>
+    <div class="col-lg-2 pull-right" style="padding: 5px">
+      {% block NETWORK_UPLOAD %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
+</body>
+</html>

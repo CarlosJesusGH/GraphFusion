@@ -1,0 +1,515 @@
+<!-- {% if overflow %}
+  <h5>Showing 10 most significant figures. You can download complete set of results by clicking on "Download
+    Result"</h5>
+{% endif %} -->
+<!-- <img width="80%" height="80%" src="data:image/png;base64,{{ result.get_graph_image }}"/> -->
+
+<!-- clusters -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Clusters</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-lg-6">
+        <select id="clusterFact" class="form-control">
+          <option value="0">Select the factor</option>
+          {% for output_file in output_files %}
+            <option value="{{ output_file }}">{{ output_file }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col-lg-3">
+        <h5>Select the entity list file:</h5>
+        <form enctype="multipart/form-data">
+          <input id="clusters_entitylist_file" name="file" type="file" />             
+        </form>
+      </div>
+    </div>
+    <br/>    
+      <div class="col-lg-3" data-type="fact_mat">
+        <button class="btn btn-primary" onclick="computeClusters(); return false;" id="computeClusters">Compute Clusters</button>
+      </div>
+    </div>
+    <div class="row" style="display:hidden;">
+      <div class="col-lg-12" id="clusterImageDiv" style="display:none;">
+        <img id="clusterImage" width="80%" height="80%" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- enrichments -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Enrichments</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-lg-6" >
+            <h5>Select the annotations file:</h5>
+            <form enctype="multipart/form-data">
+              <input id="annotations_file" name="file" type="file" />             
+            </form>
+      </div>
+      <div class="col-lg-3" data-type="fact_mat">
+        <button class="btn btn-primary" onclick="computeEnrichments(); return false;" id="computeEnrichments">Compute Enrichments</button>
+      </div>
+    </div>
+    <div class="row" style="display:hidden;">
+      <div class="col-lg-12" id="enrichmentsImageDiv" style="display:none;">
+        <img id="enrichmentsImage" width="80%" height="80%" src="data:image/png;base64,{{ extra_res.1 }}"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- iCell -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> ICell</h3>
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-lg-6">
+        <select id="iCellFact" class="form-control">
+          <option value="0">Select the factor</option>
+          {% for output_file in output_files %}
+            <option value="{{ output_file }}">{{ output_file }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <br/>
+    <div class="row">
+      <div class="col-lg-3">
+        <h5>Select the entity list file:</h5>
+        <form enctype="multipart/form-data">
+          <input id="icell_entitylist_file" name="file" type="file" />             
+        </form>
+      </div>
+    </div>
+    <br/>
+    <button class="btn btn-primary" onclick="computeICell(); return false;" id="computeICell">Compute ICell</button>
+    <div class="row" style="display:hidden;">
+      <div class="col-lg-12" id="iCellResultDiv" style="display:none;">
+        <h4>iCell computed successfully</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- factors -->
+{% for fact in facts %}
+  <div class="panel panel-green">
+    <div class="panel-heading">
+      <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> {{ fact.get_title }}</h3>
+    </div>
+    <div class="panel-body">
+      <table id="properties_table" class="table table-striped table-bordered">
+        <thead>
+        <tr>
+          <th>
+            Property
+          </th>
+          <th>
+            Value
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for prop_name,prop_value in fact.get_properties %}
+          <tr>
+            <td>
+              {{ prop_name }}
+            </td>
+            <td>
+              {{ prop_value }}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <br>
+{% endfor %}
+
+<!-- output files -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Output files</h3>
+  </div>
+
+  <div class="panel-body">
+    <table id="properties_table" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>
+            Filename
+          </th>
+          <th>
+            Comment
+          </th>
+        </tr>
+        </thead>
+      <tbody>
+      {% for output_file in output_files %}
+        <tr>
+          <td>
+            {{ output_file }}
+          </td>
+          <td>
+            comment
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+  
+<!-- ---------------------------------------------------- -->
+  
+<script type="text/javascript">
+  // var $networkNamesList1 = $('#networkNamesList1');
+  // var $networkNamesList2 = $('#networkNamesList2');
+  // var $taskName = $("#taskNameInput");
+  // var $kValues = $("#kValuesInput");
+  // var $aux = $('#M2_0');
+
+  {{ fact.get_title }}
+  
+  updateNetworks();
+
+  function updateNetworks() {
+    var M_ids = ["clusterLabels"]
+    for (Mn=0 ; Mn <= M_ids.length; Mn++) {
+      // var $mat = $("#" + M_ids[Mn] + "_" + i);
+      var $mat = $("#" + M_ids[Mn]);
+      var value = $mat.val();
+      var name = $mat.find('option:selected').text();
+      // console.log("value, name", value, name);
+      $mat.empty();
+      $mat.append("<option value=\"\" disabled selected>" + name + "</option>");
+      // $mat.append("<option value=\"" + value + "\" disabled selected>" + name + "</option>");
+      // if (value != null)
+      updateNetworkNamesInList($mat);
+      // $mat.value = value;
+      $mat.val(value);
+    }
+  }
+
+  
+  function isThereInputErrors(net1, net2, task_name, k_values) {
+    if (net1.length == 0) {
+      vexErrorAlert("Please select relationship networks");
+      return true;
+    }
+    if (net2.length == 0) {
+      vexErrorAlert("Please select contraint networks");
+      return true;
+    }
+    if (k_values.length == 0) {
+      vexErrorAlert("K values cannot be empty");
+      return true;
+    }
+    if (task_name.length == 0) {
+      vexErrorAlert("Task name cannot be empty");
+      return true;
+    }
+    return false;
+  }
+  
+
+  function submitClustersTask() {
+    var fd = new FormData();
+    var net_names = [];
+    for (let i = 0; i < networkFiles.length; i++) {
+      fd.append(networkFiles[i][0], new Blob([networkFiles[i][1]]), "File" + i);
+      net_names.push(networkFiles[i][0])
+    }
+    
+    var facts = [];
+    for (let i = 0; i < _counter; i++) {
+      var fact = {
+        "factType": $("#factType_" + i).val(),
+        "initType": $("#initType_" + i).val(),
+      };
+      if ($("#M0_" + i).val())
+        fact["M0"] = networkFiles[$("#M0_" + i).val()][0]
+      facts.push(fact)
+    }
+
+    var data = {
+      'facts': facts,
+      'task_name': $taskName.val(),
+      'setup': _setup,
+      'net_names': net_names
+    };
+    fd.append("data", JSON.stringify(data))
+
+    Pace.track(function () {
+      $.ajax({
+        url: '/DataFusion/analyse',
+        type: 'POST',
+        data: fd,
+        // async: false,
+        processData: false,  // tell jQuery not to process the data
+        contentType: false,  // tell jQuery not to set contentType
+        success: function (data) {
+          successAlert(data);
+          refreshRunningTasks();
+        },
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          console.log('ERRORS: ' + textStatus);
+          errorAlert("Error occurred while computing pairwise analysis: " + xhr.responseText);
+        }
+      });
+    });
+  }
+
+
+  function computeClusters() {
+    var cluster_fact = $("#clusterFact").val();
+    if (cluster_fact == 0) {
+      vexErrorAlert("You should select a factor to cluster.");
+      return;
+    }
+    // -----
+    var fd = new FormData();
+    var read = new FileReader();
+    if(document.getElementById("clusters_entitylist_file").value == "") {
+      vexErrorAlert("You should select an entity list file to compute clusters.");
+      return;
+    } else if (clusters_entitylist_file.name.includes(".edgelist") || clusters_entitylist_file.name.includes(".csv")) {
+      console.log("readAsText:" + clusters_entitylist_file.name);
+      read.readAsText(clusters_entitylist_file);
+    } else{
+      console.log("readAsArrayBuffer:" + clusters_entitylist_file.name);
+      // read.readAsBinaryString(files[i]);
+      read.readAsArrayBuffer(clusters_entitylist_file);
+    }
+    read.onloadend = function () {
+      console.log('read.onloadend for file: ' + clusters_entitylist_file.name);
+      // -----
+      fd.append("clusters_entitylist_file", new Blob([read.result]), "File0");
+      // -----
+      var data = {
+        'cluster_fact': cluster_fact,
+        'task_dir': "{{task.operational_directory}}",
+      };
+      fd.append("data", JSON.stringify(data));
+      // -----
+      Pace.track(function () {
+        $.ajax({
+          url: '/DataFusion/compute_clusters',
+          type: 'POST',
+          // data: {'data': JSON.stringify(data),},
+          data: fd,
+          // async: false,
+          processData: false,  // tell jQuery not to process the data
+          contentType: false,  // tell jQuery not to set contentType
+          success: function (params) {
+            var jsonparams = JSON.parse(params);
+            var msg = jsonparams.msg;
+            var clusters_img = jsonparams['clusters_img'];
+            document.getElementById('clusterImage').setAttribute('src', 'data:image/png;base64,' + clusters_img);
+            $("#clusterImageDiv").fadeIn();
+            // refreshRunningTasks();
+            successAlert(msg);
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            $("#clusterImageDiv").fadeOut();
+          },
+          error: function (xhr, textStatus, errorThrown) {
+              console.log('ERRORS: ' + textStatus);
+              errorAlert("Error occurred while computing the clusters: " + xhr.responseText);
+            }
+        });
+      })
+    }
+  }
+
+
+  function computeEnrichments(selectObject) {
+    var cluster_fact = $("#clusterFact").val();
+    if (cluster_fact == 0) {
+      vexErrorAlert("You should first compute cluster for a factor and then the enrichments.");
+      return;
+    }
+    // -----
+    var fd = new FormData();
+    var read = new FileReader();
+    if(document.getElementById("annotations_file").value == "") {
+      vexErrorAlert("You should select an annotations file to compute enrichments.");
+      return;
+    } else if (annotations_file.name.includes(".edgelist") || annotations_file.name.includes(".csv")) {
+      console.log("readAsText:" + annotations_file.name);
+      read.readAsText(annotations_file);
+    } else{
+      console.log("readAsArrayBuffer:" + annotations_file.name);
+      // read.readAsBinaryString(files[i]);
+      read.readAsArrayBuffer(annotations_file);
+    }
+    read.onloadend = function () {
+      console.log('read.onloadend for file: ' + annotations_file.name);
+      // -----
+      fd.append("annotations", new Blob([read.result]), "File0");
+      // -----
+      var data = {
+          'cluster_fact': cluster_fact,
+          // 'enrichments_anno': enrichments_anno,
+          'task_dir': "{{task.operational_directory}}",
+        };
+      fd.append("data", JSON.stringify(data));
+      // -----
+      Pace.track(function () {
+        $.ajax({
+          url: '/DataFusion/compute_enrichments',
+          type: 'POST',
+          data: fd,
+          // async: false,
+          processData: false,  // tell jQuery not to process the data
+          contentType: false,  // tell jQuery not to set contentType
+          success: function (params) {
+            var jsonparams = JSON.parse(params);
+            var msg = jsonparams.msg;
+            var enrichments_img = jsonparams['enrichments_img'];
+            document.getElementById('enrichmentsImage').setAttribute('src', 'data:image/png;base64,' + enrichments_img);
+            $("#enrichmentsImageDiv").fadeIn();
+            // refreshRunningTasks();
+            successAlert(msg);
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            $("#enrichmentsImageDiv").fadeOut();
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.log('ERRORS: ' + textStatus);
+            errorAlert("Error occurred while computing the enrichments: " + xhr.responseText);
+          }
+        });
+      })
+    }  
+  }
+
+
+  function computeICell() {
+    console.log('computeICell');
+    // 
+    var icell_fact = $("#iCellFact").val();
+    if (icell_fact == 0) {
+      vexErrorAlert("You should select a factor to compute the iCell.");
+      return;
+    }
+    //
+    var fd = new FormData();
+    var read = new FileReader();
+
+    if (icell_entitylist_file.name.includes(".edgelist") || icell_entitylist_file.name.includes(".csv")) {
+      console.log("readAsText");
+      read.readAsText(icell_entitylist_file);
+    } else{
+      console.log("readAsArrayBuffer");
+      // read.readAsBinaryString(files[i]);
+      read.readAsArrayBuffer(icell_entitylist_file);
+    }
+
+    read.onloadend = function () {
+      console.log('read.onloadend for file: ' + icell_entitylist_file.name);
+      // -----
+      fd.append("genelist", new Blob([read.result]), "File0");
+      // -----
+      var data = {
+        'icell_fact': icell_fact,
+        'task_dir': "{{task.operational_directory}}",
+        };
+      // list.find(":selected").each(function (i, selected) {
+      //   data.gdv_tasks.push($(selected).val());
+      // });
+      // -----
+      // console.log('data.gdv_tasks: ' + data.gdv_tasks);
+      // if (data.gdv_tasks.length <= 1) {
+      //   vexErrorAlert("Please select at least 2 GDVs to compute similarity");
+      //   return;
+      // }
+      fd.append("data", JSON.stringify(data));
+      // -----
+      Pace.track(function () {
+        $.ajax({
+          url: '/DataFusion/compute_icell',
+          type: 'POST',
+          data: fd,
+          // async: false,
+          processData: false,  // tell jQuery not to process the data
+          contentType: false,  // tell jQuery not to set contentType
+          success: function (params) {
+            console.log('success');
+            var jsonparams = JSON.parse(params);
+            var msg = jsonparams.msg;
+            // var gdv_sims = jsonparams.gdv_sims;
+            // var $tableGdvSims = $("#gdv_similarity_body");
+            // $tableGdvSims.empty();
+            // for (var i in gdv_sims) {
+            //   $tableGdvSims.append("<tr><td>" + gdv_sims[i][0] + 
+            //     // " <a href=\"https://www.proteinatlas.org/ENSG00000141510-TP53/pathology\" target=\"_blank\">(link to HPA)</a>" + 
+            //     "</td><td>" + gdv_sims[i][1] + "</td></tr>")
+            // }
+            successAlert(msg);
+            $("#iCellResultDiv").fadeIn();
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            $("#iCellResultDiv").fadeOut();
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.log('ERRORS: ' + textStatus);
+            errorAlert("Error occurred while computing gdv similarity: " + xhr.responseText);
+          }
+        });
+      });
+    }
+  }
+
+  var clusters_entitylist_file;
+  $("#clusters_entitylist_file").on('change', function () {
+    clusters_entitylist_file = this.files[0];
+    if (clusters_entitylist_file.size > 10000000) {
+      alert('max upload size is 1MB');
+    } else {
+      // Also see .name, .type
+      console.log('clusters_entitylist_file loaded: ' + clusters_entitylist_file.name);
+    }
+  });
+
+  var annotations_file;
+  $("#annotations_file").on('change', function () {
+    annotations_file = this.files[0];
+    if (annotations_file.size > 10000000) {
+      alert('max upload size is 1MB');
+    } else {
+      // Also see .name, .type
+      console.log('annotations_file loaded: ' + annotations_file.name);
+    }
+  });
+
+  var icell_entitylist_file;
+  $('#icell_entitylist_file').on('change', function () {
+    icell_entitylist_file = this.files[0];
+    if (icell_entitylist_file.size > 10000000) {
+      alert('max upload size is 1MB');
+    } else {
+      // Also see .name, .type
+      console.log('icell_entitylist_file loaded: ' + icell_entitylist_file.name);
+    }
+  });
+
+</script>

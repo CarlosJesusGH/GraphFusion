@@ -1,0 +1,138 @@
+{% load AddCSSToTemplatesTag %}
+{% load static %}
+<div class="row">
+  <div class="col-md-9">
+    <h3 style="color: #444444">User Profile</h3>
+  </div>
+  <div class="col-md-1">
+    <br>
+
+    <div class="row pull-right">
+      <a id="editButton" class="btn btn-success" onclick="editProfile();">
+        <i class="fa fa-pencil fa-lg"></i> Edit</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="col-md-2" style="padding-top:10px;">
+  <div class="row">
+    <br>
+    <img src="{% static 'media/images.jpeg' %}" style="width: 100%; border-radius: 10px;">
+  </div>
+</div>
+<div class="col-md-8">
+  <form id="profileForm" class="form-horizontal">
+    <fieldset>
+      <br>
+      {% csrf_token %}
+      {{ profile.non_field_errors }}
+      <div class="row">
+        <label class="col-sm-4 control-label" id="firstNameLabel" for="firstNameGroup">First Name</label>
+
+        <div class="has-feedback" id="firstNameGroup">
+          <div class="col-sm-8">
+            {{ profile.first_name|addcss:'class:form-control,aria-describedby:firstNameLabel,readOnly:True' }}
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <br>
+        <label class="col-sm-4 control-label" id="lastNameLabel" for="lastNameGroup">Last Name</label>
+
+        <div class="has-feedback" id="lastNameGroup">
+          <div class="col-sm-8">
+            {{ profile.last_name|addcss:'class:form-control,aria-describedby:lastNameLabel,readOnly:True' }}
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <br>
+        <label class="col-sm-4 control-label" id="emailLabel" for="emailGroup">Email</label>
+
+        <div class="has-feedback" id="emailGroup">
+          <div class="col-sm-8">
+            {{ profile.email|addcss:'class:form-control,aria-describedby:emailLabel,readOnly:True' }}
+          </div>
+        </div>
+      </div>
+
+      <br>
+
+      <div class="row">
+        <br>
+        <label class="col-sm-4 control-label" id="currentPasswordLabel" for="passwordGroup">Current Password</label>
+
+        <div class="has-feedback" id="currentPasswordGroup">
+          <div class="col-sm-8">
+            {{ profile.old_password|addcss:'class:form-control,aria-describedby:currentPasswordLabel,readOnly:True' }}
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <br>
+        <label class="col-sm-4 control-label" id="newPasswordLabel" for="newPasswordGroup">New Password</label>
+
+        <div class="has-feedback" id="newPasswordGroup">
+          <div class="col-sm-8">
+            {{ profile.new_password|addcss:'class:form-control,aria-describedby:newPasswordLabel,readOnly:True' }}
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <br>
+        <label class="col-sm-4 control-label" id="repNewPasswordLabel" for="repNewPasswordGroup">Repeat
+          Password</label>
+
+        <div class="has-feedback" id="repNewPasswordGroup">
+          <div class="col-sm-8">
+            {{ profile.repeat_new_password|addcss:'class:form-control,aria-describedby:repNewPasswordLabel,readOnly:True' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <br>
+        <!-- Button -->
+        <div class="col-sm-offset-4 col-sm-2">
+          <button id="updateProfileBtn" class="btn btn-success"
+                  onclick="sendProfileForm();return false;">
+            Update Profile
+          </button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+<script>
+  var firstName = $("#id_first_name");
+  var lastName = $('#id_last_name');
+  var email = $('#id_email');
+  var pass = $('#id_old_password');
+  var newPass = $('#id_new_password');
+  var repNewPass = $('#id_repeat_new_password');
+  var updateProfileButton = $('#updateProfileBtn');
+  var editButton = $('#editButton');
+
+  function sendProfileForm() {
+    postForm($('#profileForm'), 'Profile/update-profile', 'Profile Successfully Updated',
+        'Error Occurred while updating profile. ');
+    navigateTo('/Profile/');
+  }
+
+  updateProfileButton.hide();
+  function editProfile() {
+    setReadOnlyToFalse(firstName);
+    setReadOnlyToFalse(lastName);
+    setReadOnlyToFalse(email);
+    setReadOnlyToFalse(pass);
+    setReadOnlyToFalse(newPass);
+    setReadOnlyToFalse(repNewPass);
+    editButton.hide();
+    updateProfileButton.show();
+  }
+
+  function setReadOnlyToFalse(div) {
+    div.prop('readOnly', false);
+  }
+</script>

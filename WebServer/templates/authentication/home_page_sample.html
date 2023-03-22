@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+{% load AddCSSToTemplatesTag %}
+{% load staticfiles %}
+{% block CUSTOM_IMPORTS %}
+  <link href="{% static "css/landing-page.css" %}" rel="stylesheet">
+  <style>
+    body {
+      background-color: rgba(255, 255, 0, 0.0980392);
+    }
+  </style>
+{% endblock %}
+{% block ANGULAR_JS_FILES %}
+  <script type="text/javascript" src="{% static "js/angularjsControllers/loginForm.js" %}"></script>
+{% endblock %}
+{% block NAVBAR_DROP_DOWN %}
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav navbar-right nav-bar-top-right-menu">
+      {#      <li>#}
+      {#        <a class="nav-bar-top-right-menu-item" href="#">About</a>#}
+      {#      </li>#}
+      {#      <li>#}
+      {#        <a class="nav-bar-top-right-menu-item" href="#">Services</a>#}
+      {#      </li>#}
+      <li>
+        <a class=" nav-bar-top-right-menu-item" href="/contact/">Contact</a>
+      </li>
+      <li class="dropdown">
+        {% if is_logged_in %}
+          <a class="nav-bar-top-right-menu-item change-to-hand-on-hover dropdown-toggle" href="/dashboard/"
+             data-toggle="modal">Dashboard</a>
+        {% else %}
+          <a class="nav-bar-top-right-menu-item change-to-hand-on-hover dropdown-toggle" href="#loginModalSmall"
+             data-toggle="modal">{% if register_enabled %} Login/Register {% else %} Login {% endif %}</a>
+        {% endif %}
+      </li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block MAIN_CONTENT %}
+  {% block MIDDLE_CONTENT %}
+  {% endblock %}
+  <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="loginModalSmall"
+       aria-hidden="true" id="loginModalSmall">
+    <div class="modal-dialog modal-sm" style="z-index: 1050; width: 50%">
+      <div class="modal-content" style="padding: 10px;">
+        <div class="row">
+          <div class="col-lg-offset-5 col-lg-2"><h2>Login</h2></div>
+          <div class="col-lg-offset-4 col-lg-1" style="right: 10px; padding: 10px; padding-top: 0;">
+            {#            <a class="btn btn-danger" data-dismiss="modal">#}
+            {#              <i class="fa fa-times fa-lg"></i> Close</a>#}
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                    style="font-size: 40px;"><span
+                aria-hidden="true">&times;</span></button>
+          </div>
+        </div>
+
+        <br>
+
+        {#          <div class="well">#}
+        {% if register_enabled %}
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#login" data-toggle="tab">Login</a></li>
+            <li><a href="#createAccount" data-toggle="tab">Register</a></li>
+          </ul>
+        {% endif %}
+        <div id="myTabContent" class="tab-content">
+          <div class="tab-pane active in" id="login">
+            <div ng-controller="loginFormCtrl">
+              <form class="form-horizontal" action='/authenticate/'
+                  {# onsubmit="return validateLoginForm()" #}
+                    method="POST">
+                <br>
+                {% csrf_token %}
+                {{ login_form.non_field_errors }}
+                <div class="form-group has-error has-feedback">
+                  <label id="loginErrText" class="col-sm-offset-3 col-sm-5 control-label"
+                         style="text-align: left">
+                    <span ng-bind="loginMessage()">{% if error_text %}{{ error_text }}{% endif %}</span>
+                  </label>
+                </div>
+                <div class="form-group">
+                  <!-- Username -->
+                  {{ login_form.username.errors }}
+                  <label class="col-sm-3 control-label" for="username">Username</label>
+
+                  <div class="" id="loginUsernameGroup">
+                    <div class="col-sm-8">
+                      {{ login_form.username|addcss:'class:form-control,placeholder:Username,ng-model:username' }}
+                      <span id="loginUsernameStatusIcon" class="" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <!-- Password-->
+                  {{ login_form.password.errors }}
+                  <label class="col-sm-3 control-label" for="password">Password</label>
+
+                  <div class="" id="loginPasswordGroup">
+                    <div class="col-sm-8">
+                      {{ login_form.password|addcss:'class:form-control,placeholder:Password,ng-model:password' }}
+                      <span id="loginPasswordStatusIcon" class="" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <!-- Button -->
+                  <div class="col-sm-offset-3 col-sm-8">
+                    <button class="btn btn-success" value="Submit" id="loginBtn">Login</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          {% if register_enabled %}
+            <div id="createAccount" class="tab-pane fade">
+              <form class="form-horizontal" action='/register/' method="POST">
+                {% csrf_token %}
+                {{ register_form.non_field_errors }}
+                <div class="form-group">
+                  <br>
+                  {{ register_form.reg_username.errors }}
+                  <label class="col-sm-3 control-label" for="username">Username</label>
+
+                  <div class="has-feedback" id="reg_username_group">
+                    <div class="col-sm-4">
+                      {{ register_form.username|addcss:'form-control,placeholder:Minimum 6 characters,aria-describedby:usernameStatus' }}
+                      <span id="usernameStatusIcon" class="" aria-hidden="true"></span>
+                    </div>
+                    <label class="col-sm-4 control-label" style="text-align:left" id="user_ok">
+                      Username is available!
+                    </label>
+                    <label class="col-sm-4 control-label" style="text-align:left" id="user_not_valid">
+                      Username should be at least 6 characters!
+                    </label>
+                    <label class="col-sm-4 control-label" style="text-align:left" id="user_taken">
+                      Username is taken.
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  {{ register_form.first_name.errors }}
+                  <label class="col-sm-3 control-label" for="firstName">First Name</label>
+
+                  <div id="reg_firstName_group" class="">
+                    <div class="col-sm-4">
+                      {{ register_form.firstName|addcss:'class:form-control,placeholder:First Name' }}
+                      <span id="firstNameStatusIcon" class="" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  {{ register_form.last_name.errors }}
+                  <label class="col-sm-3 control-label" for="lastName">Last Name</label>
+
+                  <div id="reg_lastName_group" class="">
+                    <div class="col-sm-4">
+                      {{ register_form.lastName|addcss:'class:form-control,placeholder:Last Name' }}
+                      <span id="lastNameStatusIcon" class="" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  {{ register_form.email.errors }}
+                  <label class="col-sm-3 control-label" for="email">E-mail</label>
+
+                  <div class="" id="reg_email_group">
+                    <div class="col-sm-4">
+                      {{ register_form.email|addcss:'class:form-control,placeholder:Email' }}
+                      <span id="emailStatusIcon" class="" aria-hidden="true"></span>
+                    </div>
+                    <label class="col-sm-4 control-label" style="text-align:left" id="emailText"></label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  {{ register_form.password.errors }}
+                  <label class="col-sm-3 control-label" for="password">Password</label>
+
+                  <div class="" id="reg_password_group">
+                    <div class="col-sm-4">
+                      {{ register_form.password|addcss:'class:form-control,placeholder:Minimum 6 characters' }}
+                      <span id="passwordStatusIcon" class="" aria-hidden="true"></span>
+                    </div>
+                    <label class="col-sm-4 control-label" style="text-align:left"
+                           id="divCheckPasswordValid"></label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  {{ register_form.repeatPassword.errors }}
+                  <label class="col-sm-3 control-label" for="passwordconf">Re-enter your
+                    password</label>
+
+                  <div id="reg_passwordConf_group" class="">
+                    <div class="col-sm-4">
+                      {{ register_form.repeatPassword|addcss:'class:form-control,placeholder:Repeat Password,required:' }}
+                      <span id="repPasswordStatusIcon" class="" aria-hidden="true"></span>
+                    </div>
+                    <label class="col-sm-4 control-label" style="text-align:left"
+                           id="divCheckPasswordMatch"></label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <!-- Button -->
+                  <div class="col-sm-offset-3 col-sm-8">
+                    <button id="registerBtn" class="btn btn-success" value="Submit">Register</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $('#user_ok').hide();
+    $('#user_taken').hide();
+    $('#user_not_valid').hide();
+
+    //Status icons
+    var userStatusIcon = $('#usernameStatusIcon');
+    var firstNameStatusIcon = $('#firstNameStatusIcon');
+    var lastNameStatusIcon = $('#lastNameStatusIcon');
+    var emailStatusIcon = $('#emailStatusIcon');
+    var passwordStatusIcon = $('#passwordStatusIcon');
+    var repPasswordStatusIcon = $('#repPasswordStatusIcon');
+    var loginUsernameStatusIcon = $('#loginUsernameStatusIcon');
+    var loginPasswordStatusIcon = $('#loginPasswordStatusIcon');
+
+
+    var user = $('#id_reg-username');
+    var email = $('#id_reg-email');
+    var firstName = $('#id_reg-firstName');
+    var lastName = $('#id_reg-lastName');
+    var password = $('#id_reg-password');
+    var repPass = $('#id_reg-repeatPassword');
+    var submit = $('#registerBtn');
+    var loginBtn = $('#loginBtn');
+
+    //Input groups
+    var user_group = $('#reg_username_group');
+    var firstName_group = $('#reg_firstName_group');
+    var lastName_group = $('#reg_lastName_group');
+    var email_group = $('#reg_email_group');
+    var password_group = $('#reg_password_group');
+    var password_conf_group = $('#reg_passwordConf_group');
+    var loginUsernameGroup = $('#loginUsernameGroup');
+    var loginPasswordGroup = $('#loginPasswordGroup');
+
+    var csrftoken = getCsrfToken();
+
+    var emailBoolean = false, pwBoolean = false, usernameBool = false, firstNameBool = false, lastNameBool = false;
+
+    user.blur(checkUserNotTaken);
+    firstName.blur(validateFirstName);
+    lastName.blur(validateLastName);
+    email.blur(checkEmailValid);
+    password.blur(checkPassword);
+    repPass.blur(checkRepeatPassword);
+    setSubmitButton();
+
+    function validateLoginForm() {
+      var loginErrText = $('#loginErrText');
+      if (loginUsername.val().length == 0) {
+        setErrorIcon(loginUsernameStatusIcon);
+        setErrorClass(loginUsernameGroup);
+        loginErrText.text("Please enter username.");
+        return false;
+      } else if (loginPassword.val().length == 0) {
+        setErrorIcon(loginPasswordStatusIcon);
+        setErrorClass(loginPasswordGroup);
+        loginErrText.text("Please enter password.");
+        return false;
+      } else {
+        setEmptyIcon(loginUsernameStatusIcon);
+        setEmptyIcon(loginPasswordStatusIcon);
+        setEmptyClass(loginUsernameGroup);
+        setEmptyClass(loginPasswordGroup);
+        loginErrText.text("");
+        return true;
+      }
+    }
+
+    function checkPassword() {
+      var passText = $('#divCheckPasswordValid');
+      if (password.val().length < 6) {
+        setErrorIcon(passwordStatusIcon);
+        setErrorClass(password_group);
+        pwBoolean = false;
+        setSubmitButton();
+        passText.text("Password should be at least 6 characters.")
+      } else {
+        setSuccessClass(password_group);
+        setSuccessIcon(passwordStatusIcon);
+        pwBoolean = true;
+        setSubmitButton();
+        passText.text("");
+      }
+    }
+
+    function checkRepeatPassword() {
+      var passText = $('#divCheckPasswordMatch');
+      if (repPass.val().length < 6 || repPass.val() != password.val()) {
+        setErrorIcon(repPasswordStatusIcon);
+        setErrorClass(password_conf_group);
+        pwBoolean = false;
+        setSubmitButton();
+        passText.text("Passwords do not match");
+      } else {
+        setSuccessClass(password_conf_group);
+        setSuccessIcon(repPasswordStatusIcon);
+        pwBoolean = true;
+        setSubmitButton();
+        passText.text("");
+      }
+    }
+
+    function validateFirstName() {
+      if (firstName.val().length == 0) {
+        setErrorClass(firstName_group);
+        setErrorIcon(firstNameStatusIcon);
+        firstNameBool = false;
+        setSubmitButton();
+      } else {
+        setSuccessClass(firstName_group);
+        setSuccessIcon(firstNameStatusIcon);
+        firstNameBool = true;
+        setSubmitButton();
+      }
+    }
+
+    function validateLastName() {
+      if (lastName.val().length == 0) {
+        setErrorClass(lastName_group);
+        setErrorIcon(lastNameStatusIcon);
+        lastNameBool = false;
+        setSubmitButton();
+      } else {
+        setSuccessClass(lastName_group);
+        setSuccessIcon(lastNameStatusIcon);
+        lastNameBool = true;
+        setSubmitButton();
+      }
+    }
+
+    function checkEmailValid() {
+      var emailVal = email.val();
+      var text = $("#emailText");
+      if (emailVal.length == 0 || !validateEmail(emailVal)) {
+        text.text("Please enter a valid e-mail address.");
+        setErrorIcon(emailStatusIcon);
+        setErrorClass(email_group);
+        emailBoolean = false;
+        setSubmitButton();
+      } else {
+        text.text("");
+        setSuccessIcon(emailStatusIcon);
+        setSuccessClass(email_group);
+        emailBoolean = true;
+        setSubmitButton();
+      }
+    }
+
+    function checkUserNotTaken() {
+      if (user.val().length < 2) {
+        setErrorIcon(userStatusIcon);
+        setErrorClass(user_group);
+        $('#user_ok').hide();
+        $('#user_taken').hide();
+        $('#user_not_valid').show();
+        usernameBool = false;
+        setSubmitButton();
+      } else {
+        check_username_exists(updateUserNameCheck);
+      }
+    }
+
+    function updateUserNameCheck(response) {
+      if (response == "yes") {
+        setErrorClass(user_group);
+        setErrorIcon(userStatusIcon);
+        $('#user_ok').hide();
+        $('#user_not_valid').hide();
+        $('#user_taken').fadeIn();
+        usernameBool = false;
+      } else if (response == "no") {
+        setSuccessClass(user_group);
+        setSuccessIcon(userStatusIcon);
+        $('#user_taken').hide();
+        $('#user_not_valid').hide();
+        $('#user_ok').fadeIn();
+        usernameBool = true;
+      }
+      setSubmitButton();
+    }
+
+    function check_username_exists(callback) {
+      $.ajax({
+        type: 'POST',
+        url: '/check-username/',
+        data: {
+          'username': user.val()
+        },
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        },
+        success: function (response) {
+          callback(response);
+        }
+      });
+    }
+
+    function setSubmitButton() {
+      submit.attr('disabled', !(
+          emailBoolean
+          && firstNameBool
+          && lastNameBool
+          && usernameBool
+          && pwBoolean)
+      );
+    }
+  </script>
+  {% if error_text %}
+    <script>
+
+      var loginModalSmall = $('#loginModalSmall');
+      loginModalSmall.modal('show');
+      shakeDiv(loginModalSmall);
+
+      function shakeDiv(targetDiv) {
+        targetDiv.attr('class', 'modal shake animated');
+        setTimeout(function () {
+          targetDiv.attr('class', 'modal');
+        }, 5000);
+      }
+    </script>
+  {% endif %}
+{% endblock %}

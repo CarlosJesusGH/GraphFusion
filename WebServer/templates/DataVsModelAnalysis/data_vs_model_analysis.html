@@ -1,0 +1,180 @@
+{% extends 'base_result_and_analysis_template.html' %}
+
+{% block ANALYSIS_TAB %}
+  <div class="row-fluid">
+    {% csrf_token %}
+    <h5>Please select network with models to perform Network Vs Model analysis</h5>
+  </div>
+
+  <div class="row-fluid" style="padding:5px;">
+    <div class="row-fluid">
+      <form class="form-horizontal">
+        <fieldset>
+          <div class="form-group">
+            <div class="col-lg-12">
+              <div class="col-lg-4">
+                <label class="control-label">Network</label>
+              </div>
+              <div class="col-sm-1">
+              </div>
+              <div class="col-lg-6">
+                <label class="control-label">Model(Please select number of models)</label>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="col-lg-4">
+                <select id="networkNamesList1" class="form-control">
+                </select>
+              </div>
+              <div class="col-sm-1">
+              </div>
+              <div class="col-lg-6">
+                <fieldset id="modelsCheckbox">
+                  {% for code, name in models %}
+                    <div class="checkbox row">
+                      <input class="checkboxModel" id="checkboxModel{{ code }}" type="checkbox" value="{{ code }}"/>
+                      <input id="numberOfModels{{ code }}" type="number" min="1" value="1" max="20" step="1">
+                      ({{ code }})-{{ name }}
+                    </div>
+                  {% endfor %}
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="distancesOptions">Select Distances</label>
+            </div>
+            <div class="col-lg-8">
+              <select id="distancesOptions" class="form-control" multiple="multiple">
+                {% for code, name in distances %}
+                  <option value="{{ code }}">{{ name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="taskNameInput">Task Name</label>
+            </div>
+            <div class="col-lg-5">
+              <input class="form-control" id="taskNameInput" type="text">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-lg-12">
+              <br>
+
+              <div class="col-lg-2">
+                <button class="btn btn-success" onclick="sendNetworksForAnalysis();return false;"
+                        id="analyseButton">Submit Analysis
+                </button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <script>
+    var $networkNamesList1 = $('#networkNamesList1');
+    var $networkNamesList2 = $('#networkNamesList2');
+    var $taskName = $("#taskNameInput");
+    var $modelsFieldSet = $("#modelsCheckbox");
+    var $distancesOptions = $("#distancesOptions");
+
+    $distancesOptions.multiselect({
+      includeSelectAllOption: true,
+      numberDisplayed: 0
+    });
+    $distancesOptions.multiselect('selectAll', false);
+    $distancesOptions.multiselect('updateButtonText');
+
+    updateNetworks();
+
+    function getAllSelectedDistances() {
+      var options = [];
+      $distancesOptions.find("option:selected").each(function () {
+        options.push($(this).val());
+      });
+      return options;
+    }
+
+    function updateNetworks() {
+      $networkNamesList1.empty();
+      updateNetworkNamesInList($networkNamesList1);
+      $networkNamesList2.empty();
+      updateNetworkNamesInList($networkNamesList2);
+    }
+
+    function getAllModelsForComputation() {
+      var selectedModels = [];
+      $modelsFieldSet.find('.checkboxModel:checked').each(function () {
+        var val = jQuery(this).val();
+        selectedModels.push([val, $("#numberOfModels" + val).val()]);
+      });
+      return selectedModels;
+    }
+
+    function runInputChecks(net1, models, distances, task_name) {
+      if (net1.length == 0) {
+        vexErrorAlert("Please select a network. You do not have any networks loaded, please load network.");
+        return false;
+      }
+      if (models.length == 0) {
+        vexErrorAlert("You need to select at least one model to be abel to run this analysis.");
+        return false;
+      }
+      if (distances.length == 0) {
+        vexErrorAlert("Please select at least one distance to compare network with a model.");
+        return false;
+      }
+      if (task_name.length == 0) {
+        vexErrorAlert("Task name cannot be empty. Please enter name for the task.");
+        return false;
+      }
+      return true;
+    }
+    function sendNetworksForAnalysis() {
+      var net1 = [];
+      var models = getAllModelsForComputation();
+      var distances = getAllSelectedDistances();
+      var task_name = $taskName.val();
+      $networkNamesList1.find(":selected").each(function (i, selected) {
+        net1.push(networkFiles[$(selected).val()]);
+      });
+
+      if (!runInputChecks(net1, models, distances, task_name))
+        return;
+      $.ajax({
+        url: '/DataVsModel/analyse/',
+        type: 'POST',
+        data: {
+          'networks': JSON.stringify(net1),
+          'name': task_name,
+          'models': JSON.stringify(models),
+          'distances': JSON.stringify(distances)
+        },
+        success: function (data) {
+          successAlert(data);
+        },
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          console.log('ERRORS: ' + textStatus);
+          errorAlert("Error occurred while computing pairwise analysis: " + xhr.responseText);
+        }
+      });
+      refreshRunningTasks();
+    }
+  </script>
+{% endblock %}
+
+{% block ANALYSIS_TAB_HEADING %}
+  Data Vs Model Analysis
+{% endblock %}
+
+{% block TITLE %}
+  Data Vs Model Analysis
+{% endblock %}

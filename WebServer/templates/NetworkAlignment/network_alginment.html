@@ -1,0 +1,242 @@
+{% extends 'base_result_and_analysis_template.html' %}
+
+{% block ANALYSIS_TAB %}
+  {% csrf_token %}
+  <h5>Select Networks from list below to submit a network alignment task</h5>
+  <div class="row" style="padding:5px;">
+    <div class="col-sm-10">
+      <form class="form-horizontal">
+        <fieldset>
+          <div class="form-group">
+            <div class="col-lg-5">
+              <label class="control-label" for="networkNamesList1">Network 1</label>
+            </div>
+            <div class="col-sm-1">
+            </div>
+            <div class="col-lg-5">
+              <label class="control-label" for="networkNamesList2">Network 2</label>
+            </div>
+            <div class="col-lg-5">
+              <select id="networkNamesList1" class="form-control">
+              </select>
+            </div>
+            <div class="col-sm-1">
+              <h4>Vs</h4>
+            </div>
+            <div class="col-lg-5">
+              <select id="networkNamesList2" class="form-control">
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-md-3">
+              <label class="form-label" for="algorithmSelection">Algorithm</label>
+            </div>
+            <div class="col-md-6">
+              <select id="algorithmSelection" class="form-control">
+                <option value="error">--select--</option>
+                <option value="graal">GRAAL</option>
+                <option value="mi-graal">MI-GRAAL</option>
+                <option value="l-graal">L-GRAAL</option>
+              </select>
+            </div>
+          </div>
+          <div id="graal-options">
+            <div class="form-group">
+              <div class="col-lg-3">
+                <label class="control-label" for="alphaInput">Alpha</label>
+              </div>
+              <div class="col-lg-6">
+                <input id="alphaInput" type="number" min="0" value="0" max="1" step="0.1">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-lg-3">
+                <label class="control-label" for="seedValue">Seed Value</label>
+              </div>
+              <div class="col-lg-6">
+                <input id="seedValue" type="number">
+              </div>
+            </div>
+          </div>
+
+          <div id="mi-graal-options" class="form-group">
+            <div class="col-md-3">
+              <label class="form-label" for="costMatrixSelection">Cost Matrix</label>
+            </div>
+            <div class="col-md-6">
+              <select id="costMatrixSelection" class="form-control">
+                <option value="1">Signature Similarities</option>
+                <option value="2">Degrees</option>
+                <option value="4">Clustering Coefficients</option>
+                <option value="8">Eccentricities</option>
+                {#                  <option value="16"></option>#}
+                <option value="32">Betweeness Centralitites</option>
+              </select>
+            </div>
+          </div>
+          <div id="l-graal-options" class="form-group">
+            <div class="col-md-3">
+              <label class="form-label" for="sequenceSimilarityFile">Sequence Similarity File</label>
+            </div>
+            <div class="col-md-6">
+              <input id="sequenceSimilarityFile" type="file"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="taskNameInput">Name</label>
+            </div>
+            <div class="col-lg-6">
+              <input class="form-control" id="taskNameInput" type="text">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-lg-3">
+              <button class="btn btn-success" onclick="submitAlignmentTask();return false;" id="analyseButton">Align
+                Networks
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <script type="text/javascript">
+    var networkNamesList2 = $('#networkNamesList2');
+    var networkNamesList1 = $('#networkNamesList1');
+    var alpha = $('#alphaInput');
+    var taskName = $("#taskNameInput");
+    var graalOptions = $('#graal-options');
+    var miGraalOptions = $('#mi-graal-options');
+    var lGraalOptions = $("#l-graal-options");
+    var sequenceSimilarityFile = $("#sequenceSimilarityFile");
+    var costMatrix = $('#costMatrixSelection');
+    var algorithm = $("#algorithmSelection");
+    var seedValue = $('#seedValue');
+
+    updateNetworks();
+
+    miGraalOptions.hide();
+    graalOptions.hide();
+    lGraalOptions.hide();
+    algorithm.change(displayOptions);
+
+    function displayOptions() {
+      var value = algorithm.val();
+      if (value == "graal") {
+        miGraalOptions.hide();
+        lGraalOptions.hide();
+        graalOptions.fadeIn();
+      } else if (value == "mi-graal") {
+        graalOptions.hide();
+        lGraalOptions.hide();
+        miGraalOptions.fadeIn();
+      }
+      else if (value == "l-graal") {
+        graalOptions.hide();
+        miGraalOptions.hide();
+        lGraalOptions.fadeIn();
+      }
+      else {
+        graalOptions.hide();
+        miGraalOptions.hide();
+        lGraalOptions.hide();
+      }
+    }
+
+    function updateNetworks() {
+      networkNamesList1.empty();
+      networkNamesList2.empty();
+      updateNetworkNamesInList(networkNamesList1);
+      updateNetworkNamesInList(networkNamesList2);
+    }
+
+    function getGraalOptions() {
+      return sendAlignmentTaskToServer([alpha.val(), seedValue.val()]);
+    }
+
+    function getMIGraalOptions() {
+      return sendAlignmentTaskToServer([costMatrix.val()]);
+    }
+
+    function getLGraalOptions() {
+      var f = sequenceSimilarityFile.prop("files")[0];
+      if (f) {
+        var r = new FileReader();
+        r.readAsText(f);
+        r.onload = function (e) {
+          var contents = e.target.result;
+          sendAlignmentTaskToServer([contents]);
+        };
+      } else {
+        vexErrorAlert("Failed to load file");
+      }
+    }
+
+    function checkForInputErrors(task_name, algorithm_name) {
+      if (networkNamesList1.children().length == 0 || networkNamesList2.children().length == 0) {
+        vexErrorAlert("You have not loaded any networks. Please load networks to run alignment task.");
+        return true;
+      }
+      if (algorithm_name === "error") {
+        vexErrorAlert("Please select an algorithm.");
+        return true;
+      }
+      if (task_name === "") {
+        vexErrorAlert("Task name should not be empty.");
+        return true;
+      }
+      return false;
+    }
+    function sendAlignmentTaskToServer(options) {
+      if (checkForInputErrors(taskName.val(), algorithm.val())) return;
+      var data = {'Networks': []};
+      data.Networks.push(networkFiles[networkNamesList1.val()]);
+      data.Networks.push(networkFiles[networkNamesList2.val()]);
+      Pace.track(function () {
+        $.ajax({
+          url: '/alignment/submit-alignment/',
+          type: 'POST',
+          data: {
+            'networks': JSON.stringify(data),
+            'algorithm': algorithm.val(),
+            'options': JSON.stringify(options),
+            'name': taskName.val()
+          },
+          success: function (data) {
+            successAlert("Alignment Task submitted.");
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.log('ERRORS: ' + textStatus);
+            errorAlert("Error occurred while submitting task: " + xhr.responseText);
+          }
+        });
+      });
+      refreshRunningTasks();
+    }
+
+    function submitAlignmentTask() {
+      if (checkForInputErrors(taskName.val(), algorithm.val())) return;
+
+      if (algorithm.val() == "graal") {
+        getGraalOptions()
+      } else if (algorithm.val() == "mi-graal") {
+        getMIGraalOptions()
+      } else if (algorithm.val() == "l-graal") {
+        getLGraalOptions();
+      }
+    }
+  </script>
+{% endblock %}
+
+{% block ANALYSIS_TAB_HEADING %}
+  Alignment
+{% endblock %}
+
+{% block TITLE %}
+  Network Alignment
+{% endblock %}

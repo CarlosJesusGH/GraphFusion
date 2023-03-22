@@ -1,0 +1,722 @@
+{% extends 'base_result_and_analysis_template.html' %}
+
+{% block ANALYSIS_TAB_HEADING %}
+  Data Fusion
+{% endblock %}
+
+{% block TITLE %}
+  <h3>Data Fusion Analysis</h3>
+{% endblock %}
+
+{% block EXTRA_TABS %}
+  <li><a href="#iCellAnalysis" data-target="#iCellAnalysis" data-toggle="tab">iCell Analysis</a></li>
+  <li><a href="#psbAnalysis" data-toggle="tab">PSB Analysis</a></li>
+{% endblock %}
+
+{% block EXTRA_TABS_CONTENT %}
+  <div id="iCellAnalysis" class="tab-pane fade">
+    <!-- <div> <br> iCell </div> -->
+    <div id="div_result_icell_analysis" class="row-fluid" style="padding:5px;">
+    </div>
+  </div>
+  <!-- ----------------------------------------- -->
+  <div id="psbAnalysis" class="tab-pane fade">
+    <!-- { include 'DataFusion/result_psb_analysis.html' } -->
+    <div id="previousResultsPsb" class="tab-pane">
+      <div class="padding-10">
+        <br>
+        <h5>Please select the task to view completion options</h5>
+        <div class="row-fluid">
+          <form class="form-inline">
+            <div class="form-group">
+              <select id="previouslyComputedTasksListPsb" class="form-control col-sm-4" style="min-width: 250px;"/>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                <!-- <button type="button" class="btn btn-default btn-sm">
+                  <span class="btn glyphicon glyphicon-refresh"></span> 
+                </button> -->
+                <button class="btn btn-primary" 
+                        onclick="updateTaskListPsb(); return false;">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                </button>
+                <button class="btn btn-primary"
+                        onclick="processDisplayResultPsb();return false;"
+                        id="analyseButtonPsb">View completion options
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <br>
+        <div id="task_result_psb" class="row-fluid" style="padding:5px;">
+        </div>
+      </div>
+    </div>
+    <div id="task_result_psb" class="row-fluid" style="padding:5px;">
+    </div>
+  </div>
+{% endblock %}
+
+{% block ANALYSIS_TAB %}
+  <div id="propsDiv">
+    <div class="row">
+      <div class="col-lg-8">
+        <h5>Select Networks for running the data fusion analysis</h5>
+      </div>
+      <div class="col-lg-4">
+        <button class="btn btn-primary" onclick="clearFactorizations(); return false;" id="clear">Clear all </button>
+        <button class="btn btn-primary" onclick="setupIcell(); return false;" id="setIcell">as iCell</button>
+        <button class="btn btn-primary" onclick="setupPsb(); return false;" id="setPsb">as PSB</button>
+      </div>
+    </div>
+
+    <!-- ------- end header ------- -->
+
+    <div class="row-fluid" >
+      <div class="row-fluid">
+        <form class="form-horizontal">
+          <fieldset>
+
+            <div style="display: none;">
+              <!-- ------- factorization template ------- -->
+              <div id="fact_template_" class="grid">
+                <!-- ------- 1st row ------- -->
+                <div class="row" data-type="fact_row">  
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="factType" class="form-control" onchange="setFactType(this)">
+                      {% for factorization_id,factorization_type in factorizations %}
+                        <option value="{{ factorization_id }}">{{ factorization_type }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="initType" class="form-control" onchange="setInitType(this)">
+                      {% for factor_init_id,factor_init_type in initializations %}
+                        <option value="{{ factor_init_id }}">{{ factor_init_type }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <!-- ------- 2nd row ------- -->
+                <div class="row" data-type="fact_row">
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="M0" class="form-control">
+                      <option value="" disabled selected>X</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="M1" class="form-control" disabled>
+                      <option value="" disabled selected>F</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="M2" class="form-control" disabled>
+                      <option value="" disabled selected>S</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="M3" class="form-control" disabled>
+                      <option value="" disabled selected>GT</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- ------- 3rd row ------- -->
+                <div class="row" data-type="fact_row">
+                  <div class="col-lg-3" style="display: hidden;"/>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="M1C" class="form-control" >
+                      <option value="" disabled selected>F-constraint</option>
+                    </select>
+                  </div>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <div class="col-lg-12" id="M2Ks">
+                      <div class="col-lg-3">
+                        <label class="control-label" for="kValuesInput">Ks</label>
+                      </div>
+                      <div class="col-lg-9" style="padding:0px;">
+                        <input class="form-control" id="kValuesInput" type="text" placeholder="k1, k2, k3...">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="M3C" class="form-control">
+                      <option value="" disabled selected>GT-constraint</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- ------- 4th row ------- -->
+                <div class="row" data-type="fact_row">
+                  <div class="col-lg-3" style="display: hidden;"/>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="M1S" class="form-control">
+                      {% for factor_sharing_id,factor_sharing_type in factor_sharings %}
+                        <option value="{{ factor_sharing_id }}">{{ factor_sharing_type }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-lg-3" style="display: hidden;"/>
+                  <div class="col-lg-3" data-type="fact_mat">
+                    <select id="M3S" class="form-control">
+                      {% for factor_sharing_id,factor_sharing_type in factor_sharings %}
+                        <option value="{{ factor_sharing_id }}">{{ factor_sharing_type }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <!-- ------- 5th row ------- -->
+                <div class="row" data-type="fact_row">
+                  <div class="col-lg-12" data-type="fact_mat">
+                    <hr style="height:1px;border:none;color:#333;background-color:#333;" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="facts_placeholder">
+            </div>
+
+            <button class="btn btn-success"
+                        onclick="addFactorization(); return false;"
+                        id="add">Add new factorization
+            </button>
+
+            <!-- <button class="btn btn-success"
+                        onclick="addNetworksAuto(); return false;"
+                        id="add_nets">Add nets auto
+            </button> -->
+
+            <div class="form-group" style="display: none;">
+              <div class="col-lg-12">
+                <div class="col-lg-5">
+                  <label class="control-label">Relationship networks</label>
+                </div>
+                <div class="col-sm-1">
+                </div>
+                <div class="col-lg-5">
+                  <label class="control-label">Constraint networks</label>
+                </div>
+              </div>
+              <div class="col-lg-12">
+                <div class="col-lg-5">
+                  <select id="networkNamesList1" multiple class="form-control">
+                  </select>
+                </div>
+                <div class="col-sm-1">
+                  <h4>...</h4>
+                </div>
+                <div class="col-lg-5">
+                  <select id="networkNamesList2" multiple class="form-control">
+                  </select>
+                </div>
+              </div>
+            </div>
+            <!-- ----- -->
+            <div class="col-lg-12 form-group" style="display: none;">
+              <div class="col-lg-3">
+                <label class="control-label" for="kValuesInput">K values (k1, k2, ..., kn)</label>
+              </div>
+              <div class="col-lg-5">
+                <input class="form-control" id="kValuesInput" type="text">
+              </div>
+            </div>
+            <!-- ----- -->
+            <div class="col-lg-12 form-group" style="padding-top: 50px;">
+              <div class="col-lg-3">
+                <input class="form-control" id="max_iter" type="text" placeholder="max iterations (default=100)">  
+              </div>
+              <div class="col-lg-3">
+                <input class="form-control" id="delta_min" type="text" placeholder="min delta (default=10e-6)">  
+              </div>
+            </div>
+            <div class="col-lg-12 form-group">
+              <!-- <div class="col-lg-2">
+                <label class="control-label" for="taskNameInput">Task Name</label>
+              </div> -->
+              <div class="col-lg-3">
+                <input class="form-control" id="taskNameInput" type="text" placeholder="Task Name">
+              </div>
+            </div>
+            <div class="form-group col-lg-12">
+              <div class="col-lg-2">
+                <button class="btn btn-success"
+                        onclick="submitDataFusionTask(); return false;"
+                        id="analyseButton">Submit Data Fusion Analysis
+                </button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- <div id="result" style="padding:5px; width: 100%"></div> -->
+
+  <!-- ---------------------------------------------------- -->
+  
+  <script type="text/javascript">
+    var $networkNamesList1 = $('#networkNamesList1');
+    var $networkNamesList2 = $('#networkNamesList2');
+    var $taskName = $("#taskNameInput");
+    var $kValues = $("#kValuesInput");
+    var _max_iter = "100";
+    var _delta_min = "10e-6";
+    
+    updateNetworks();
+
+    function updateNetworks() {
+      for (i=0 ; i < _counter; i++) {
+        var M_ids = ["M0", "M1", "M1C", "M2", "M3", "M3C"]
+        for (Mn=0 ; Mn <= 5; Mn++) {
+          var $mat = $("#" + M_ids[Mn] + "_" + i);
+          var value = $mat.val();
+          var name = $mat.find('option:selected').text();
+          // console.log("value, name", value, name);
+          $mat.empty();
+          $mat.append("<option value=\"\" disabled selected>" + name + "</option>");
+          // $mat.append("<option value=\"" + value + "\" disabled selected>" + name + "</option>");
+          // if (value != null)
+          updateNetworkNamesInList($mat);
+          // $mat.value = value;
+          $mat.val(value);
+        }
+      }
+    }
+
+    function sendCanonicalAnalysis(data, task_name) {
+      Pace.track(function () {
+        $.ajax({
+          url: '/Canonical/analyse',
+          type: 'POST',
+          data: {
+            'data': JSON.stringify(data),
+            'task_name': task_name,
+            'use_log_scale': $useLogScale.is(":checked") ? "1" : "0"
+          },
+          success: function (data) {
+            refreshRunningTasks();
+            successAlert(data);
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log('ERRORS: ' + textStatus);
+          }
+        });
+      })
+    }
+
+    function isThereInputErrors(net1, net2, task_name, k_values) {
+      if (net1.length == 0) {
+        vexErrorAlert("Please select relationship networks");
+        return true;
+      }
+      if (net2.length == 0) {
+        vexErrorAlert("Please select contraint networks");
+        return true;
+      }
+      if (k_values.length == 0) {
+        vexErrorAlert("K values cannot be empty");
+        return true;
+      }
+      if (task_name.length == 0) {
+        vexErrorAlert("Task name cannot be empty");
+        return true;
+      }
+      return false;
+    }
+    
+    /*
+    function sendDataFusionTaskToServer(options) {
+      // if (checkForInputErrors(taskName.val())) return;
+      var data = {'Networks': []};
+      data.Networks.push(networkFiles[$networkNamesList1.val()]);
+      data.Networks.push(networkFiles[$networkNamesList2.val()]);
+      // Pace.track(function () {
+      //   $.ajax({
+      //     url: '/DataFusion/analyse',
+      //     type: 'POST',
+      //     data: {
+      //       'networks': JSON.stringify(data),
+      //       'algorithm': algorithm.val(),
+      //       'options': JSON.stringify(options),
+      //       'task_name': taskName.val()
+      //     },
+      //     success: function (data) {
+      //       // successAlert("Data Fusion Task submitted.");
+      //       // refreshRunningTasks();
+      //       successAlert(data);
+      //     },
+      //     beforeSend: function (xhr, settings) {
+      //       xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      //     },
+      //     error: function (xhr, textStatus, errorThrown) {
+      //       console.log('ERRORS: ' + textStatus);
+      //       errorAlert("Error occurred while submitting task: " + xhr.responseText);
+      //     }
+      //   });
+      // });
+      // refreshRunningTasks();
+    }
+    */
+
+    function submitDataFusionTask() {
+      var fd = new FormData();
+      var net_names = [];
+      for (let i = 0; i < networkFiles.length; i++) {
+        // fd.append('test_fname', 'test.wav');
+        // fd.append("image", new Blob(["dfasdfasfga"]), "File0");
+        fd.append(networkFiles[i][0], new Blob([networkFiles[i][1]]), "File" + i);
+        net_names.push(networkFiles[i][0])
+      }
+      
+      var facts = [];
+      for (let i = 0; i < _counter; i++) {
+        var fact = {
+          "factType": $("#factType_" + i).val(),
+          "initType": $("#initType_" + i).val(),
+          "counter": i.toString(),
+          // "M0": $("#M0_" + i).val(),
+          // "M1": $("#M1_" + i).val(),
+          // "M1C": $("#M1C_" + i).val(),
+          // "M2": $("#M2_" + i).val(),
+          // "M2Ks": $("#kValuesInput_" + i).val(),
+          // "M3": $("#M3_" + i).val(),
+          // "M3C": $("#M3C_" + i).val(),
+          // -------------------------------
+          // "M0": networkFiles[$("#M0_" + i).val()],
+          // "M1": networkFiles[$("#M1_" + i).val()],
+          // "M1C": networkFiles[$("#M1C_" + i).val()],
+          // "M2": networkFiles[$("#M2_" + i).val()],
+          // "M2Ks": $("#kValuesInput_" + i).val(),
+          // "M3": networkFiles[$("#M3_" + i).val()],
+          // "M3C": networkFiles[$("#M3C_" + i).val()],
+          // -------------------------------
+          // "M0": networkFiles[$("#M0_" + i).val()][0],
+          // "M1": networkFiles[$("#M1_" + i).val()][0],
+          // "M1C": networkFiles[$("#M1C_" + i).val()][0],
+          // "M2": networkFiles[$("#M2_" + i).val()][0],
+          // "M2Ks": $("#kValuesInput_" + i).val(),
+          // "M3": networkFiles[$("#M3_" + i).val()][0],
+          // "M3C": networkFiles[$("#M3C_" + i).val()][0],
+        };
+        if ($("#M0_" + i).val())
+          fact["M0"] = networkFiles[$("#M0_" + i).val()][0]
+        if ($("#M1_" + i).val())
+          fact["M1"] = networkFiles[$("#M1_" + i).val()][0]
+        if ($("#M1C_" + i).val())
+          fact["M1C"] = networkFiles[$("#M1C_" + i).val()][0]
+        if ($("#M1S_" + i).val())
+          fact["M1S"] = $("#M1S_" + i).val()
+        if ($("#M2_" + i).val())
+          fact["M2"] = networkFiles[$("#M2_" + i).val()][0]
+        if ($("#kValuesInput_" + i).val())
+          ks = $("#kValuesInput_" + i).val()
+          ks = ks.replaceAll(',', ' ');
+          ks = ks.replaceAll('  ', ' ');
+          fact["M2Ks"] = ks
+        if ($("#M3_" + i).val())
+          fact["M3"] = networkFiles[$("#M3_" + i).val()][0]
+        if ($("#M3C_" + i).val())
+          fact["M3C"] = networkFiles[$("#M3C_" + i).val()][0]
+        if ($("#M3S_" + i).val())
+          fact["M3S"] = $("#M3S_" + i).val()
+        facts.push(fact)
+      }
+
+      // console.log('_setup: ' + _setup);
+      if ($("#max_iter").val())
+        _max_iter = $("#max_iter").val()
+      if ($("#delta_min").val())
+        _delta_min = $("#delta_min").val()
+
+      var data = {
+        'facts': facts,
+        'task_name': $taskName.val(),
+        'setup': _setup,
+        'net_names': net_names,
+        'max_iter': _max_iter,
+        'delta_min': _delta_min,
+      };
+      fd.append("data", JSON.stringify(data))
+
+      Pace.track(function () {
+        $.ajax({
+          url: '/DataFusion/analyse',
+          type: 'POST',
+          // data: {
+          // //   'data': JSON.stringify(data),
+          //   'task_name': $taskName.val(),
+          //   // 'test_mat': networkFiles[$("#M0_0").val()]
+          //   'test_mat': fd,
+          // },
+          data: fd,
+          // async: false,
+          processData: false,  // tell jQuery not to process the data
+          contentType: false,  // tell jQuery not to set contentType
+          success: function (data) {
+            successAlert(data);
+            refreshRunningTasks();
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.log('ERRORS: ' + textStatus);
+            errorAlert("Error occurred while computing datafusion analysis: " + xhr.responseText);
+          }
+        });
+      });
+      // vexErrorAlert("after Pace.track");
+      // 'test_mat': networkFiles[$("#M0_" + i).val()]
+      // 'test_mat': JSON.stringify(networkFiles[$("#M0_" + i).val()])
+      // 'test_mat': "0"
+      // processData: false,
+    }
+
+    // function addNetworksAuto() {
+    //   console.log("addNetworksAuto()");
+    //   // setUpOnDemandFileUpload(fileInputHtml, submitButton, networkName, networkListUL, fileUploadFormHtml)
+    //   // uploadFile();
+    //   var read = new FileReader();
+    //   for (var i = 0; i < files.length; i++) {
+    //     // read.readAsText(files[i]);
+    //     // read.readAsBinaryString(files[i]);
+    //     read.readAsArrayBuffer(files[i]);
+    //     read.onloadend = function () {
+    //       var name = networkNameBox.val();
+    //       loadNetworkFile(name, read.result);
+    //       fileUploadForm[0].reset();
+    //       updateNetworks();
+    //     }
+    //   }
+    //   // $("#loadNetworkModal").modal('toggle');
+    // }
+
+    var _setup = "";
+    function setupIcell(){
+      // console.log('_setup: ' + _setup);
+      // clear existing factorizations
+      clearFactorizations();
+      // add psb type factorizations
+      addFactorization();
+      addFactorization();
+      addFactorization();
+      // setup factorizations
+      document.getElementById("factType_0").value='SNMTF'
+      document.getElementById("factType_1").value='SNMTF'
+      document.getElementById("factType_2").value='SNMTF'
+      setFactType(document.getElementById("factType_0"));
+      setFactType(document.getElementById("factType_1"));
+      setFactType(document.getElementById("factType_2"));
+      document.getElementById("initType_0").value='random'
+      document.getElementById("initType_1").value='random'
+      document.getElementById("initType_2").value='random'
+      document.getElementById("kValuesInput_0").value='k1'
+      document.getElementById("kValuesInput_1").value='k1'
+      document.getElementById("kValuesInput_2").value='k1'
+      document.getElementById("M3S_0").value='down'
+      document.getElementById("M3S_1").value='updown'
+      document.getElementById("M3S_2").value='up'
+      _setup = "icell";
+    }
+
+    function setupPsb(){
+      // clear existing factorizations
+      clearFactorizations();
+      // add psb type factorizations
+      addFactorization();
+      addFactorization();
+      // setup factorizations
+      document.getElementById("factType_0").value='NMTF'
+      document.getElementById("factType_1").value='NMTF'
+      document.getElementById("initType_0").value='random'
+      document.getElementById("initType_1").value='random'
+      document.getElementById("kValuesInput_0").value='k1, k2'
+      document.getElementById("kValuesInput_1").value='k1, k2'
+      document.getElementById("M3S_0").value='down'
+      document.getElementById("M1S_1").value='up'
+      _setup = "psb";
+    }
+
+    function clearFactorizations(){
+      _setup = "";
+      parent = document.getElementById("facts_placeholder");
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+      _counter = 0;
+    }
+
+    var _counter = 0;
+    function addFactorization() {
+        var oClone = document.getElementById("fact_template_").cloneNode(true);
+        oClone.id += (_counter + "");
+        var oCloneChildren = oClone.childNodes;
+        // console.log("oCloneChildren.length " + oCloneChildren.length);
+        for (i=0 ; i < oCloneChildren.length; i++) {
+          if (oCloneChildren[i].dataset){
+            // console.log(oCloneChildren[i].dataset)
+            if (oCloneChildren[i].dataset.type=="fact_row") {
+              // console.log("fact_row")
+              var oCloneChildren2 = oCloneChildren[i].childNodes;
+              // console.log("oCloneChildren2.length " + oCloneChildren2.length);
+              for (j=0 ; j < oCloneChildren2.length; j++) {
+                if (oCloneChildren2[j].dataset){
+                  if (oCloneChildren2[j].dataset.type=="fact_mat") {
+                    // console.log("oCloneChildren2[j].childNodes[1].id: " + oCloneChildren2[j].childNodes[1].id)
+                    if (oCloneChildren2[j].childNodes[1].id == "M2Ks"){
+                      // console.log("length " + oCloneChildren2[j].childNodes[1].childNodes.length);
+                      oCloneChildren2[j].childNodes[1].childNodes[3].childNodes[1].id += ("_" + _counter);
+                    }
+                    var m_id = oCloneChildren2[j].childNodes[1].id
+                    if (m_id == "M0" || m_id == "M1" || m_id == "M2" || m_id == "M3"){
+                      oCloneChildren2[j].childNodes[1].childNodes[1].innerHTML += ("_" + _counter);
+                    }
+                    oCloneChildren2[j].childNodes[1].id += ("_" + _counter);
+                    oCloneChildren2[j].childNodes[1].dataset.count = _counter;
+                  }
+                }
+              }
+            }
+          }
+        }
+        document.getElementById("facts_placeholder").appendChild(oClone);
+        _counter++;
+        updateNetworks();
+    }
+
+    function setFactType(selectObject) {
+      var value = selectObject.value;  
+      var id = selectObject.id;  
+      var count_id = selectObject.dataset.count
+      // console.log(value);
+      // console.log(id);
+      // console.log(count_id);
+      if (value == "NMF" || value == "SNMTF") {
+        $("#M1_" + count_id).hide();
+        $("#M1C_" + count_id).hide();
+        $("#M1S_" + count_id).hide();
+        $("#M2_" + count_id).fadeIn();
+        // $("#M2Ks_" + count_id).fadeIn();
+      } 
+      else if (value == "SNMF") {
+        $("#M1_" + count_id).hide();
+        $("#M1C_" + count_id).hide();
+        $("#M1S_" + count_id).hide();
+        $("#M2_" + count_id).hide();
+        // $("#M2Ks_" + count_id).hide();
+      }
+      else if (value == "NMTF") {
+        $("#M1_" + count_id).fadeIn();
+        $("#M1C_" + count_id).fadeIn();
+        $("#M1S_" + count_id).fadeIn();
+        $("#M2_" + count_id).fadeIn();
+        // $("#M2Ks_" + count_id).fadeIn();
+      }
+      else {
+        $("#M1_" + count_id).fadeIn();
+        $("#M1C_" + count_id).fadeIn();
+        $("#M1S_" + count_id).fadeIn();
+        $("#M2_" + count_id).fadeIn();
+        // $("#M2Ks_" + count_id).fadeIn();
+      }
+    }
+
+    function setInitType(selectObject) {
+      var value = selectObject.value;  
+      var id = selectObject.id;  
+      var count_id = selectObject.dataset.count
+      // console.log(value);
+      // console.log(id);
+      // console.log(count_id);
+      if (value == "random" || value == "svd") {
+        document.getElementById("M1_" + count_id).disabled = true;
+        // document.getElementById("M1C_" + count_id).disabled = true;
+        document.getElementById("M2_" + count_id).disabled = true;
+        document.getElementById("M3_" + count_id).disabled = true;
+        // document.getElementById("M3C_" + count_id).disabled = true;
+      } 
+      else if (value == "load") {
+        document.getElementById("M1_" + count_id).disabled = false;
+        // document.getElementById("M1C_" + count_id).disabled = false;
+        document.getElementById("M2_" + count_id).disabled = false;
+        document.getElementById("M3_" + count_id).disabled = false;
+        // document.getElementById("M3C_" + count_id).disabled = false;
+      }
+      else {
+        document.getElementById("M1_" + count_id).disabled = true;
+        // document.getElementById("M1C_" + count_id).disabled = true;
+        document.getElementById("M2_" + count_id).disabled = true;
+        document.getElementById("M3_" + count_id).disabled = true;
+        // document.getElementById("M3C_" + count_id).disabled = true;
+      }
+    } 
+
+    // CODE TO SHOW ICELL ANALYSIS
+
+    $('[data-target=#iCellAnalysis]').click(function (e) {
+      // console.log('iCellAnalysis_onClick()');
+      // e.preventDefault();
+      // $(this).tab('show');
+      $.ajax({
+        url: '/DataFusion/result_icell_analysis',
+        type: 'GET',
+        data: {},
+        success: function (data) {
+          // console.log('iCellAnalysis_onClick()_success');
+          $('#div_result_icell_analysis').html(data);
+        },
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          console.log('ERRORS: ' + textStatus);
+          errorAlert("Error occurred while retrieving view for task: " + xhr.responseText);
+        }
+      });
+    });
+
+    // function displayTaskView($task_id, $div_for_display) {
+      
+    // }
+
+    // ----------------------------------------
+    // for psb analysis
+
+    updateTaskListPsb();
+
+    function updateTaskListPsb() {
+      console.log("updateTaskListPsb");
+      getSuccessfulTasksForUser("{{ task_type }}", $("#previouslyComputedTasksListPsb"));
+    }
+
+    function processDisplayResultPsb() {
+      var taskId = $('#previouslyComputedTasksListPsb').val();
+      console.log("taskId " + taskId);
+      displayTaskViewPsb(taskId, $('#task_result_psb'));
+      // downloadResultsButton.fadeIn();
+      // downloadResultsButton.attr('href', "/TaskFactory/DownloadResult/" + taskId.toString() + "/");
+    }
+
+    function displayTaskViewPsb($task_id, $div_for_display) {
+      $.ajax({
+        url: '/DataFusion/task_psb/' + $task_id.toString() + "/",
+        type: 'GET',
+        data: {},
+        success: function (data) {
+          $div_for_display.html(data);
+        },
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+          console.log('ERRORS: ' + textStatus);
+          errorAlert("Error occurred while retrieving view for task: " + xhr.responseText);
+        }
+      });
+    }
+
+  </script>
+{% endblock %}

@@ -1,0 +1,368 @@
+<div id="propsDiv">
+  <h5>Select iCells to run the iCell-type result analysis</h5>
+
+  <div class="row-fluid" style="padding:5px;">
+    <div class="row-fluid">
+      <form class="form-horizontal">
+        <fieldset>
+          <!-- ICELLs -->
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="iCellNamesList">iCells</label>
+            </div>
+            <div class="col-lg-5">
+              <select id="iCellNamesList" multiple class="form-control" style="min-width: 250px;">
+                <option class='select-dash' disabled='disabled'>--Select iCells--</option>
+                {% for task_id, task_name in completed_tasks_icell %}
+                  <option value="{{ task_id }}">{{ task_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group col-lg-12">
+            <br>
+            <div class="col-lg-2">
+              <button class="btn btn-success"
+                      onclick="computeGDVs($('#iCellNamesList')); return false;"
+                      id="bComputeGDVs">Compute GDVs
+              </button>
+            </div>
+          </div>
+          
+          <div class="form-group col-lg-12">
+            <br>
+            <hr style="height:1px;border:none;color:#333;background-color:#333;" />
+            <br>
+          </div>
+
+          <!-- GDVs -->
+
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="gdvNamesList">GDVs</label>
+            </div>
+            <div class="col-lg-5">
+              <select id="gdvNamesList" multiple class="form-control" style="min-width: 250px;">
+                <option class='select-dash' disabled='disabled'>--Select GDVs--</option>
+                {% for task_id, task_name in completed_tasks_gdv %}
+                  <option value="{{ task_id }}">{{ task_name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group col-lg-12">
+            <!-- <div class="col-lg-6" data-type="fact_mat"> -->
+              <!-- <select id="gdvGeneList" class="form-control">
+                <option value="0">Select the genelist</option>
+              </select> -->
+              <h5>Select the genelist file:</h5>
+              <form enctype="multipart/form-data">
+                <input name="file" type="file" />
+                <!-- <input type="button" value="Upload" /> -->
+              </form>
+              <!-- <progress></progress> -->
+            <!-- </div> -->
+          </div>
+
+          
+        
+
+          <div class="form-group col-lg-12">
+            <br>
+            <div class="col-lg-2">
+              <button class="btn btn-success"
+                      onclick="computeGDVSims($('#gdvNamesList')); return false;"
+                      id="bComputeGDVSims">Compute GDV similarity
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group col-lg-12">
+            <br>
+            <hr style="height:1px;border:none;color:#333;background-color:#333;" />
+            <br>
+          </div>
+          
+          <!-- Gene Distances -->
+
+          <div class="form-group col-lg-12">
+            <div class="panel panel-green">
+              <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Distance among genes</h3>
+              </div>
+            
+              <div class="panel-body">
+                <table id="gdv_similarity" class="table table-striped table-bordered">
+                  <thead>
+                    <tr>
+                      <th>
+                        GENE NAME
+                      </th>
+                      <th>
+                        AVG DISTANCE
+                      </th>
+                    </tr>
+                    </thead>
+                  <tbody id="gdv_similarity_body">
+                  </tbody>
+                </table>
+              </div>
+            <!-- </div> -->
+          </div>
+
+
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+<div id="result" style="padding:5px; width: 100%"></div>
+
+<!-- ---------------------------------------------------- -->
+
+<script type="text/javascript">
+  // updateNetworks();
+  var $taskName = $("#taskNameInput");
+  var $resultDiv = $("#result");
+  var $propsDiv = $("#propsDiv");
+  $resultDiv.hide();
+
+  var $iCellNamesList = $('#iCellNamesList');
+
+  // addiCellTasks($iCellNamesList);
+  // function addiCellTasks(list) {
+  //   console.log('addiCellTasks');
+  //   var $task_type = "{{ task_type }}";
+  //   $.ajax({
+  //   url: '/TaskFactory/Success/' + $task_type.toString() + "/",
+  //   type: 'POST',
+  //   data: {},
+  //   success: function (data) {
+  //     console.log('success log:' + $task_type + data);
+  //     list.html(data);
+  //   },
+  //   beforeSend: function (xhr, settings) {
+  //     xhr.setRequestHeader("X-CSRFToken", csrf_token);
+  //   },
+  //   error: function (xhr, textStatus, errorThrown) {
+  //     console.log('ERRORS: ' + textStatus);
+  //     errorAlert("Error occurred while getting finished tasks: " + xhr.responseText);
+  //   }
+  // });
+  // }
+
+  // function updateNetworks() {
+  //   console.log('updateNetworks');
+  //   var $iCellNamesList = $('#iCellNamesList');
+  //   $iCellNamesList.empty();
+  //   updateNetworkNamesInList($iCellNamesList);
+  // }
+
+  function computeGDVs(list) {
+    console.log('computeGDVs');
+    //
+    var data = {
+        'icell_tasks': [],
+      };
+    list.find(":selected").each(function (i, selected) {
+      data.icell_tasks.push($(selected).val());
+    });
+    //
+    console.log('data.icell_tasks: ' + data.icell_tasks);
+    if (data.icell_tasks.length == 0) {
+      vexErrorAlert("Please select iCells to compute GDVs");
+      return;
+    } 
+    //
+    Pace.track(function () {
+      $.ajax({
+        url: '/DataFusion/compute_gdvs',
+        type: 'POST',
+        data: {
+          'data': JSON.stringify(data),
+        },
+        success: function (params) {
+          console.log('success');
+          var jsonparams = JSON.parse(params);
+          var msg = jsonparams.msg;
+          var completed_tasks_gdv = jsonparams.completed_tasks_gdv;
+          // console.log('completed_tasks_gdv: ' + completed_tasks_gdv);
+          // var clusters_img = jsonparams['clusters_img'];
+          // document.getElementById('clusterImage').setAttribute('src', 'data:image/png;base64,' + clusters_img);
+          var $gdvNamesList = $("#gdvNamesList");
+          $gdvNamesList.empty();
+          $gdvNamesList.append("<option class='select-dash' disabled='disabled'>--Select GDVs--</option>");
+          for (var i in completed_tasks_gdv) {
+            $gdvNamesList.append("<option value=\"" + completed_tasks_gdv[i][0] +"\">" + completed_tasks_gdv[i][1] + "</option>");
+          }
+          
+          // refreshRunningTasks();
+          successAlert(msg);
+        },
+        beforeSend: function (xhr, settings) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log('ERRORS: ' + textStatus);
+        }
+      });
+    })
+  }
+
+  // --------------
+  function computeGDVSims(list) {
+    console.log('computeGDVSims');
+    var fd = new FormData();
+    var read = new FileReader();
+
+    if (genelist_file.name.includes(".edgelist") || genelist_file.name.includes(".csv")) {
+      console.log("readAsText");
+      read.readAsText(genelist_file);
+    } else{
+      console.log("readAsArrayBuffer");
+      // read.readAsBinaryString(files[i]);
+      read.readAsArrayBuffer(genelist_file);
+    }
+
+    read.onloadend = function () {
+      console.log('read.onloadend for file: ' + genelist_file.name);
+      // -----
+      fd.append("genelist", new Blob([read.result]), "File0");
+      // -----
+      var data = {
+          'gdv_tasks': [],
+        };
+      list.find(":selected").each(function (i, selected) {
+        data.gdv_tasks.push($(selected).val());
+      });
+      // -----
+      console.log('data.gdv_tasks: ' + data.gdv_tasks);
+      if (data.gdv_tasks.length <= 1) {
+        vexErrorAlert("Please select at least 2 GDVs to compute similarity");
+        return;
+      }
+      fd.append("data", JSON.stringify(data))
+      // -----
+      Pace.track(function () {
+        $.ajax({
+          url: '/DataFusion/compute_gdv_sims',
+          type: 'POST',
+          data: fd,
+          // async: false,
+          processData: false,  // tell jQuery not to process the data
+          contentType: false,  // tell jQuery not to set contentType
+          success: function (params) {
+            console.log('success');
+            var jsonparams = JSON.parse(params);
+            var msg = jsonparams.msg;
+            var gdv_sims = jsonparams.gdv_sims;
+            var $tableGdvSims = $("#gdv_similarity_body");
+            $tableGdvSims.empty();
+            for (var i in gdv_sims) {
+              $tableGdvSims.append("<tr><td>" + gdv_sims[i][0] + 
+                // " <a href=\"https://www.proteinatlas.org/ENSG00000141510-TP53/pathology\" target=\"_blank\">(link to HPA)</a>" + 
+                "</td><td>" + gdv_sims[i][1] + "</td></tr>")
+            }
+            successAlert(msg);
+          },
+          beforeSend: function (xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.log('ERRORS: ' + textStatus);
+            errorAlert("Error occurred while computing gdv similarity: " + xhr.responseText);
+          }
+        });
+      });
+    }
+  }
+
+  // function computeGDVSims_old(list) {
+  //   console.log('computeGDVSims_old');
+  //   //
+  //   var data = {
+  //       'gdv_tasks': [],
+  //       // 'gene_file': new FormData($('form')[0]),
+  //     };
+  //   list.find(":selected").each(function (i, selected) {
+  //     data.gdv_tasks.push($(selected).val());
+  //   });
+  //   //
+  //   console.log('data.gdv_tasks: ' + data.gdv_tasks);
+  //   // if (data.gdv_tasks.length <= 1) {
+  //   //   vexErrorAlert("Please select at least 2 GDVs to compute similarity");
+  //   //   return;
+  //   // } 
+  //   //
+  //   Pace.track(function () {
+  //     $.ajax({
+  //       url: '/DataFusion/compute_gdv_sims',
+  //       type: 'POST',
+  //       // data: new FormData($('form')[0]),
+  //       data: {
+  //         'data': JSON.stringify(data),
+  //         // 'gene_file': new FormData($('form')[0])
+  //       },
+  //       // Tell jQuery not to process data or worry about content-type
+  //       // You *must* include these options!
+  //       // cache: false,
+  //       // contentType: false,
+  //       // processData: false,
+  //       success: function (params) {
+  //         console.log('success');
+  //         var jsonparams = JSON.parse(params);
+  //         var msg = jsonparams.msg;
+  //         var gdv_sims = jsonparams.gdv_sims;
+  //         // console.log('completed_tasks_gdv: ' + completed_tasks_gdv);
+  //         // var clusters_img = jsonparams['clusters_img'];
+  //         // document.getElementById('clusterImage').setAttribute('src', 'data:image/png;base64,' + clusters_img);
+  //         var $tableGdvSims = $("#gdv_similarity_body");
+  //         $tableGdvSims.empty();
+  //         // $tableGdvSims.append("<option class='select-dash' disabled='disabled'>--Select GDVs--</option>");
+  //         for (var i in gdv_sims) {
+  //           // $tableGdvSims.append("<option value=\"" + gdv_sims[i][0] +"\">" + gdv_sims[i][1] + "</option>");
+  //           $tableGdvSims.append("<tr><td>" + gdv_sims[i][0] + " <a href=\"https://www.proteinatlas.org/ENSG00000141510-TP53/pathology\" target=\"_blank\">(link to HPA)</a>" + "</td><td>" + gdv_sims[i][1] + "</td></tr>")
+  //         }
+          
+  //         // refreshRunningTasks();
+  //         successAlert(msg);
+  //       },
+  //       beforeSend: function (xhr, settings) {
+  //         xhr.setRequestHeader("X-CSRFToken", csrf_token);
+  //       },
+  //       error: function (jqXHR, textStatus, errorThrown) {
+  //         console.log('ERRORS: ' + textStatus);
+  //       },
+  //       // Custom XMLHttpRequest
+  //       xhr: function () {
+  //       var myXhr = $.ajaxSettings.xhr();
+  //       if (myXhr.upload) {
+  //         // For handling the progress of the upload
+  //         myXhr.upload.addEventListener('progress', function (e) {
+  //           if (e.lengthComputable) {
+  //             $('progress').attr({
+  //               value: e.loaded,
+  //               max: e.total,
+  //             });
+  //           }
+  //         }, false);
+  //       }
+  //       return myXhr;
+  //     },
+  //     });
+  //   })
+  // }
+
+  var genelist_file;
+  $(':file').on('change', function () {
+    genelist_file = this.files[0];
+    if (genelist_file.size > 10000000) {
+      alert('max upload size is 1MB');
+    }
+    // Also see .name, .type
+  });
+
+
+</script>
+

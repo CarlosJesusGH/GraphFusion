@@ -1,0 +1,64 @@
+<!-- output files -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Output files</h3>
+  </div>
+
+  <div class="panel-body">
+    <table id="output_files_table" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>
+            Filename
+          </th>
+        </tr>
+        </thead>
+      <tbody>
+      {% for output_file in output_files %}
+        <tr>
+          <td>
+            {{ output_file }}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Predictions -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i>FUSE alignment output (top rows)</h3>
+  </div>
+  <div class="panel-body">
+    <table id="output_table" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>
+            Col 01
+          </th>
+          <th>
+            Col 02
+          </th>
+          <th>
+            Col 03
+          </th>
+        </tr>
+        </thead>
+      <tbody id="output_table_body">
+      </tbody>
+      <tbody>
+      {% for row in rows %}
+        <tr>
+          {% for val in row %}
+            <td>{{ val }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>  
+</div>
+
+</div>

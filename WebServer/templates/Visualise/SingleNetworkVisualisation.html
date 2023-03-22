@@ -1,0 +1,42 @@
+<div class="" style="padding:5px;">
+  <div class="panel panel-green">
+    <div class="panel-heading">
+      <h3 class="panel-title"><i class="fa fa-video-camera"></i> Visualisation</h3>
+    </div>
+    <div class="panel-body" style="height: 500px">
+      <div id="visualisation" style="height: 100%"></div>
+    </div>
+  </div>
+</div>
+<script>
+  var network = null;
+  draw();
+
+  function destroy() {
+    if (network !== null) {
+      network.destroy();
+      network = null;
+    }
+  }
+
+  function draw() {
+    destroy();
+
+    var nodes = [];
+    var edges = [];
+    {% for nodeName, nodeID in nodes %}
+      nodes.push({
+        id: {{ nodeID }},
+        label: String("{{ nodeName|safe }}")
+      });
+    {% endfor %}
+
+    {% for from,to in edges %}
+      edges.push({
+        from: "{{ from }}",
+        to: "{{ to }}"
+      });
+    {% endfor %}
+    drawGraph(document.getElementById('visualisation'), nodes, edges, network);
+  }
+</script>

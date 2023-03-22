@@ -1,0 +1,43 @@
+{% extends "base_loggedin.html" %}
+{% block CONTENT %}
+
+  <br>
+
+  <h3>Upload Network</h3>
+  <div class="modal-body" style="max-height:800px;">
+    <div class="well">
+      <form class="form-horizontal" action='/NetworkLoading/load/' method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ network_form.non_field_errors }}
+        <fieldset>
+          <br>
+
+          <div class="control-group">
+            <!-- Username -->
+            {{ network_form.network_name.errors }}
+            <label class="control-label" for="username">Network Name</label>
+
+            <div class="controls">
+              {{ network_form.network_name }}
+            </div>
+          </div>
+          <div class="control-group">
+            <!-- Password-->
+            {{ network_form.file.errors }}
+            <label class="control-label" for="password">File(.gw, .txt)</label>
+
+            <div class="controls">
+              {{ network_form.file }}
+            </div>
+          </div>
+          <div class="control-group">
+            <!-- Button -->
+            <div class="controls">
+              <button class="btn btn-success" value="Submit">Upload</button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+{% endblock %}

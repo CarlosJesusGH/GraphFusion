@@ -1,0 +1,328 @@
+{% extends 'base_result_and_analysis_template.html' %}
+
+{% block ANALYSIS_TAB_HEADING %}
+Model Analysis
+{% endblock %}
+
+{% block TITLE %}
+<h3>Probabilistic Networks - Single Model Analysis</h3>
+{% endblock %}
+
+{% block ANALYSIS_TAB %}
+<div id="propsDiv">
+
+  <div class="row-fluid" style="padding:5px;">
+    <div class="row-fluid">
+      <form class="form-horizontal">
+        <fieldset>
+          <!-- ----------------------------------------- -->
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="networkNamesList">Network Model</label>
+            </div>
+            <div class="col-lg-5">
+              <select id="modelSelection" class="form-control">
+                <option value="error">--select--</option>
+                <option value="hyper_geometric">Hyper Geometric</option>
+                <option value="barabasi_albert">Barabasi Albert</option>
+                <option value="erdos_renyi">Erdos Renyi</option>
+              </select>
+              <br>
+              <div id="forall-options">
+                <div class="form-group">
+                  <div class="col-lg-3">
+                    <label class="control-label">Nodes</label>
+                  </div>
+                  <div class="col-lg-6">
+                    <input id="model_nodes" type="number" min="0" value="100" step="10">
+                  </div>
+                </div>
+              </div>
+              <div id="hyper-options">
+                <div class="form-group">
+                  <div class="col-lg-3">
+                    <label class="control-label">Radius</label>
+                  </div>
+                  <div class="col-lg-6">
+                    <input id="model_radius" type="number" min="0" value="5" step="1">
+                  </div>
+                </div>
+              </div>
+              <div id="barabasi-erdos-options">
+                <div class="form-group">
+                  <div class="col-lg-3">
+                    <label class="control-label">Density</label>
+                  </div>
+                  <div class="col-lg-6">
+                    <input id="model_density" type="number" min="0" value="0.3" max="1" step="0.1">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ----------------------------------------- -->
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="networkNamesList">Distribution Model</label>
+            </div>
+            <div class="col-lg-5">
+              <select id="distributionSelection" class="form-control">
+                <option value="error">--select--</option>
+                <option value="uniform">Uniform distribution</option>
+                <option value="beta">Beta distribution</option>
+                <option value="empirical">Empirical distribution</option>
+              </select>
+              <br>
+              <div id="beta-options">
+                <div class="form-group">
+                  <div class="col-lg-3">
+                    <label class="control-label">Mean</label>
+                  </div>
+                  <div class="col-lg-6">
+                    <input id="distribution_mean" type="number" min="0" value="0.5" max="1" step="0.1">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="col-lg-3">
+                    <label class="control-label">Variance</label>
+                  </div>
+                  <div class="col-lg-6">
+                    <input id="distribution_variance" type="number" min="0" value="0.1" max="1" step="0.1">
+                  </div>
+                </div>
+              </div>
+              <div id="empirical-options" class="form-group">
+                <div class="col-md-3">
+                  <label class="form-label" for="distribution_empirical_file">File</label>
+                </div>
+                <div class="col-md-6">
+                  <input id="distribution_empirical_file" type="file" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ----------------------------------------- -->
+          <div class="col-lg-12 form-group">
+            <div class="col-lg-3">
+              <label class="control-label" for="taskNameInput">Task Name</label>
+            </div>
+            <div class="col-lg-5">
+              <input class="form-control" id="taskNameInput" type="text">
+            </div>
+          </div>
+          <div class="form-group col-lg-12">
+            <br>
+
+            <div class="col-lg-2">
+              <button class="btn btn-success" onclick="submitTask(); return false;"
+                id="analyseButton">Analyse Networks
+              </button>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+<div id="result" style="padding:5px; width: 100%"></div>
+<script type="text/javascript">
+  // 
+  var modelSelection = $("#modelSelection");
+  var forallOptions = $('#forall-options');
+  var hyperOptions = $('#hyper-options');
+  var barabasiErdosOptions = $("#barabasi-erdos-options");
+  var modelNodes = $('#modelNodes');
+  var modelRadius = $('#modelNodes');
+  var modelDensity = $('#modelDensity');
+  modelSelection.change(modelDisplayOptions);
+  forallOptions.hide();
+  hyperOptions.hide();
+  barabasiErdosOptions.hide();
+  // 
+  function modelDisplayOptions() {
+    var value = modelSelection.val();
+    if (value == "hyper_geometric") {
+      forallOptions.fadeIn();
+      hyperOptions.fadeIn();
+      barabasiErdosOptions.hide();
+    } else if (value == "barabasi_albert") {
+      forallOptions.fadeIn();
+      hyperOptions.hide();
+      barabasiErdosOptions.fadeIn();
+    }
+    else if (value == "erdos_renyi") {
+      forallOptions.fadeIn();
+      hyperOptions.hide();
+      barabasiErdosOptions.fadeIn();
+    }
+    else {
+      forallOptions.hide();
+      hyperOptions.hide();
+      barabasiErdosOptions.hide();
+    }
+  }
+  // 
+  var distributionSelection = $("#distributionSelection");
+  var betaOptions = $('#beta-options');
+  var empiricalOptions = $("#empirical-options");
+  var distributionNodes = $('#distributionNodes');
+  var distributionRadius = $('#distributionNodes');
+  var distributionDensity = $('#distributionDensity');
+  var distribution_empirical_file = $("#distribution_empirical_file");
+  distributionSelection.change(distributionDisplayOptions);
+  betaOptions.hide();
+  empiricalOptions.hide();
+  // 
+  function distributionDisplayOptions() {
+    var value = distributionSelection.val();
+    if (value == "uniform") {
+      betaOptions.hide();
+      empiricalOptions.hide();
+    } else if (value == "beta") {
+      betaOptions.fadeIn();
+      empiricalOptions.hide();
+    }
+    else if (value == "empirical") {
+      betaOptions.hide();
+      empiricalOptions.fadeIn();
+    }
+    else {
+      betaOptions.hide();
+      empiricalOptions.hide();
+    }
+  }
+  // 
+  // 
+  updateNetworks();
+  var taskName = $("#taskNameInput");
+  var $resultDiv = $("#result");
+  var $propsDiv = $("#propsDiv");
+  $resultDiv.hide();
+
+  function updateNetworks() {
+    var $networkNamesList = $('#networkNamesList');
+    $networkNamesList.empty();
+    updateNetworkNamesInList($networkNamesList);
+  }
+
+  // function getHyperOptions() {
+  //   return sendAlignmentTaskToServer([alpha.val(), seedValue.val()]);
+  // }
+
+  // function getBarabasiOptions() {
+  //   return sendAlignmentTaskToServer([costMatrix.val()]);
+  // }
+
+  // function getLErdosOptions() {
+  //   var f = sequenceSimilarityFile.prop("files")[0];
+  //   if (f) {
+  //     var r = new FileReader();
+  //     r.readAsText(f);
+  //     r.onload = function (e) {
+  //       var contents = e.target.result;
+  //       sendAlignmentTaskToServer([contents]);
+  //     };
+  //   } else {
+  //     vexErrorAlert("Failed to load file");
+  //   }
+  // }
+
+  function checkForInputErrors(task_name, model_name, distribution_name) {
+      // if (networkNamesList1.children().length == 0 || networkNamesList2.children().length == 0) {
+      //   vexErrorAlert("You have not loaded any networks. Please load networks to run alignment task.");
+      //   return true;
+      // }
+      if (model_name === "error") {
+        vexErrorAlert("Please select a model.");
+        return true;
+      }
+      if (distribution_name === "error") {
+        vexErrorAlert("Please select a distribution.");
+        return true;
+      }
+      if (task_name === "") {
+        vexErrorAlert("Task name should not be empty.");
+        return true;
+      }
+      return false;
+    }
+
+  function sendAlignmentTaskToServer(options) {
+    // console.log('sendAlignmentTaskToServer');
+    if (checkForInputErrors(taskName.val(), modelSelection.val(), distributionSelection.val())) return;
+    // 
+    var data = {
+      'model_nodes': $("#model_nodes").val(),
+      'model_radius': $("#model_radius").val(),
+      'model_density': $("#model_density").val(),
+      'distribution_mean': $("#distribution_mean").val(),
+      'distribution_variance': $("#distribution_variance").val(),
+      // 'distribution_empirical_file': $("#distribution_empirical_file").val(),
+      'distribution_empirical_file': JSON.stringify(options),
+      // 'distribution_empirical_file': new Blob([options]),
+    };
+    // console.log('data' + JSON.stringify(data));
+    // data.Networks.push(networkFiles[networkNamesList1.val()]);
+    // data.Networks.push(networkFiles[networkNamesList2.val()]);
+    Pace.track(function () {
+      $.ajax({
+        url: '/ProbabilisticNetworksModelAnalysis/analyse',
+        type: 'POST',
+        data: {
+          'data': JSON.stringify(data),
+          'model_name': modelSelection.val(), 
+          'distribution_name': distributionSelection.val(),
+          // 'distribution_empirical_file': JSON.stringify(options),
+          'task_name': taskName.val(),
+        },
+        success: function (data) {
+          console.log('success');
+          var jsonparams = JSON.parse(data);
+          var msg = jsonparams.msg;
+          successAlert(msg);
+        },
+        beforeSend: function (xhr, settings) {
+          // console.log('beforeSend');
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.log('ERRORS: ' + textStatus);
+        }
+      });
+    })
+    refreshRunningTasks();
+  }
+
+  function submitTask() {
+    // console.log('submitTask');
+    if (checkForInputErrors(taskName.val(), modelSelection.val(), distributionSelection.val())) return;
+    // if empirical, load file
+    if (distributionSelection.val() == "empirical"){
+      console.log('empirical');
+      var f = distribution_empirical_file.prop("files")[0];
+      if (f) {
+        var r = new FileReader();
+        r.readAsText(f);
+        r.onload = function (e) {
+          var contents = e.target.result;
+          sendAlignmentTaskToServer([contents]);
+        };
+      } else {
+        vexErrorAlert("Failed to load file");
+      }
+    } else {
+      // console.log('not empirical');
+      sendAlignmentTaskToServer([]);
+    }
+
+    // if (modelSelection.val() == "hyper_geometric") {
+    //   getHyperOptions()
+    // } else if (modelSelection.val() == "barabasi_albert") {
+    //   getBarabasiOptions()
+    // } else if (modelSelection.val() == "erdos_renyi") {
+    //   getLErdosOptions();
+    // }
+  }
+
+</script>
+{% endblock %}

@@ -1,0 +1,93 @@
+<div class="row-fluid">
+  {% csrf_token %}
+  <h3>Network Visualisation</h3>
+  <h5>Select network to visualise</h5>
+
+  <div class="row-fluid" style="padding:5px;">
+    <div class="row-fluid">
+      <form class="form-inline">
+        <div class="form-group">
+          <select id="networkNamesList" class="form-control col-sm-4" style="min-width: 250px;">
+
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-2">
+            <button class="btn btn-success" onclick="submitNetworkForAnalysis(); return false;"
+                    style="right:0"
+                    id="analyseButton">Visualise Network
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<br>
+<div id="result" style="height: 500px;"></div>
+<script type="text/javascript">
+  var $networkNamesList = $('#networkNamesList');
+  updateNetworks();
+
+  function updateNetworks() {
+    $networkNamesList.empty();
+    updateNetworkNamesInList($networkNamesList);
+    addAlignmentTasks($networkNamesList);
+  }
+
+  function addAlignmentTasks(list) {
+    list.append("<option class='select-dash' disabled='disabled'>--Input--</option>");
+    getAndAppendFinishedTasksForUser("{{ task_type }}", list);
+  }
+
+  function getNetworkVisualisation() {
+    var data = {'Networks': [networkFiles[$networkNamesList.val()]]};
+    Pace.restart();
+    $.ajax({
+      url: '/Visualise/network/',
+      type: 'POST',
+      data: {
+        'data': JSON.stringify(data)
+      },
+      success: function (data) {
+        $('#result').html(data);
+        Pace.stop();
+      },
+      beforeSend: function (xhr, settings) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        errorAlert("Unable to obtain visualisation for selected network. " + xhr.responseText);
+        Pace.stop();
+      }
+    });
+  }
+
+  function getAlignmentVisualisation() {
+    Pace.restart();
+    $.ajax({
+      url: '/Visualise/alignment/' + $networkNamesList.val() + "/",
+      type: 'POST',
+      data: {},
+      success: function (data) {
+        $('#result').html(data);
+        Pace.stop();
+      },
+      beforeSend: function (xhr, settings) {
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        errorAlert("Unable to obtain visualisation for selected alignment result. " + xhr.responseText);
+        Pace.stop();
+      }
+    });
+  }
+
+  function submitNetworkForAnalysis() {
+    if ($networkNamesList.find(":selected").hasClass("task-result")) {
+      getAlignmentVisualisation();
+    } else {
+      getNetworkVisualisation();
+    }
+  }
+</script>

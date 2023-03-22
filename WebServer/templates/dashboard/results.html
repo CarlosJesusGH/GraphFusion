@@ -1,0 +1,171 @@
+<h3>Dashboard</h3><br>
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-list"></i> Tasks</h3>
+  </div>
+  <div class="panel-body">
+    <table class="table">
+      <thead>
+      <tr>
+        <th>
+          Task Name
+        </th>
+        <th>
+          Status
+        </th>
+        <th>
+          Start Time
+        </th>
+        {#        <th>#}
+        {#          Finish Time#}
+        {#        </th>#}
+        <th>
+          Task Type
+        </th>
+        <th>
+          Actions
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for task in tasks %}
+        <tr>
+          <td>
+            {{ task.get_task_name }}
+          </td>
+          <td>
+            {% if task.get_status == "Running" %}
+              <i class="fa fa-spinner fa-spin fa-2x info-color"></i>
+            {% elif task.get_status == "Error" %}
+              <i class="fa fa-exclamation-circle fa-2x error-color"></i>
+            {% elif task.get_status == "Finished" %}
+              <i class="fa fa-check-circle fa-2x success-color"></i>
+            {% endif %}
+          </td>
+          <td>
+            {{ task.get_start_time }}
+          </td>
+          {#          <td>#}
+          {#            {{ task.get_finish_time }}#}
+          {#          </td>#}
+          <td>
+            {{ task.get_task_type }}
+          </td>
+          <td>
+            <div class="row">
+              <div class="col-sm-3">
+                {% if task.finished %}
+                  <a class="hint--bottom hint--info hint--bounce" data-hint="View Results"
+                     onclick="showModal('{{ task.get_task_id }}')">
+                    <i class="fa fa-eye fa-2x change-to-hand-on-hover info-color"></i>
+                  </a>
+                {% endif %}
+              </div>
+              {% if task.finished %}
+                <div class="col-sm-3">
+                  {% if task.get_status != "Error" %}
+                    <a class="hint--bottom hint--info hint--bounce" data-hint="Download Results"
+                       href="/TaskFactory/DownloadResult/{{ task.get_task_id }}">
+                      <i class="fa fa-download fa-2x change-to-hand-on-hover info-color"></i>
+                    </a>
+                  {% endif %}
+                </div>
+                <div class="col-sm-3">
+                  <a data-hint="Delete Task Data" class="hint--bottom hint--error hint--bounce"
+                     onclick="processRemoveTask({{ task.get_task_id }});return false;">
+                    <i title="Delete Task" class="fa fa-trash-o fa-2x error-color change-to-hand-on-hover"></i>
+                  </a>
+                </div>
+              {% else %}
+                <div class="col-sm-3 col-sm-offset-3">
+                  <a class="hint--bottom hint--error hint--bounce" data-hint="Terminate Task"
+                     onclick="processTerminateTask({{ task.get_task_id }});return false;">
+                    <i class="fa fa-times-circle fa-2x error-color change-to-hand-on-hover"></i>
+                  </a>
+                </div>
+              {% endif %}
+
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="resultsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true"
+     style="z-index: 1051;">
+  <div class="modal-dialog" style="width: 80%;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Result</h4>
+
+      </div>
+      <div class="modal-body" style="overflow-y: auto;">
+        <div id="modalBodyResult"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<script>
+  var resultModal = $("#resultsModal");
+  var $modalBodyResult = $('#modalBodyResult');
+
+  function processRemoveTask(task_id) {
+    vex.dialog.confirm({
+      message: 'Are you sure you want to delete this task?',
+      css: {
+        height: '50px !important'
+      },
+      contentCSS: {height: '50px !important'},
+      callback: function (value) {
+        if (value) {
+          deleteTask(task_id, function () {
+            navigateTo("/dashboard/");
+          });
+        }
+      }
+    });
+    return false;
+  }
+
+  function processTerminateTask(task_id) {
+    vex.dialog.confirm({
+      message: 'Are you sure you want to terminate this task?',
+      css: {
+        height: '50px !important'
+      },
+      contentCSS: {height: '50px !important'},
+      callback: function (value) {
+        if (value) {
+          terminateTask(task_id, function () {
+            navigateTo("/dashboard/");
+            successAlert("Task successfully terminated.");
+          });
+        }
+      }
+    })
+    ;
+    return false;
+  }
+
+  function showModal($task_id) {
+    $modalBodyResult.html("");
+    resultModal.modal('toggle');
+    setTimeout(function () {
+      displayTaskView($task_id, $modalBodyResult);
+    }, 200);
+  }
+  resultModal.on('show.bs.modal', function () {
+    $('.modal .modal-body').css('overflow-y', 'auto');
+    $('.modal .modal-body').css('max-height', $(window).height() * 0.7);
+  });
+</script>

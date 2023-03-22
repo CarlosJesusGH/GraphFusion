@@ -1,0 +1,290 @@
+{% extends 'authentication/home_page_sample.html' %}
+{% load AddCSSToTemplatesTag %}
+{% load staticfiles %}
+
+{% block MIDDLE_CONTENT %}
+  <!-- Header Carousel -->
+  {#  <header id="myCarousel" class="carousel slide">#}
+  {#    <!-- Indicators -->#}
+  {#    <ol class="carousel-indicators">#}
+  {#      <li data-target="#myCarousel" data-slide-to="0" class="active"></li>#}
+  {#      <li data-target="#myCarousel" data-slide-to="1"></li>#}
+  {#      <li data-target="#myCarousel" data-slide-to="2"></li>#}
+  {#    </ol>#}
+  {##}
+  {#    <!-- Wrapper for slides -->#}
+  {#    <div class="carousel-inner">#}
+  {#      <div class="item active">#}
+  {#        <div class="fill"#}
+  {#             style="background-image:url('{% static 'media/landing-page/slide_visualise.png' %}');"></div>#}
+  {#        <div class="carousel-caption">#}
+  {#          <h2>Network Visualisation</h2>#}
+  {#        </div>#}
+  {#      </div>#}
+  {#      <div class="item">#}
+  {#        <div class="fill" style="background-image:url('http://placehold.it/1900x1080&text=Slide Two');"></div>#}
+  {#        <div class="carousel-caption">#}
+  {#          <h2>Caption 2</h2>#}
+  {#        </div>#}
+  {#      </div>#}
+  {#      <div class="item">#}
+  {#        <div class="fill" style="background-image:url('{% static 'media/landing-page/slide-gcm.png' %}');"></div>#}
+  {#        <div class="carousel-caption">#}
+  {#          <h2>Graphlet Correlation Matrix (Network Properties) </h2>#}
+  {#        </div>#}
+  {#      </div>#}
+  {#    </div>#}
+  {##}
+  {#    <!-- Controls -->#}
+  {#    <a class="left carousel-control" href="#myCarousel" data-slide="prev">#}
+  {#      <span class="icon-prev"></span>#}
+  {#    </a>#}
+  {#    <a class="right carousel-control" href="#myCarousel" data-slide="next">#}
+  {#      <span class="icon-next"></span>#}
+  {#    </a>#}
+  {#  </header>#}
+
+  <div class="container" style="width: 100%;">
+    <div style="padding:0 10% 0 10%;">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 class="page-header" style="text-align: center;">
+            GraphCrunch 3
+          </h1>
+
+          {% for description in descriptions %}
+            <p style="text-align: justify; font-size: medium;">
+              {{ description.get_description }}
+            </p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <br>
+      <br>
+      <!-- Marketing Icons Section -->
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 class="page-header" style="text-align: center;">
+            Features
+          </h1>
+        </div>
+        {% for feature_row in features %}
+          <div class="row">
+            {% for feature in feature_row %}
+              <div class="col-md-4 text-center">
+                <div class="thumbnail">
+                  <h3>{{ feature.get_name }}</h3><br>
+                  <a class="fancybox" title="{{ feature.get_position }}" href="/{{ feature.get_image.url }}">
+                    <img src="/{{ feature.get_image.url }}">
+                  </a>
+
+                  <div class="caption">
+                    <p style="text-align: justify;">{{ feature.get_description }}</p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <!-- Footer -->
+        <br>
+        <br>
+        <footer>
+          <div class="row">
+            <div class="col-lg-12">
+              <p>Copyright &copy; Computational Network Biology Research Group, Barcelona Supercomputing Center</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+      <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="loginModalSmall"
+           aria-hidden="true" id="loginModalSmall">
+        <div class="modal-dialog modal-sm" style="z-index: 1050; width: 50%">
+          <div class="modal-content" style="padding: 10px;">
+            <div class="row">
+              <div class="col-lg-offset-5 col-lg-2"><h2>Login</h2></div>
+              <div class="col-lg-offset-4 col-lg-1" style="right: 10px; padding: 10px; padding-top: 0;">
+                {#            <a class="btn btn-danger" data-dismiss="modal">#}
+                {#              <i class="fa fa-times fa-lg"></i> Close</a>#}
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                        style="font-size: 40px;"><span
+                    aria-hidden="true">&times;</span></button>
+              </div>
+            </div>
+
+            <br>
+
+            {#          <div class="well">#}
+            {% if register_enabled %}
+              <ul class="nav nav-tabs">
+                <li class="active"><a href="#login" data-toggle="tab">Login</a></li>
+                <li><a href="#createAccount" data-toggle="tab">Register</a></li>
+              </ul>
+            {% endif %}
+            <div id="myTabContent" class="tab-content">
+              <div class="tab-pane active in" id="login">
+                <div ng-controller="loginFormCtrl">
+                  <form class="form-horizontal" action='/authenticate/'
+                      {# onsubmit="return validateLoginForm()" #}
+                        method="POST">
+                    <br>
+                    {% csrf_token %}
+                    {{ login_form.non_field_errors }}
+                    <div class="form-group has-error has-feedback">
+                      <label id="loginErrText" class="col-sm-offset-3 col-sm-5 control-label"
+                             style="text-align: left">
+                        <span ng-bind="loginMessage()">{% if error_text %}{{ error_text }}{% endif %}</span>
+                      </label>
+                    </div>
+                    <div class="form-group">
+                      <!-- Username -->
+                      {{ login_form.username.errors }}
+                      <label class="col-sm-3 control-label" for="username">Username</label>
+
+                      <div class="" id="loginUsernameGroup">
+                        <div class="col-sm-8">
+                          {{ login_form.username|addcss:'class:form-control,placeholder:Username,ng-model:username' }}
+                          <span id="loginUsernameStatusIcon" class="" aria-hidden="true"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <!-- Password-->
+                      {{ login_form.password.errors }}
+                      <label class="col-sm-3 control-label" for="password">Password</label>
+
+                      <div class="" id="loginPasswordGroup">
+                        <div class="col-sm-8">
+                          {{ login_form.password|addcss:'class:form-control,placeholder:Password,ng-model:password' }}
+                          <span id="loginPasswordStatusIcon" class="" aria-hidden="true"></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <!-- Button -->
+                      <div class="col-sm-offset-3 col-sm-8">
+                        <button class="btn btn-success" value="Submit" id="loginBtn">Login</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              {% if register_enabled %}
+                <div id="createAccount" class="tab-pane fade">
+                  <form class="form-horizontal" action='/register/' method="POST">
+                    {% csrf_token %}
+                    {{ register_form.non_field_errors }}
+                    <div class="form-group">
+                      <br>
+                      {{ register_form.reg_username.errors }}
+                      <label class="col-sm-3 control-label" for="username">Username</label>
+
+                      <div class="has-feedback" id="reg_username_group">
+                        <div class="col-sm-4">
+                          {{ register_form.username|addcss:'form-control,placeholder:Minimum 6 characters,aria-describedby:usernameStatus' }}
+                          <span id="usernameStatusIcon" class="" aria-hidden="true"></span>
+                        </div>
+                        <label class="col-sm-4 control-label" style="text-align:left" id="user_ok">
+                          Username is available!
+                        </label>
+                        <label class="col-sm-4 control-label" style="text-align:left" id="user_not_valid">
+                          Username should be at least 6 characters!
+                        </label>
+                        <label class="col-sm-4 control-label" style="text-align:left" id="user_taken">
+                          Username is taken.
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      {{ register_form.first_name.errors }}
+                      <label class="col-sm-3 control-label" for="firstName">First Name</label>
+
+                      <div id="reg_firstName_group" class="">
+                        <div class="col-sm-4">
+                          {{ register_form.firstName|addcss:'class:form-control,placeholder:First Name' }}
+                          <span id="firstNameStatusIcon" class="" aria-hidden="true"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      {{ register_form.last_name.errors }}
+                      <label class="col-sm-3 control-label" for="lastName">Last Name</label>
+
+                      <div id="reg_lastName_group" class="">
+                        <div class="col-sm-4">
+                          {{ register_form.lastName|addcss:'class:form-control,placeholder:Last Name' }}
+                          <span id="lastNameStatusIcon" class="" aria-hidden="true"></span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      {{ register_form.email.errors }}
+                      <label class="col-sm-3 control-label" for="email">E-mail</label>
+
+                      <div class="" id="reg_email_group">
+                        <div class="col-sm-4">
+                          {{ register_form.email|addcss:'class:form-control,placeholder:Email' }}
+                          <span id="emailStatusIcon" class="" aria-hidden="true"></span>
+                        </div>
+                        <label class="col-sm-4 control-label" style="text-align:left" id="emailText"></label>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      {{ register_form.password.errors }}
+                      <label class="col-sm-3 control-label" for="password">Password</label>
+
+                      <div class="" id="reg_password_group">
+                        <div class="col-sm-4">
+                          {{ register_form.password|addcss:'class:form-control,placeholder:Minimum 6 characters' }}
+                          <span id="passwordStatusIcon" class="" aria-hidden="true"></span>
+                        </div>
+                        <label class="col-sm-4 control-label" style="text-align:left"
+                               id="divCheckPasswordValid"></label>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      {{ register_form.repeatPassword.errors }}
+                      <label class="col-sm-3 control-label" for="passwordconf">Re-enter your
+                        password</label>
+
+                      <div id="reg_passwordConf_group" class="">
+                        <div class="col-sm-4">
+                          {{ register_form.repeatPassword|addcss:'class:form-control,placeholder:Repeat Password,required:' }}
+                          <span id="repPasswordStatusIcon" class="" aria-hidden="true"></span>
+                        </div>
+                        <label class="col-sm-4 control-label" style="text-align:left"
+                               id="divCheckPasswordMatch"></label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <!-- Button -->
+                      <div class="col-sm-offset-3 col-sm-8">
+                        <button id="registerBtn" class="btn btn-success" value="Submit">Register</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(document).ready(function () {
+      $('.fancybox').fancybox({
+        helpers: {
+          overlay: {
+            locked: false
+          }
+        }
+      });
+    });
+  </script>
+{% endblock %}

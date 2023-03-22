@@ -1,0 +1,6 @@
+ Expected Value of Graphlet 3: 2673976.000000
+ Expected Value of Graphlet 4: 816105.000000
+ Expected Value of Graphlet 5: 13483.000000
+ Expected Value of Graphlet 6: 5363897.000000
+ Expected Value of Graphlet 7: 2378769.000000
+ Expected Value of Graphlet 8: 5563495.000000

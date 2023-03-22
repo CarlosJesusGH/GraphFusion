@@ -1,0 +1,208 @@
+{% extends 'base_result_and_analysis_template.html' %}
+
+{% block ANALYSIS_TAB_HEADING %}
+  Multiple Alignment
+{% endblock %}
+
+{% block TITLE %}
+  <h3>Multiple Alignment (FUSE)</h3>
+{% endblock %}
+
+{% block ANALYSIS_TAB %}
+  <div id="propsDiv">
+    <h5>Select Networks from for running multiple alignment</h5>
+
+    <div class="row-fluid" style="padding:5px;">
+      <div class="row-fluid">
+        <form class="form-horizontal">
+          <fieldset>
+            <div class="col-lg-12 form-group">
+              <div class="col-lg-3">
+                <label class="control-label" for="networkNamesList">Networks</label>
+              </div>
+              <div class="col-lg-5">
+                <select id="networkNamesList" multiple class="form-control" style="min-width: 250px;">
+                </select>
+              </div>
+            </div>
+
+            <!-- --- -->
+
+            <div class="col-lg-12 form-group">
+              <div class="col-lg-3">
+                <label class="control-label" for="kValuesInput">K values</label>
+                <br>
+                List of rank parameters (e.g. [80, 90, 80, 70, 50]), as many as selected networks
+              </div>
+              <div class="col-lg-5">
+                <br>
+                <input class="form-control" id="kValuesInput" type="text" placeholder="k1, k2, k3...">
+              </div>
+            </div>
+
+            <!-- --- -->
+
+            <div class="col-lg-12 form-group">
+              <div class="col-lg-3">
+                <label class="control-label">Max iterations</label>
+              </div>
+              <div class="col-lg-5">
+                <input class="form-control" id="max_iter" type="text" placeholder="default = 20">
+              </div>
+            </div>
+
+            <!-- --- -->
+
+            <div class="col-lg-12 form-group">
+              <div class="col-lg-3">
+                <label class="control-label">Min delta</label>
+              </div>
+              <div class="col-lg-5">
+                <input class="form-control" id="delta_min" type="text" placeholder="default = 0.01">
+              </div>
+            </div>
+
+            <!-- --- -->
+
+            <div class="col-lg-12 form-group">
+              <div class="col-lg-3">
+                <label class="control-label">Sequence similarity</label>
+                <br>
+                Input file contaning the sequence similarity between the proteins (e.g., 1-eval, sequence_scores.lst)
+              </div>
+              <div class="col-lg-5">
+                <br>
+                <form enctype="multipart/form-data">
+                  <input id="sequence_scores_file" name="file" type="file" />
+                </form>
+              </div>
+            </div>
+
+            <!-- --- -->
+
+            <div class="col-lg-12 form-group">
+              <div class="col-lg-3">
+                <label class="control-label" for="taskNameInput">Task Name</label>
+              </div>
+              <div class="col-lg-5">
+                <input class="form-control" id="taskNameInput" type="text">
+              </div>
+            </div>
+            <div class="form-group col-lg-12">
+              <br>
+              <div class="col-lg-2">
+                <button class="btn btn-success"
+                        onclick="submitNetworkForAnalysis($('#networkNamesList')); return false;"
+                        id="analyseButton">Analyse Networks
+                </button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="result" style="padding:5px; width: 100%"></div>
+  <script type="text/javascript">
+    updateNetworks();
+    var $taskName = $("#taskNameInput");
+    var $resultDiv = $("#result");
+    var $propsDiv = $("#propsDiv");
+    var $kValues = $("#kValuesInput");
+    var _max_iter = "20";
+    var _delta_min = "0.01";
+    $resultDiv.hide();
+
+    function updateNetworks() {
+      var $networkNamesList = $('#networkNamesList');
+      $networkNamesList.empty();
+      updateNetworkNamesInList($networkNamesList);
+    }
+
+    var sequence_scores_file;
+    $("#sequence_scores_file").on('change', function () {
+      sequence_scores_file = this.files[0];
+      if (sequence_scores_file.size > 10000000) {
+        alert('max upload size is 1MB');
+      } else {
+        // Also see .name, .type
+        console.log('sequence_scores_file loaded: ' + annotations_file.name);
+      }
+    });
+
+    function submitNetworkForAnalysis(list) {
+      var task_name = $taskName.val();
+      var ks = $kValues.val();
+      // -----
+      ks = ks.replaceAll(',', ' ');
+      ks = ks.replaceAll('  ', ' ');
+      if (ks.length == 0) {
+        vexErrorAlert("K values cannot be empty");
+        return true;
+      }
+      if (task_name.length == 0) {
+        vexErrorAlert("Task name should not be empty.");
+        return;
+      }
+      // -----
+      if ($("#max_iter").val())
+        _max_iter = $("#max_iter").val()
+      if ($("#delta_min").val())
+        _delta_min = $("#delta_min").val()
+      // -----
+      var data = {
+        'Networks': [],
+        'task_name': task_name,
+        'max_iter': _max_iter,
+        'ks': ks,
+        'delta_min': _delta_min,
+      };
+      list.find(":selected").each(function (i, selected) {
+        data.Networks.push(networkFiles[$(selected).val()]);
+      });
+      if (data.Networks.length < 2) {
+        vexErrorAlert("Please select at least 2 networks");
+        return;
+      }
+      // -----
+      var fd = new FormData();
+      var read = new FileReader();
+      if(document.getElementById("sequence_scores_file").value == "") {
+        vexErrorAlert("You should upload a file to complete the process");
+        return;
+      }
+      read.readAsText(sequence_scores_file);
+      read.onloadend = function () {
+        console.log('read.onloadend for file: ' + sequence_scores_file.name);
+        // -----
+        fd.append("sequence_scores.lst", new Blob([read.result]), "File0");
+        fd.append("data", JSON.stringify(data))
+        // -----
+        Pace.track(function () {
+          $.ajax({
+            url: '/MultipleAlignment/analyse',
+            type: 'POST',
+            data: fd,
+            // async: false,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false,  // tell jQuery not to set contentType
+            success: function (data) {
+              console.log('success');
+              var jsonparams = JSON.parse(data);
+              var msg = jsonparams.msg;
+              successAlert(msg);
+              refreshRunningTasks();
+            },
+            beforeSend: function (xhr, settings) {
+              xhr.setRequestHeader("X-CSRFToken", csrf_token);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+              console.log('ERRORS: ' + textStatus);
+              errorAlert("Error occurred while computing analysis: " + jqXHR.responseText);
+            }
+          });
+        });
+      }
+    }
+  </script>
+{% endblock %}
