@@ -179,8 +179,9 @@ RUN python --version && cd gnuplot-py-1.8 && python setup.py install
 SHELL ["conda", "run", "-n", "env_27", "python", "-c"]
 RUN import networkx; import Gnuplot; print('hello gnuplot world');
 # cd ..
-# rm -r gnuplot-py-1.8/
 SHELL ["/bin/sh", "-c"]
+RUN pwd && ls
+RUN rm -r ${SETUPDIR}
 
 RUN echo "-----------------------------------------------------------------------"
 
@@ -195,8 +196,11 @@ EXPOSE 8888
 
 # Configure container startup
 RUN chmod 744 docker_container_start.sh
-ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["/home/iconbi_graphcrunch/start_dir/docker_container_start.sh"]
+# ENTRYPOINT ["/bin/bash", "-c"]
+# ENTRYPOINT ["conda", "run", "-n", "GC3Env", "/bin/bash", "-c"]
+# CMD ["/home/iconbi_graphcrunch/start_dir/docker_container_start.sh"]
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "GC3Env", "/bin/sh", "-c"]
+CMD ["pwd && bash /home/iconbi_graphcrunch/start_dir/docker_container_start.sh"]
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
