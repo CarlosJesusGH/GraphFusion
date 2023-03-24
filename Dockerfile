@@ -123,7 +123,7 @@ RUN \
 
 RUN echo "-----------------------------------------------------------------------"
 
-RUN service mysql restart && mysql --execute="SHOW DATABASES;"
+# RUN service mysql restart && mysql --execute="SHOW DATABASES;"
 
 # RUN tar -xzf WebServer_bkp_*.tar.gz -C ${SERVERDIR}
 RUN pwd && ls
