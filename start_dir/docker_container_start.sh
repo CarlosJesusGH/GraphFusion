@@ -1,8 +1,9 @@
 #!/bin/bash
 echo "execute this script with 'source' rather than 'bash'"
 cd /home/iconbi_graphcrunch/
+git reset --hard origin/master
 git pull
-cd GC3_WebServer/
+cd WebServer/
 service mysql restart
 mysql --execute="SHOW DATABASES;"
 conda activate GC3Env
