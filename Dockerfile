@@ -187,7 +187,7 @@ RUN echo "----------------------------------------------------------------------
 
 WORKDIR ${STARTDIR}
 
-EXPOSE 8888
+EXPOSE 8000
 
 # The main purpose of a CMD is to provide defaults for an executing container.
 # There can only be one CMD instruction in a Dockerfile. If you list more than one CMD then only the last CMD will take effect.
@@ -195,12 +195,12 @@ EXPOSE 8888
 # CMD ["run gc3 server", "manage.py for later"]
 
 # Configure container startup
-RUN chmod 744 docker_container_start.sh
+RUN chmod 744 init_script.sh
 # ENTRYPOINT ["/bin/bash", "-c"]
 # ENTRYPOINT ["conda", "run", "-n", "GC3Env", "/bin/bash", "-c"]
 # CMD ["/home/iconbi_graphcrunch/start_dir/docker_container_start.sh"]
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "GC3Env", "/bin/sh", "-c"]
-CMD ["pwd && bash /home/iconbi_graphcrunch/start_dir/docker_container_start.sh"]
+CMD ["pwd && bash /home/iconbi_graphcrunch/start_dir/init_script.sh"]
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
