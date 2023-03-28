@@ -68,7 +68,7 @@ RUN \
 	# export PATH=$HOME/miniconda3/bin:$PATH
 
 # Initialize conda in bash config fiiles:
-# RUN conda init
+RUN conda init
 RUN conda init bash
 
 RUN conda --version

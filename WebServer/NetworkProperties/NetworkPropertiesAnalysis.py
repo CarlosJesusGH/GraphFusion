@@ -81,6 +81,7 @@ class NetworkPropertiesAnalysis(Runnable):
             i = 0
             mappings = []
             for graph_name, graph_data in self.graphs:
+                print("graph_name + str(i)", graph_name + str(i))
                 network = NetworkProperties(graph_name=graph_name + str(i), operational_dir=self.operational_directory)
                 network.parse_content(graph_data)
                 network.evaluate_properties()

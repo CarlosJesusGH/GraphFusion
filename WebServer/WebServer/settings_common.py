@@ -5,7 +5,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 ADMINS = (
     ("Carlos Garcia-Hernandez", 'carlos.garcia2@bsc.es'),
-    ("Varun Verma", 'vv311@ic.ac.uk'),
+    # ("Varun Verma", 'vv311@ic.ac.uk'),
 )
 
 MANAGERS = ADMINS
@@ -172,4 +172,5 @@ LOGGING = {
     }
 }
 
-PYTHON_PATH = BASE_DIR + "/../../bin/python"
+# PYTHON_PATH = BASE_DIR + "/../../bin/python"
+PYTHON_PATH = "/root/miniconda3/envs/GC3Env/bin/python"
