@@ -15,8 +15,11 @@ else
 git clone $git_repo
 mv iconbi-graphcrunch iconbi_graphcrunch
 fi
+# instead of conda init + logout/login
+source /root/miniconda3/etc/profile.d/conda.sh
 conda deactivate
-source /home/Downloads/GC3-WWW/www/GC3Env/bin/activate
+#source /home/Downloads/GC3-WWW/www/GC3Env/bin/activate
+conda activate GC3Env
 cd /home/iconbi_graphcrunch/WebServer
 # service mysql start
 service mysql restart

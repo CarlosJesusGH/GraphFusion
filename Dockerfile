@@ -5,33 +5,27 @@ MAINTAINER Carlos Garcia-Hernandez carlos.garcia2@bsc.es
 
 RUN echo "-----------------------------------------------------------------------"
 
+ENV HOMEDIR=/home
+ENV REPODIR=/home/iconbi_graphcrunch
+ENV SETUPDIR=/home/iconbi_graphcrunch/setup_dir
+ENV SERVERDIR=/home/iconbi_graphcrunch/WebServer
+ENV STARTDIR=/home/iconbi_graphcrunch/start_dir
+
 # clone souce repository with working directories
 RUN dpkg --add-architecture i386
 RUN apt -y update
 RUN apt -y upgrade
 RUN apt install -y git
 RUN pwd && ls
-WORKDIR /home/
+WORKDIR ${HOMEDIR}
 RUN git clone https://gitfront.io/r/user-1463396/XcZT56w1rUEi/iconbi-graphcrunch.git
 RUN pwd && ls
+# TODO remove this later
 RUN mv iconbi-graphcrunch iconbi_graphcrunch
 RUN pwd && ls
-RUN ls /home/iconbi_graphcrunch/
+RUN ls ${REPODIR}
 
 # WORKDIR creates the path if it doesn't exist. It is like bash-CD, but it persist across intermidiate images, it means that
-ENV SETUPDIR=/home/iconbi_graphcrunch/setup_dir
-ENV SERVERDIR=/home/iconbi_graphcrunch/WebServer
-ENV STARTDIR=/home/iconbi_graphcrunch/start_dir
-# RUN mkdir ${SETUPDIR} && mkdir ${SERVERDIR} && mkdir ${STARTDIR}
-# 
-
-# ADD . $SETUPDIR
-# COPY requirements_GC3Env.txt ${SETUPDIR}
-# COPY WebServer_bkp_*.tar.gz ${SETUPDIR}
-# COPY docker_container_start.sh ${STARTDIR}
-# COPY requirements_env37v2.txt ${SETUPDIR}
-# COPY gnuplot-py-1.8.tar.gz ${SETUPDIR}
-
 WORKDIR ${SETUPDIR}
 
 RUN echo "-----------------------------------------------------------------------"
@@ -185,22 +179,22 @@ RUN rm -r ${SETUPDIR}
 
 RUN echo "-----------------------------------------------------------------------"
 
-WORKDIR ${STARTDIR}
+WORKDIR ${HOMEDIR}
 
 EXPOSE 8000
 
-# The main purpose of a CMD is to provide defaults for an executing container.
-# There can only be one CMD instruction in a Dockerfile. If you list more than one CMD then only the last CMD will take effect.
-# CMD ["echo", "Hello GC3 World!"]
-# CMD ["run gc3 server", "manage.py for later"]
-
-# Configure container startup
+RUN cp ${STARTDIR}/init_script.sh .
 RUN chmod 744 init_script.sh
+
+RUN rm -r ${REPODIR}
+
 # ENTRYPOINT ["/bin/bash", "-c"]
 # ENTRYPOINT ["conda", "run", "-n", "GC3Env", "/bin/bash", "-c"]
 # CMD ["/home/iconbi_graphcrunch/start_dir/docker_container_start.sh"]
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "GC3Env", "/bin/sh", "-c"]
-CMD ["pwd && bash /home/iconbi_graphcrunch/start_dir/init_script.sh"]
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "GC3Env", "/bin/sh", "-c"]
+# CMD ["pwd && bash /home/init_script.sh"]
+
+ENTRYPOINT ["/home/init_script.sh"]
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
