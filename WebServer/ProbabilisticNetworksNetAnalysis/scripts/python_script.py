@@ -28,14 +28,16 @@ print("os.getcwd()", os.getcwd() + "/")
 print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls", shell=True))
 
 # Our packages:
-os.chdir("/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksNetAnalysis/scripts")
+# os.chdir("/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksNetAnalysis/scripts")
+os.chdir("/home/iconbi_graphcrunch/WebServer/ProbabilisticNetworksNetAnalysis/scripts")
 import Script_Parallel_Nodes_Count_Dist
 
 # Set the paths:
 Name_Network   = args[0]
 network_path   = args[1]
 save_directory = args[1]
-Run_path   = "/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksNetAnalysis/scripts/Release/"
+# Run_path   = "/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksNetAnalysis/scripts/Release/"
+Run_path   = "/home/iconbi_graphcrunch/WebServer/ProbabilisticNetworksNetAnalysis/scripts/Release/"
 undir_path = args[1]
 
 # -------------------------------------------
