@@ -1,2 +1,2 @@
-# ICONBI GraphFusion
-A web-based graph analysis tool for bioinformatics network data to perform various analysis specific to Bioinformatics domain. 
+# GraphFusion
+An Intuitive Web-Based Graph Analytics, Fusion, and Visualization Tool

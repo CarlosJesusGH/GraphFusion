@@ -36,7 +36,7 @@ def update_drugstone_container(request):
     print("start update_drugstone_container")
     drugstone_settings = {
         'groups': json.dumps({'nodeGroups': {'Gene': {'type':'Gene','color':'#999999','groupName':'Genes','shape':'ellipse'}}}),
-        'config': json.dumps({'identifier': 'symbol', 'title': 'GraphCrunch3 + DrugstOne', 'autofillEdges': True}),
+        'config': json.dumps({'identifier': 'symbol', 'title': 'GraphFusion + DrugstOne', 'autofillEdges': True}),
         'network': []
     }
     try:
@@ -74,7 +74,7 @@ def analysis_page(request):
 
     # test using drugstone
     drugstone_settings = {
-        'config': {"title": "GraphCrunch3 + DrugstOne"},
+        'config': {"title": "GraphFusion + DrugstOne"},
         'network': {"nodes": []}
     }
 

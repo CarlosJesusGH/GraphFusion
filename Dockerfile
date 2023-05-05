@@ -6,10 +6,10 @@ MAINTAINER Carlos Garcia-Hernandez carlos.garcia2@bsc.es
 RUN echo "-----------------------------------------------------------------------"
 
 ENV HOMEDIR=/home
-ENV REPODIR=/home/iconbi_graphcrunch
-ENV SETUPDIR=/home/iconbi_graphcrunch/setup_dir
-ENV SERVERDIR=/home/iconbi_graphcrunch/WebServer
-ENV STARTDIR=/home/iconbi_graphcrunch/start_dir
+ENV REPODIR=/home/graphfusion
+ENV SETUPDIR=/home/graphfusion/setup_dir
+ENV SERVERDIR=/home/graphfusion/WebServer
+ENV STARTDIR=/home/graphfusion/start_dir
 
 # clone souce repository with working directories
 RUN dpkg --add-architecture i386
@@ -18,10 +18,7 @@ RUN apt -y upgrade
 RUN apt install -y git
 RUN pwd && ls
 WORKDIR ${HOMEDIR}
-RUN git clone https://gitfront.io/r/user-1463396/XcZT56w1rUEi/iconbi-graphcrunch.git
-RUN pwd && ls
-# TODO remove this later
-RUN mv iconbi-graphcrunch iconbi_graphcrunch
+RUN git clone https://github.com/CarlosJesusGH/GraphFusion.git
 RUN pwd && ls
 RUN ls ${REPODIR}
 
@@ -112,7 +109,7 @@ RUN service apache2 start
 
 RUN \
     service mysql restart && \
-    mysql --execute="CREATE DATABASE graphcrunch3; CREATE DATABASE gc3;" && \
+    mysql --execute="CREATE DATABASE graphfusion; CREATE DATABASE gc3;" && \
     mysql --execute="SHOW DATABASES;"
 
 RUN echo "-----------------------------------------------------------------------"
@@ -190,7 +187,7 @@ RUN rm -r ${REPODIR}
 
 # ENTRYPOINT ["/bin/bash", "-c"]
 # ENTRYPOINT ["conda", "run", "-n", "GC3Env", "/bin/bash", "-c"]
-# CMD ["/home/iconbi_graphcrunch/start_dir/docker_container_start.sh"]
+# CMD ["/home/graphfusion/start_dir/docker_container_start.sh"]
 # ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "GC3Env", "/bin/sh", "-c"]
 # CMD ["pwd && bash /home/init_script.sh"]
 
@@ -204,3 +201,9 @@ ENTRYPOINT ["/home/init_script.sh"]
 # [2] https://docs.docker.com/engine/reference/builder/#shell
 # [3] https://stackoverflow.com/questions/46800594/start-service-using-systemctl-inside-docker-container
 # [4] https://www.bmc.com/blogs/docker-cmd-vs-entrypoint/
+
+# -----------------------------------------------------------------------
+# -----------------------------------------------------------------------
+
+# docker commands after update. re-build and push new image to dockerhub:
+# dockerbuild && dockerpush

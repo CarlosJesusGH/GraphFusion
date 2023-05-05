@@ -13,7 +13,7 @@ DATABASES = {
         # 'HOST': 'db4free.net',
         # 'PORT': '3306',
 
-        'NAME': 'graphcrunch3',
+        'NAME': 'graphfusion',
         'USER': 'root',
         'PASSWORD': 'root',
         'PORT': '3306',

@@ -6,7 +6,7 @@ DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'graphcrunch3',
+        'NAME': 'graphfusion',
         'USER': 'root',
         'PASSWORD': 'root',
         'PORT': '3306',
