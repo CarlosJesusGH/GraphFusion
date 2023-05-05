@@ -4,7 +4,7 @@ from settings_common import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-ALLOWED_HOSTS = ["bionets06.doc.ic.ac.uk", "graphfusion.doc.ic.ac.uk"]
+ALLOWED_HOSTS = ["bionets06.doc.ic.ac.uk", "GraphFusion.doc.ic.ac.uk"]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True

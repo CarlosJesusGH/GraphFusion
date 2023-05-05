@@ -5,10 +5,10 @@ set -e
 
 # git_repo=$1;
 git_repo="https://github.com/CarlosJesusGH/GraphFusion.git"
-DIR="/home/graphfusion/"
+DIR="/home/GraphFusion/"
 if [ -d "$DIR" ]; then
 ### Take action if $DIR exists ###
-cd /home/graphfusion/
+cd /home/GraphFusion/
 git reset --hard origin/master
 git pull
 else
@@ -20,7 +20,7 @@ source /root/miniconda3/etc/profile.d/conda.sh
 conda deactivate
 #source /home/Downloads/GC3-WWW/www/GC3Env/bin/activate
 conda activate GC3Env
-cd /home/graphfusion/WebServer
+cd /home/GraphFusion/WebServer
 # service mysql start
 service mysql restart
 mysql --execute="SHOW DATABASES;"

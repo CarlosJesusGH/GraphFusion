@@ -6,7 +6,7 @@ DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'graphfusion',
+        'NAME': 'GraphFusion',
         'USER': 'root',
         'PASSWORD': 'root',
         'PORT': '3306',

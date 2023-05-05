@@ -38,7 +38,7 @@ function validateEmail($email) {
   return emailReg.test($email);
 }
 
-var app = angular.module("graphfusion", []);
+var app = angular.module("GraphFusion", []);
 
 app.controller("loginFormCtrl", function ($scope) {
 

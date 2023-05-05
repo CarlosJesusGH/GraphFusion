@@ -6,10 +6,10 @@ MAINTAINER Carlos Garcia-Hernandez carlos.garcia2@bsc.es
 RUN echo "-----------------------------------------------------------------------"
 
 ENV HOMEDIR=/home
-ENV REPODIR=/home/graphfusion
-ENV SETUPDIR=/home/graphfusion/setup_dir
-ENV SERVERDIR=/home/graphfusion/WebServer
-ENV STARTDIR=/home/graphfusion/start_dir
+ENV REPODIR=/home/GraphFusion
+ENV SETUPDIR=/home/GraphFusion/setup_dir
+ENV SERVERDIR=/home/GraphFusion/WebServer
+ENV STARTDIR=/home/GraphFusion/start_dir
 
 # clone souce repository with working directories
 RUN dpkg --add-architecture i386
@@ -109,7 +109,7 @@ RUN service apache2 start
 
 RUN \
     service mysql restart && \
-    mysql --execute="CREATE DATABASE graphfusion; CREATE DATABASE gc3;" && \
+    mysql --execute="CREATE DATABASE GraphFusion; CREATE DATABASE gc3;" && \
     mysql --execute="SHOW DATABASES;"
 
 RUN echo "-----------------------------------------------------------------------"
@@ -187,7 +187,7 @@ RUN rm -r ${REPODIR}
 
 # ENTRYPOINT ["/bin/bash", "-c"]
 # ENTRYPOINT ["conda", "run", "-n", "GC3Env", "/bin/bash", "-c"]
-# CMD ["/home/graphfusion/start_dir/docker_container_start.sh"]
+# CMD ["/home/GraphFusion/start_dir/docker_container_start.sh"]
 # ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "GC3Env", "/bin/sh", "-c"]
 # CMD ["pwd && bash /home/init_script.sh"]
 
