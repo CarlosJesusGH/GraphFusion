@@ -22,6 +22,7 @@ from SimpletsPairwiseAnalysis.settings import SIMPLETS_DVM_ANALYSIS_TASK
 from HyperGraphletsNetAnalysis.settings import HYPERGRAPHLETS_NET_ANALYSIS_TASK
 from ClusteringAndEnrichment.settings import CLUSTERING_ANALYSIS_TASK
 from ClusteringAndEnrichment.settings import ENRICHMENT_ANALYSIS_TASK
+from TopologicalAnalysis.settings import TOPOLOGICAL_ANALYSIS_TASK
 # flag:NewTaskTemplate
 from a_NewTaskTemplate.settings import NEWTASKTEMPLATE_TASK
 
@@ -46,6 +47,7 @@ TASK_TYPES = (
     (HYPERGRAPHLETS_NET_ANALYSIS_TASK, HYPERGRAPHLETS_NET_ANALYSIS_TASK),
     (CLUSTERING_ANALYSIS_TASK, CLUSTERING_ANALYSIS_TASK),
     (ENRICHMENT_ANALYSIS_TASK, ENRICHMENT_ANALYSIS_TASK),
+    (TOPOLOGICAL_ANALYSIS_TASK, TOPOLOGICAL_ANALYSIS_TASK),
     # flag:NewTaskTemplate
     (NEWTASKTEMPLATE_TASK, NEWTASKTEMPLATE_TASK),
 )

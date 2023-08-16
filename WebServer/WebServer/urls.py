@@ -25,6 +25,7 @@ from ProbabilisticNetworksModelAnalysis import urls as ProbabilisticNetworksMode
 from SimpletsPairwiseAnalysis import urls as SimpletsPairwiseAnalysis_urls
 from HyperGraphletsNetAnalysis import urls as HyperGraphletsNetAnalysis_urls
 from ClusteringAndEnrichment import urls as ClusteringAndEnrichment_urls
+from TopologicalAnalysis import urls as TopologicalAnalysis_urls
 # flag:NewTaskTemplate
 from a_NewTaskTemplate import urls as newtasktemplate_urls
 
@@ -59,6 +60,7 @@ urlpatterns = patterns(
     url(r'^SimpletsPairwiseAnalysis/', include(SimpletsPairwiseAnalysis_urls.urlpatterns)),
     url(r'^HyperGraphletsNetAnalysis/', include(HyperGraphletsNetAnalysis_urls.urlpatterns)),
     url(r'^ClusteringAndEnrichment/', include(ClusteringAndEnrichment_urls.urlpatterns)),
+    url(r'^TopologicalAnalysis/', include(TopologicalAnalysis_urls.urlpatterns)),
     # url(r'^/', include(_urls.urlpatterns)),
     # flag:NewTaskTemplate
     url(r'^NewTaskTemplate/', include(newtasktemplate_urls.urlpatterns)),

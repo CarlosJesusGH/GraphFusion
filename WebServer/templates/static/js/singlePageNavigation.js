@@ -29,6 +29,7 @@ function setUpUrlMappings() {
   var SimpletsDataVsModel = "SimpletsDataVsModel";
   var HyperGraphletsNetAnalysis = "HyperGraphletsNetAnalysis";
   var ClusteringAndEnrichment = "ClusteringAndEnrichment";
+  var TopologicalAnalysis = "TopologicalAnalysis";
   // var  = "";
   // flag:NewTaskTemplate
   var NewTaskTemplate = "NewTaskTemplate";
@@ -56,6 +57,7 @@ function setUpUrlMappings() {
   urlMappings["/" + SimpletsPairwiseAnalysis + "/page_dvm/"] = SimpletsDataVsModel;
   urlMappings["/" + HyperGraphletsNetAnalysis + "/"] = HyperGraphletsNetAnalysis;
   urlMappings["/" + ClusteringAndEnrichment + "/clustering_and_enrichment_analysis/"] = ClusteringAndEnrichment;
+  urlMappings["/" + TopologicalAnalysis + "/"] = TopologicalAnalysis;
   // urlMappings["/" +  + "/"] = ;
   // flag:NewTaskTemplate
   urlMappings["/" + NewTaskTemplate + "/"] = NewTaskTemplate;

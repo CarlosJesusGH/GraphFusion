@@ -1,0 +1,162 @@
+<div class="row-fluid">
+  {% csrf_token %}
+  <h3>Topological Analysis</h3>
+  <div class="row-fluid" style="padding:5px; padding-top: 20px;">
+    <table class="table table-hover table-bordered text-center">
+      <thead>
+        <!-- table headings -->
+        <tr class="topological-table-heading">
+          <!-- We can make each column having the same width using style="width: #%" -->
+          <th scope="col">#</th>
+          <th scope="col">Visualization</th>
+          <th scope="col">Show Properties</th>
+          <th scope="col">Network Analysis</th>
+          <th scope="col">Model Analysis</th>
+          <th scope="col">Clustering & Enrichment</th>
+          <th scope="col">Graphlet Laplacians</th>
+          <th scope="col">Graphlet Eigencentralities</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- start of Undirected Networks -->
+        <tr>
+          <th class="topological-table-heading" scope="row">Undirected Networks</th>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/Visualise/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/networkProperties/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/pairwiseAnalysis/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/DataVsModel/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover"
+            onclick="navigateTo('/ClusteringAndEnrichment/clustering_and_enrichment_analysis/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/GraphletLaplacians/');return false;">
+            pending
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/GraphletEigencentralities/');return false;">
+            pending
+          </td>
+        </tr>
+        <!-- start of Directed Networks -->
+        <tr>
+          <th class="topological-table-heading" scope="row">Directed Networks</th>
+          <td>
+            <!-- empty -->
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/DirectedNetworkProperties/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/DirectedNetworkPairwise/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/DirectedNetworkDataVsModel/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+        </tr>
+        <!-- start of Probabilistic Networks -->
+        <tr>
+          <th class="topological-table-heading" scope="row">Probabilistic Networks</th>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/ProbabilisticNetworksNetAnalysis/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover"
+            onclick="navigateTo('/ProbabilisticNetworksModelAnalysis/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+        </tr>
+        <!-- start of Simplicial Complexes -->
+        <tr>
+          <th class="topological-table-heading" scope="row">Simplicial Complexes</th>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/SimpletsPairwiseAnalysis/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/SimpletsPairwiseAnalysis/page_dvm/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+        </tr>
+        <!-- start of Hypergraphs -->
+        <tr>
+          <th class="topological-table-heading" scope="row">Hypergraphs</th>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td class="change-to-hand-on-hover" onclick="navigateTo('/HyperGraphletsNetAnalysis/');return false;">
+            <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+          <td>
+            <!-- empty -->
+          </td>
+        </tr>
+      </tbody>
+  </div>
+</div>
+
+<style>
+  /* set background color of td tags to green when on hover */
+  .change-to-hand-on-hover:hover {
+    background-color: #d4edda;
+  }
+
+  .topological-table-heading {
+    background-color: #5cb85c; 
+    color: white;
+  }
+</style>
