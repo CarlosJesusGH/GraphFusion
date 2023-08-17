@@ -171,6 +171,20 @@
                     </div>
                   </form>
                 </div>
+
+                <form class="form-horizontal" action='/guest_login/' method="POST">
+                  <!-- next line is needed for csrf token, which is the security token for the form. if we don't have it, the form will not be submitted. -->
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <!-- Button -->
+                    <!-- <div class="col-sm-offset-3 col-sm-8">
+                      <a href="/authenticate/guest_login/" class="btn btn-primary">Login as Guest</a>
+                    </div> -->
+                    <div class="col-sm-offset-3 col-sm-8">
+                      <button class="btn btn-success" value="Submit" id="guestloginBtn">Login as Guest</button>
+                    </div>
+                  </div>
+                </form>
               </div>
               {% if register_enabled %}
                 <div id="createAccount" class="tab-pane fade">

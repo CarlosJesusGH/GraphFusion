@@ -42,6 +42,7 @@ def register(request):
 
 
 def login(request):
+    print("log: login")
     form = LoginForm(request.POST, prefix="login")
     if form.is_valid():
         username = form.cleaned_data["username"]
@@ -52,6 +53,34 @@ def login(request):
             return HttpResponseRedirect("/dashboard/")
     request.session["error"] = 'Wrong username/password'
     return HttpResponseRedirect("/")
+
+def guest_login(request):
+    print("log: guest login")
+    username = "guest"
+    password = "guestuser"
+    user = authenticate_user(username, password, request)
+    if user is None:
+        print("user is None")
+        if does_username_exists(username):
+            request.session["error"] = "Username already taken."
+            return HttpResponseRedirect("/")
+        first_name = "guest"
+        last_name = "guest"
+        email = "guest@guest.com"
+        register_user(username, password, first_name, last_name, email)
+        user = authenticate_user(username, password, request)
+        LOGGER.info("Registered user: " + user.username)
+    if user is not None:
+        LOGGER.info("Logging in " + user.username)
+        return HttpResponseRedirect("/dashboard/")
+    else:
+        if does_username_exists(username):
+            print("The user ", username, " exists but there's a problem login it in")
+            request.session["error"] = "Guest user exist but there's a problem login it in"
+        else:
+            print("STH is NOT valid, user is None")
+            request.session["error"] = "Guest user doesn't exist and there's a problem registering it"
+        return HttpResponseRedirect("/")
 
 
 def check_username_exists(request):

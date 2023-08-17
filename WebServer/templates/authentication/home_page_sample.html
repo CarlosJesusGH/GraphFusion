@@ -29,8 +29,10 @@
           <a class="nav-bar-top-right-menu-item change-to-hand-on-hover dropdown-toggle" href="/dashboard/"
              data-toggle="modal">Dashboard</a>
         {% else %}
-          <a class="nav-bar-top-right-menu-item change-to-hand-on-hover dropdown-toggle" href="#loginModalSmall"
-             data-toggle="modal">{% if register_enabled %} Login/Register {% else %} Login {% endif %}</a>
+          <!-- <a class="nav-bar-top-right-menu-item change-to-hand-on-hover dropdown-toggle" href="#loginModalSmall"
+             data-toggle="modal">{% if register_enabled %} Login/Register {% else %} Login {% endif %}</a> -->
+          <a class="nav-bar-top-right-menu-item change-to-hand-on-hover dropdown-toggle" href="/guest_login/"
+             data-toggle="modal">Enter as  guest</a>
         {% endif %}
       </li>
     </ul>
