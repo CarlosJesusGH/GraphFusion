@@ -182,6 +182,7 @@ EXPOSE 8000
 
 RUN cp ${STARTDIR}/init_script.sh .
 RUN chmod 744 init_script.sh
+RUN chmod 744 init_script_dev.sh
 
 RUN rm -r ${REPODIR}
 
