@@ -1,2 +1,3 @@
 # GraphFusion
-An Intuitive Web-Based Graph Analytics, Fusion, and Visualization Tool
+An Intuitive Graph Analytics, Data Fusion, and Visualization Tool
+
