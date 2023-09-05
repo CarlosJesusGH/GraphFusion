@@ -1,16 +1,16 @@
 {% extends 'base_result_and_analysis_template.html' %}
 
 {% block ANALYSIS_TAB_HEADING %}
-  Network Properties
+  Analysis
 {% endblock %}
 
 {% block TITLE %}
-  <h3>NewTaskTemplate Networks - Properties</h3>
+  <h3>Graphlet Eigencentralities</h3>
 {% endblock %}
 
 {% block ANALYSIS_TAB %}
   <div id="propsDiv">
-    <h5>Select networks to run the analysis.</h5>
+    <h5>Select network to run the analysis.</h5>
 
     <div class="row-fluid" style="padding:5px;">
       <div class="row-fluid">
@@ -39,7 +39,7 @@
               <div class="col-lg-2">
                 <button class="btn btn-success"
                         onclick="submitNetworkForAnalysis($('#networkNamesList')); return false;"
-                        id="analyseButton">Analyse Networks
+                        id="analyseButton">Run
                 </button>
               </div>
             </div>

@@ -23,6 +23,8 @@ from HyperGraphletsNetAnalysis.settings import HYPERGRAPHLETS_NET_ANALYSIS_TASK
 from ClusteringAndEnrichment.settings import CLUSTERING_ANALYSIS_TASK
 from ClusteringAndEnrichment.settings import ENRICHMENT_ANALYSIS_TASK
 from TopologicalAnalysis.settings import TOPOLOGICAL_ANALYSIS_TASK
+from GraphletEigencentralities.settings import GraphletEigencentralities_TASK
+from GraphletLaplacians.settings import GraphletLaplacians_TASK
 # flag:NewTaskTemplate
 from a_NewTaskTemplate.settings import NEWTASKTEMPLATE_TASK
 
@@ -48,6 +50,8 @@ TASK_TYPES = (
     (CLUSTERING_ANALYSIS_TASK, CLUSTERING_ANALYSIS_TASK),
     (ENRICHMENT_ANALYSIS_TASK, ENRICHMENT_ANALYSIS_TASK),
     (TOPOLOGICAL_ANALYSIS_TASK, TOPOLOGICAL_ANALYSIS_TASK),
+    (GraphletEigencentralities_TASK, GraphletEigencentralities_TASK),
+    (GraphletLaplacians_TASK, GraphletLaplacians_TASK),
     # flag:NewTaskTemplate
     (NEWTASKTEMPLATE_TASK, NEWTASKTEMPLATE_TASK),
 )

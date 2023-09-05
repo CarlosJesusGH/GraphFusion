@@ -30,6 +30,8 @@ function setUpUrlMappings() {
   var HyperGraphletsNetAnalysis = "HyperGraphletsNetAnalysis";
   var ClusteringAndEnrichment = "ClusteringAndEnrichment";
   var TopologicalAnalysis = "TopologicalAnalysis";
+  var GraphletEigencentralities = "GraphletEigencentralities";
+  var GraphletLaplacians = "GraphletLaplacians";
   // var  = "";
   // flag:NewTaskTemplate
   var NewTaskTemplate = "NewTaskTemplate";
@@ -58,6 +60,8 @@ function setUpUrlMappings() {
   urlMappings["/" + HyperGraphletsNetAnalysis + "/"] = HyperGraphletsNetAnalysis;
   urlMappings["/" + ClusteringAndEnrichment + "/clustering_and_enrichment_analysis/"] = ClusteringAndEnrichment;
   urlMappings["/" + TopologicalAnalysis + "/"] = TopologicalAnalysis;
+  urlMappings["/" + GraphletEigencentralities + "/"] = GraphletEigencentralities;
+  urlMappings["/" + GraphletLaplacians + "/"] = GraphletLaplacians;
   // urlMappings["/" +  + "/"] = ;
   // flag:NewTaskTemplate
   urlMappings["/" + NewTaskTemplate + "/"] = NewTaskTemplate;
