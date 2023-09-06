@@ -188,6 +188,7 @@ EXPOSE 8000
 
 RUN cp ${STARTDIR}/init_script.sh .
 RUN chmod 744 init_script.sh
+RUN cp ${STARTDIR}/init_script_dev.sh .
 RUN chmod 744 init_script_dev.sh
 
 RUN rm -r ${REPODIR}
@@ -214,3 +215,12 @@ ENTRYPOINT ["/home/init_script.sh"]
 
 # docker commands after update. re-build and push new image to dockerhub:
 # dockerbuild && dockerpush
+
+# if new image is on dockerhub, pull it and run it:
+# dockerpull && dockerrun
+
+# to run image for bash only
+# docker run -it --rm --entrypoint "/bin/bash" carlosjesusgh/graphfusion:latest
+
+# to run image for development
+# docker run -it --rm -p 8000:8000 -v /home/bscuser/repos/GraphFusion:/home/GraphFusion_host --entrypoint "/home/init_script_dev.sh" carlosjesusgh/graphfusion:latest
