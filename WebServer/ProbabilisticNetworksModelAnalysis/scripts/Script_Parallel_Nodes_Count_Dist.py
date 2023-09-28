@@ -99,6 +99,8 @@ def Compute_Orbits_Spliting_Nodes(Network_Name, Total_Number_Nodes, file_Directo
     commands = pd.DataFrame(columns=["Command_G0, Command_G3", "Command_G4"])
 
     for sentence in range(len(groups)):
+
+        print("os.getcwd()", os.getcwd())
         
         sub_command_G0 = [str(Run_path) + "Lucky_GOGO_Node_Parallel -s 3" + " "  +
                              "-m gtrie " +str(file_Directory)+ "undir3.gt " + " " +

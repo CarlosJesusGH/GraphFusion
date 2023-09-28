@@ -1,0 +1,69 @@
+<!-- output files -->
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Output files</h3>
+  </div>
+
+  <div class="panel-body">
+    <table id="output_files_table" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>
+            Filename
+          </th>
+        </tr>
+        </thead>
+      <tbody>
+      {% for output_file in output_files %}
+        <tr>
+          <td>
+            {{ output_file }}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+<div class="panel panel-green">
+  <div class="panel-heading">
+    <h3 class="panel-title"><i class="fa fa-bar-chart-o"></i> Results file content</h3>
+  </div>
+  <div class="panel-body">
+    <!-- insert a text box to print contents in result_txt. textarea's width should fit panel-body width -->
+    <textarea rows="20" cols="100" style="width:100%" readonly>
+      {% for line in result_txt %}
+        {{ line }} 
+      {% endfor %}
+    </textarea>
+    
+
+    
+    
+    
+
+
+  </div>
+</div>
+
+<!-- <table id="properties_table" class="table table-striped table-bordered">
+  <thead>
+  <tr>
+    {% for h in heading %}
+      <th>{{ h }}</th>
+    {% endfor %}
+  </tr>
+  </thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      {% for val in row %}
+        <td>{{ val }}</td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table> -->

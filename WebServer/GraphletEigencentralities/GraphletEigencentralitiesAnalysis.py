@@ -24,18 +24,15 @@ class GraphletEigencentralitiesException(Exception):
         Exception.__init__(self, message)
 
 class GraphletEigencentralitiesAnalysis(Task):
-    def __init__(self, net_names, request_FILES, user, task_name, max_iter, delta_min, ks):
+    def __init__(self, net_names, request_FILES, user, task_name):
         Task.__init__(self, name=task_name, task_id=-1)
         self.user = user
         self.net_names = net_names
         self.request_FILES = request_FILES
-        self.max_iter = max_iter
-        self.delta_min = delta_min
-        self.ks = list(map(int, ks.split()))
         self.task = TaskModel()
         temp = self.__get_fresh_dir()
         self.operational_dir = COMPUTATIONS_DIR + "/" + temp + "/"
-        self.graph_path = self.operational_dir + "Nets/"
+        self.graph_path = self.operational_dir
         self.__initialise_operational_directory()
         self.__save_task_began(user=user, task_name=task_name, directory=temp)
         self.task_id = self.task.taskId
@@ -60,35 +57,12 @@ class GraphletEigencentralitiesAnalysis(Task):
         make_system_call("mkdir " + self.operational_dir)
         make_system_call("mkdir " + self.graph_path)
 
-    def __save_graph(self):
-        f_octave = open(self.operational_dir + "octave_script.m", "w")
-        f_octave.write("warning('off', 'all');\n")
-        f_octave.write("pkg load statistics\n")
-        f_octave.write("run_nmtf({")
-        # './Nets/CElegans.edgelist', './Nets/DMelanogaster.edgelist', './Nets/MMusculus.edgelist'
-        f_nlist = open(self.operational_dir + "network_list.txt", "w")
-        for net_name, network_list in self.net_names:
-            edgelist_path = self.graph_path + net_name
+    def __save_graphs(self):
+        for network_name, network_data in self.net_names:
+            edgelist_path = self.graph_path + network_name
             f = open(edgelist_path, "w")
-            f.write(network_list)
-            f.close()
-            # write to octave_script.m
-            f_octave.write("'" + edgelist_path + "', ")
-            # parse to leda and write
-            leda_path = self.graph_path + net_name + ".gw"
-            f = open(leda_path, "w")
-            f.write(ListToLeda(graph_list=network_list).convert_to_leda())
-            f.close()
-            # write to network_list.txt
-            f_nlist.write(leda_path + "\n")
-        f_nlist.close()
-        # write to octave_script.m
-        f_octave.write("}, '" + REQUEST_FILES[0] + "', ")
-        f_octave.write("[" + ", ".join(map(str, self.ks)) + "], ")
-        f_octave.write(self.max_iter + ", " + self.delta_min + ", 'nmtf_scores.lst')\n")
-        f_octave.close()
-
-        
+            f.write(network_data)
+            f.close()        
 
     def __save_file_to_dir(self, directory, filename, filedata):
         print("save_file_to_dir for file:", filename)
@@ -104,9 +78,7 @@ class GraphletEigencentralitiesAnalysis(Task):
 
 
     def __run_task(self):
-        # return make_system_call("ls " + self.operational_dir, working_dir=self.operational_dir)
-        return make_system_call("bash " + BASH_SCRIPT_PATH + " " + self.operational_dir, working_dir=self.operational_dir)
-        # return make_system_call("bash " + PSB_MATCOMP_SCRIPT_PATH + " " + op_dir + " " + fact_name + " " + PSB_MATCOMP_OUT_FILES[0] + " " + PSB_MATCOMP_OUT_FILES[1] + " " + PSB_MATCOMP_ENTITYLIST_ROWS + " " + PSB_MATCOMP_ENTITYLIST_COLS, working_dir=op_dir)
+        return make_system_call("bash " + BASH_SCRIPT_PATH + " " + self.net_names[0][0] + " " + self.operational_dir, working_dir=self.operational_dir)
     
     @classmethod
     def __get_fresh_dir(cls):
@@ -117,7 +89,7 @@ class GraphletEigencentralitiesAnalysis(Task):
 
     def run_task(self):
         try:
-            self.__save_graph()
+            self.__save_graphs()
             self.__save_files()
             result = self.__run_task()
             LOGGER.info(result)

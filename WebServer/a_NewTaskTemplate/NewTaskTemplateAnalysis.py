@@ -35,7 +35,7 @@ class NewTaskTemplateAnalysis(Task):
         self.task = TaskModel()
         temp = self.__get_fresh_dir()
         self.operational_dir = COMPUTATIONS_DIR + "/" + temp + "/"
-        self.graph_path = self.operational_dir + "Nets/"
+        self.graph_path = self.operational_dir
         self.__initialise_operational_directory()
         self.__save_task_began(user=user, task_name=task_name, directory=temp)
         self.task_id = self.task.taskId
@@ -60,33 +60,12 @@ class NewTaskTemplateAnalysis(Task):
         make_system_call("mkdir " + self.operational_dir)
         make_system_call("mkdir " + self.graph_path)
 
-    def __save_graph(self):
-        f_octave = open(self.operational_dir + "octave_script.m", "w")
-        f_octave.write("warning('off', 'all');\n")
-        f_octave.write("pkg load statistics\n")
-        f_octave.write("run_nmtf({")
-        # './Nets/CElegans.edgelist', './Nets/DMelanogaster.edgelist', './Nets/MMusculus.edgelist'
-        f_nlist = open(self.operational_dir + "network_list.txt", "w")
-        for net_name, network_list in self.net_names:
-            edgelist_path = self.graph_path + net_name
+    def __save_graphs(self):
+        for network_name, network_data in self.net_names:
+            edgelist_path = self.graph_path + network_name
             f = open(edgelist_path, "w")
-            f.write(network_list)
+            f.write(network_data)
             f.close()
-            # write to octave_script.m
-            f_octave.write("'" + edgelist_path + "', ")
-            # parse to leda and write
-            leda_path = self.graph_path + net_name + ".gw"
-            f = open(leda_path, "w")
-            f.write(ListToLeda(graph_list=network_list).convert_to_leda())
-            f.close()
-            # write to network_list.txt
-            f_nlist.write(leda_path + "\n")
-        f_nlist.close()
-        # write to octave_script.m
-        f_octave.write("}, '" + REQUEST_FILES[0] + "', ")
-        f_octave.write("[" + ", ".join(map(str, self.ks)) + "], ")
-        f_octave.write(self.max_iter + ", " + self.delta_min + ", 'nmtf_scores.lst')\n")
-        f_octave.close()
 
         
 
@@ -117,7 +96,7 @@ class NewTaskTemplateAnalysis(Task):
 
     def run_task(self):
         try:
-            self.__save_graph()
+            self.__save_graphs()
             self.__save_files()
             result = self.__run_task()
             LOGGER.info(result)

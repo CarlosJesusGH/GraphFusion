@@ -12,7 +12,7 @@ import sys
 # ---------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------
-print("Hello world from python script")
+print("flag: python main")
 args = sys.argv[1:]
 print("args", args)
 
@@ -29,7 +29,8 @@ print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls",
 
 # Our packages:
 # os.chdir("/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksNetAnalysis/scripts")
-os.chdir("/home/GraphFusion/WebServer/ProbabilisticNetworksNetAnalysis/scripts")
+# os.chdir("/home/GraphFusion/WebServer/ProbabilisticNetworksNetAnalysis/scripts")
+os.chdir("../../scripts")
 import Script_Parallel_Nodes_Count_Dist
 
 # Set the paths:
@@ -37,7 +38,9 @@ Name_Network   = args[0]
 network_path   = args[1]
 save_directory = args[1]
 # Run_path   = "/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksNetAnalysis/scripts/Release/"
-Run_path   = "/home/GraphFusion/WebServer/ProbabilisticNetworksNetAnalysis/scripts/Release/"
+# Run_path   = "/home/GraphFusion/WebServer/ProbabilisticNetworksNetAnalysis/scripts/Release/"
+print("os.getcwd()", os.getcwd() + "/")
+Run_path   = "../../scripts/Release/"
 undir_path = args[1]
 
 # -------------------------------------------
@@ -67,7 +70,7 @@ total_nodes = (len(open(f'{save_directory}Gene_Names_{Name_Network}').readlines(
 
 # pon aquí el directorio donde quieres que se ejecute todo 
 # %cd $Run_path
-os.chdir(Run_path)
+os.chdir("./Release/")
 
 # -------------------------------------------
 

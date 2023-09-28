@@ -28,18 +28,50 @@ def compute_template_extra_task(op_dir, fact_name):
 
 def get_all_results(task):
     op_dir = COMPUTATIONS_DIR + "/" + task.operational_directory + "/"
-    with open(op_dir + RESULT_FILES[0], 'rb') as f:
-        reader = csv.reader(f, delimiter='\t')
-        table_values = []
-        for i,row in enumerate(reader):
-            if i > 0:
-                table_values.append((row[0], row[1], row[2]))
+    main_result_file_name = "*_centralities.csv"
+
+    # Find any file matching the pattern in main_result_file_name
+    for path, _, files in os.walk(op_dir):
+        for name in files:
+            if fnmatch(name, main_result_file_name):
+                main_result_file_name = name
+                print("main_result_file_name", main_result_file_name)
+                break
+
+    # Read the file
+    with open(op_dir + main_result_file_name, 'rb') as f:
+        # if ".csv" in main_result_file_name:
+        #     reader = csv.reader(f, delimiter=',')
+        #     # print("reader", reader)
+        #     table_values = []
+        #     for i,row in enumerate(reader):
+        #         # print("row", row)
+        #         table_values.append(row)
+        # elif ".txt" in main_result_file_name:
+        reader = f.readlines()
     if False: # if want it sorted
         table_values = sorted(table_values, key=lambda tup: tup[2], reverse=True)
-    max_rows = 50
-    if len(table_values) > max_rows:
-        table_values = table_values[0:max_rows]
-    return table_values, [output[0] for output in get_all_downloadable_results(task)]
+    if False: # if want to limit rows in table
+        max_rows = 50
+        if len(table_values) > max_rows:
+            table_values = table_values[0:max_rows]
+    # return table_values, [output[0] for output in get_all_downloadable_results(task)]
+    # print("table_values", table_values)
+    return reader, [output[0] for output in get_all_downloadable_results(task)]
+    # ----
+    # op_dir = COMPUTATIONS_DIR + "/" + task.operational_directory + "/"
+    # with open(op_dir + RESULT_FILES[0], 'rb') as f:
+    #     reader = csv.reader(f, delimiter='\t')
+    #     table_values = []
+    #     for i,row in enumerate(reader):
+    #         if i > 0:
+    #             table_values.append((row[0], row[1], row[2]))
+    # if False: # if want it sorted
+    #     table_values = sorted(table_values, key=lambda tup: tup[2], reverse=True)
+    # max_rows = 50
+    # if len(table_values) > max_rows:
+    #     table_values = table_values[0:max_rows]
+    # return table_values, [output[0] for output in get_all_downloadable_results(task)]
 
 def get_string_for_png(file_path):
     output = StringIO.StringIO()

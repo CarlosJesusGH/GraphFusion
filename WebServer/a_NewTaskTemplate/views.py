@@ -61,22 +61,16 @@ def submit_analysis_properties(request):
         f.write(rendered_view)
     return HttpResponse(rendered_view)
 
-# from django.views.decorators.http import require_POST
-# @require_POST
 @login_required
 @ajax_required
-# @csrf_exempt
-def analysis_other_like_MultAlign(request):
-    print("start submit_analysis")
+def submit_analysis_backend(request):
+    print("start submit_analysis_backend")
     try:
         # print("request.POST", request.POST)
-        # print("request.FILES", request.FILES)        
+        # print("request.FILES", request.FILES)
+        task_name = request.POST["task_name"]        
         data = json.loads(request.POST["data"])
-        task_name = data["task_name"]
-        max_iter = data["max_iter"]
-        delta_min = data["delta_min"]
         data_networks = data["Networks"]
-        ks = data["ks"]
         networks = []
         for networkData in data_networks:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')

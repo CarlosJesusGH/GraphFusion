@@ -30,7 +30,8 @@ print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls",
 
 # Our packages:
 # os.chdir("/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksModelAnalysis/scripts")
-os.chdir("/home/GraphFusion/WebServer/ProbabilisticNetworksModelAnalysis/scripts")
+# os.chdir("/home/GraphFusion/WebServer/ProbabilisticNetworksModelAnalysis/scripts")
+os.chdir("../../scripts")
 import Network_Models
 
 model_name = args[0]

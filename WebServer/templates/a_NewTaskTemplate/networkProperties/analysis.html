@@ -39,7 +39,7 @@
               <div class="col-lg-2">
                 <button class="btn btn-success"
                         onclick="submitNetworkForAnalysis($('#networkNamesList')); return false;"
-                        id="analyseButton">Analyse Networks
+                        id="analyseButton">Submit Analysis
                 </button>
               </div>
             </div>
@@ -79,7 +79,7 @@
       Pace.track(function () {
         $.ajax({
           // flag:NewTaskTemplate
-          url: '/NewTaskTemplate/analyse',
+          url: '/NewTaskTemplate/analysis',
           type: 'POST',
           data: {
             'data': JSON.stringify(data),

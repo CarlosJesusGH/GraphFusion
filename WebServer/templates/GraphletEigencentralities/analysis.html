@@ -79,17 +79,18 @@
       Pace.track(function () {
         $.ajax({
           // flag:NewTaskTemplate
-          url: '/NewTaskTemplate/analyse',
+          url: '/GraphletEigencentralities/analysis_backend',
           type: 'POST',
           data: {
             'data': JSON.stringify(data),
             'task_name': task_name
           },
           success: function (data) {
-            $propsDiv.hide();
-            $resultDiv.show();
+            console.log('success');
+            var jsonparams = JSON.parse(data);
+            var msg = jsonparams.msg;
+            successAlert(msg);
             refreshRunningTasks();
-            $('#result').html(data);
           },
           beforeSend: function (xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);

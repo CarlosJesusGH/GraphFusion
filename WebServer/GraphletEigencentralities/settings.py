@@ -13,7 +13,7 @@ GraphletEigencentralities_SCRIPT_IN_FILES = ["input_file1.tmp", "input_file2.tmp
 GraphletEigencentralities_SCRIPT_OUT_FILES = ["output_file1.tmp", "output_file2.tmp"]
 # others
 RESULT_VIEW_FILE = "result.html"
-RESULT_FILES = ["result_file01.txt"]
+RESULT_FILES = ["*"]
 REQUEST_FILES = []
 # for network properties
 COMPUTE_GCM_PATH = FILE_DIR + "/scripts/ComputeGCM.py"
