@@ -124,7 +124,8 @@ FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.TemporaryFileUploadHandler"
 )
 
-LOGIN_URL = "/authentication/"
+# LOGIN_URL = "/authentication/"
+LOGIN_URL = "/"
 
 LOGGING = {
     'version': 1,
