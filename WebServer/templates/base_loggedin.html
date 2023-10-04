@@ -5,17 +5,18 @@
 
 {% extends "base.html" %}
 {% block TITLE %}
-  {{ name }} | {{ title }}
+{{ name }} | {{ title }}
 {% endblock %}
 
 {% block SIDE_MENU %}
-<div class="col-lg-2 pull-left" style="padding: 0; left: 0; position: fixed; height: 100%;background-color: rgba(255, 255, 0, 0.1) ; overflow-y: scroll;">
+<div class="col-lg-2 pull-left"
+  style="padding: 0; left: 0; position: fixed; height: 100%;background-color: rgba(255, 255, 0, 0.1) ; overflow-y: scroll;">
 
   <div id="sidebar" class="sidebar-nav">
     <div class="navbar-collapse collapse sidebar-navbar-collapse">
       <ul id="menu" class="nav nav-pills nav-stacked sidebar pull-left">
         <!------------------------------------------------------------------------>
-        <hr/>
+        <hr />
         <!------------------------------------------------------------------------>
         <li id="dashboard">
           <a class="sidebar-link change-to-hand-on-hover" onclick="navigateTo('/dashboard/gc/');return false;">
@@ -26,11 +27,11 @@
           </a>
         </li> <!-- end of li-dashboard -->
         <!------------------------------------------------------------------------>
-        <hr/>
+        <hr />
         <!------------------------------------------------------------------------>
         <li id="TopologicalAnalysis">
           <a class="sidebar-link change-to-hand-on-hover" onclick="navigateTo('/TopologicalAnalysis/');return false;"
-             style="padding-right: 0;">
+            style="padding-right: 0;">
             <div class="item-media">
               <i class="fa fa-2x fa-bar-chart"></i>
             </div>
@@ -217,10 +218,11 @@
         </div>  -->
         <!-- end of dropdown-HyperGraphlets -->
         <!------------------------------------------------------------------------>
-        <hr/>
+        <hr />
         <!------------------------------------------------------------------------>
         <li class="dropdown" id="dropdown-Alignment">
-          <a class="sidebar-link change-to-hand-on-hover" data-toggle="collapse" href="#collapse-Alignment" aria-expanded="false" aria-controls="collapse-Alignment">
+          <a class="sidebar-link change-to-hand-on-hover" data-toggle="collapse" href="#collapse-Alignment"
+            aria-expanded="false" aria-controls="collapse-Alignment">
             <div class="item-media">
               <i class="fa fa-2x fa-align-center"></i>
             </div>
@@ -257,25 +259,25 @@
         </li> -->
         <!-- end of dropdown-ClustEnrich -->
         <!------------------------------------------------------------------------>
-        <hr/>
+        <hr />
         <!------------------------------------------------------------------------>
         <li id="DataFusion">
           <a class="sidebar-link change-to-hand-on-hover" onclick="navigateTo('/DataFusion/');return false;"
-             style="padding-right: 0;">
+            style="padding-right: 0;">
             <div class="item-media">
               <i class="fa fa-2x fa-database"></i>
             </div>
             <div class="item-inner">Data Fusion</div>
           </a>
-        </li> 
+        </li>
         <!-- end of li-DataFusion -->
         <!------------------------------------------------------------------------>
-        <hr/>
+        <hr />
         <!------------------------------------------------------------------------>
         <!-- flag:NewTaskTemplate remember changing link and id. note: change the whole li block -->
         <li id="flag:NewTaskTemplate" style="display: none;"> <!-- style="display: none;" style="display: hidden;" -->
           <a class="sidebar-link change-to-hand-on-hover" onclick="navigateTo('/NewTaskTemplate/');return false;"
-             style="padding-right: 0;">
+            style="padding-right: 0;">
             <div class="item-media">
               <i class="fa fa-2x fa fa-camera-retro"></i>
             </div>
@@ -284,17 +286,17 @@
         </li> <!-- end of li-NewTaskTemplate -->
         <!------------------------------------------------------------------------>
         {% if is_beta_tester %}
-          {#            This area is for links just for beta testers#}
+        {# This area is for links just for beta testers#}
         {% endif %}
         {% if is_staff %}
-          <li id="AdminCenter">
-            <a class="sidebar-link change-to-hand-on-hover" onclick="navigateTo('/AdminCenter/');return false;">
-              <div class="item-media">
-                <i class="fa fa-2x fa-user-secret"></i>
-              </div>
-              <div class="item-inner">Admin Center</div>
-            </a>
-          </li>
+        <li id="AdminCenter">
+          <a class="sidebar-link change-to-hand-on-hover" onclick="navigateTo('/AdminCenter/');return false;">
+            <div class="item-media">
+              <i class="fa fa-2x fa-user-secret"></i>
+            </div>
+            <div class="item-inner">Admin Center</div>
+          </a>
+        </li>
         {% endif %}
         <!------------------------------------------------------------------------>
         <!-- <li id="LogOut">
@@ -310,95 +312,104 @@
         <!------------------------------------------------------------------------>
       </ul> <!--/.ul-menu -->
     </div> <!--/.nav-collapse -->
-  </div> <!--/.sidebar-nav -->  
+  </div> <!--/.sidebar-nav -->
 </div> <!-- main-div -->
 <!------------------------------------------------------------------------>
 <style>
   .collapsed_section {
-      position: static;
-      float: none;
-      width: auto;
-      margin-left: 30px;
-      /* padding: 5px 0; */
-      /* padding-left: 20px; */
-      border: 0;
-      -webkit-box-shadow: none;
-      box-shadow: none;
-      background-color: rgba(248, 238, 200, 0.541);
+    position: static;
+    float: none;
+    width: auto;
+    margin-left: 30px;
+    /* padding: 5px 0; */
+    /* padding-left: 20px; */
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background-color: rgba(248, 238, 200, 0.541);
   }
-  .collapsed_section > li.active {
+
+  .collapsed_section>li.active {
     background-color: rgba(255, 205, 17, 0.67);
     color: #373837;
     font-size: 101%;
     border-right: outset rgba(255, 205, 17, 0.67) 5px;
   }
+
   .on-pending {
-      background-color: rgba(255, 0, 0, 0.5);
+    background-color: rgba(255, 0, 0, 0.5);
   }
 
   .on-dev {
-      background-color: rgba(0, 17, 255, 0.61);
+    background-color: rgba(0, 17, 255, 0.61);
   }
 </style>
 <!------------------------------------------------------------------------>
 {% endblock %}
 
 {% block NAVBAR_DROP_DOWN %}
-  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-    <ul class="nav navbar-nav">
-    </ul>
-    <ul class="nav navbar-nav navbar-right">
-      <li class="dropdown">
-        <a class="dropdown-toggle right-user-menu right-drop-down-menu-item change-to-hand-on-hover"
-           data-toggle="dropdown" role="button"
-           aria-expanded="false">
-          {{ name }}
-          {#          <i class="fa fa-bars fa-lg"></i>#}
-          <span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu right-user-menu" role="menu">
-          <!-- <li>
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+  <ul class="nav navbar-nav">
+  </ul>
+  <ul class="nav navbar-nav navbar-right">
+    <li class="dropdown">
+      <a class="dropdown-toggle right-user-menu right-drop-down-menu-item change-to-hand-on-hover"
+        data-toggle="dropdown" role="button" aria-expanded="false">
+        {{ name }}
+        {# <i class="fa fa-bars fa-lg"></i>#}
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu right-user-menu" role="menu">
+        <!-- <li>
             <a class="right-drop-down-menu-item change-to-hand-on-hover"
                onclick="navigateTo('/Profile/');return false;">
               <i class="fa fa-user fa-lg"></i> User Profile
             </a>
           </li> -->
-          <li class="divider "></li>
-          <li>
-            <a class="right-drop-down-menu-item" href="/logout">
-              <i class="fa fa-sign-out fa-lg"></i> Logout
-            </a>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </div>
+        <li class="divider "></li>
+        <li>
+          <a class="right-drop-down-menu-item" href="/logout">
+            <i class="fa fa-sign-out fa-lg"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
 {% endblock %}
 
 {% block NETWORK_UPLOAD %}
-  <div class="row-fluid">
-    <div class="col-lg-2 pull-right right-sidebar" style="position: fixed;border-right-width: 0;">
-      <h3 style="text-align: center">Networks</h3>
+<div class="row-fluid">
+  <div class="col-lg-2 pull-right right-sidebar" style="position: fixed;border-right-width: 0;">
+    <h3 style="text-align: center">Networks</h3>
 
-      <div id="loadedNetworksList">
-        <input class="search form-control" placeholder="Search" style="width: 100%; margin-bottom: 1px;"/>
-        <button class="btn btn-primary sort" data-sort="name" style="width: 100%; padding: 0;">
-          Sort by name
-        </button>
+    <div id="loadedNetworksList">
+      <input class="search form-control" placeholder="Search" style="width: 100%; margin-bottom: 1px;" />
+      <button class="btn btn-primary sort" data-sort="name" style="width: 100%; padding: 0;">
+        Sort by name
+      </button>
 
-        <ul class="list">
-        </ul>
-        <ul id="pages-numbers" class="pagination" style="align-content: center"></ul>
-      </div>
-
-      <div style="position: absolute; bottom: 1px; right:5px;left:5px;padding:5px;">
-
-        <button type="button" data-toggle="modal" data-target="#loadNetworkModal" class="btn btn-primary"
-                style="width: 100%; padding: 10px;">
-          <i class="fa fa-plus-circle fa-lg"></i> Load New Network
-        </button>
-      </div>
+      <ul class="list">
+      </ul>
+      <ul id="pages-numbers" class="pagination" style="align-content: center"></ul>
     </div>
+
+    <div style="position: absolute; bottom: 40px; right:5px;left:5px;padding:5px;">
+      <button type="button" data-toggle="modal" data-target="#loadNetworkModal" class="btn btn-primary"
+        style="width: 100%; padding: 10px;">
+        <i class="fa fa-plus-circle fa-lg"></i> Load New Networks
+      </button>
+    </div>
+
+    <!--  
+        Create button for deleteLoadedNetworks to call deleteLoadedNetworks function in base_loggedin.js
+      -->
+    <!-- <div style="position: absolute; bottom: 0; right:5px;left:5px;padding:5px;">
+      <button type="button" class="btn btn-danger" onclick="deleteLoadedNetworks()" style="width: 100%; padding: 10px;">
+        <i class="fa fa-trash fa-lg"></i> Delete All Networks
+      </button>
+    </div> -->
+
   </div>
   <div class="row-fluid">
     <div class="col-lg-2 pull-right running-tasks">
@@ -410,26 +421,36 @@
     </div>
   </div>
   <div class="modal fade" id="loadNetworkModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-       aria-hidden="true"
-       style="z-index: 1051;">
+    aria-hidden="true" style="z-index: 1051;">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Load New Network</h4>
+          <h4 class="modal-title">Load New Networks</h4>
 
         </div>
         <div class="modal-body" style="overflow-y: auto;">
           <form id="fileUploadForm" style="width: 100%;">
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="id_networkNameInput">Network Name</label>
               <input type="text" style="width: calc(100% - 10px);" class="form-control centre-block"
-                     id="id_networkNameInput" placeholder="Network Name">
-            </div>
-            <div class="form-group">
+                id="id_networkNameInput" placeholder="Network Name">
+            </div> -->
+            <!-- 
+              Form for uploading a single network file
+             -->
+            <!-- <div class="form-group">
               <label for="id_network_file_input">Choose File for Network</label>
               <input type="file" style="width: calc(100% - 10px);" class="form-control centre-block"
-                     id="id_network_file_input">
+                id="id_network_file_input">
+            </div> -->
+            <!-- 
+              Form for uploading several network files
+             -->
+            <div class="form-group">
+              <label for="id_network_file_input">Choose Files</label>
+              <input type="file" style="width: calc(100% - 10px);" class="form-control centre-block"
+                id="id_network_file_input" multiple>
             </div>
           </form>
         </div>
@@ -445,5 +466,44 @@
   <script>
     setUpOnDemandFileUpload($("#id_network_file_input"), $("#id_file_submit"), $("#id_networkNameInput"), $("#uploadedNetworks"), $("#fileUploadForm"));
     initialiseRunningTasksList('tasks-list');
+
+    // Function to add networks automatically
+    function addNetworksAuto() {
+      console.log("addNetworksAuto()");
+      // setUpOnDemandFileUpload(fileInputHtml, submitButton, networkName, networkListUL, fileUploadFormHtml)
+      // uploadFile();
+      var read = new FileReader();
+      for (var i = 0; i < files.length; i++) {
+        // read.readAsText(files[i]);
+        // read.readAsBinaryString(files[i]);
+        read.readAsArrayBuffer(files[i]);
+        read.onloadend = function () {
+          var name = networkNameBox.val();
+          loadNetworkFile(name, read.result);
+          fileUploadForm[0].reset();
+          updateNetworks();
+        }
+      }
+      // $("#loadNetworkModal").modal('toggle');
+    }
+
+    // Function to delete all loaded networks
+    function deleteLoadedNetworks() {
+      // log
+      console.log("deleteLoadedNetworks() called");
+      var loadedNetworks = $("#loadedNetworksList").find("li");
+      var loadedNetworksLength = loadedNetworks.length;
+      for (var i = 0; i < loadedNetworksLength; i++) {
+        var networkName = loadedNetworks[i].id;
+        deleteNetwork(networkName);
+      }
+    }
+
+    function updateNetworks(){
+      // just to avoid the error
+      // log
+      console.log("updateNetworks() called in base_loggedin.html");
+    }
+
   </script>
-{% endblock %}
+  {% endblock %}

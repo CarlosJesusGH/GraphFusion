@@ -13,6 +13,8 @@ var loadedNetworksList;
 var number_of_networks_per_page;
 
 function setUpOnDemandFileUpload(fileInputHtml, submitButton, networkName, networkListUL, fileUploadFormHtml) {
+  // log
+  console.log("setUpOnDemandFileUpload()");
   fileInput = fileInputHtml;
   submitButton.on('click', uploadFile);
   fileInput.on('change', prepareUpload);
@@ -53,35 +55,42 @@ function loadNetworkFile(name, file_content) {
 }
 
 function uploadFile(event) {
-  console.log("uploadFile()", files);
+  console.log("uploadFile(), files.length:", files.length, "files:", files);
   event.stopPropagation();
   event.preventDefault();
 
   //TODO: START A LOADING SPINNER HERE
-  var read = new FileReader();
-  for (var i = 0; i < files.length; i++) {
-    // NOTE_CGH_202110: this was changed to make the code work with not-text-based networks
-    console.log("files[i]: ", files[i]);
-    // console.log("files[i]['name']: ", files[i]["name"]);
-    // flag:newtasktemplate - change the following block ONLY in case networks come with a different format/extension
-    if (files[i]["name"].includes(".edgelist") || files[i]["name"].includes(".txt") || files[i]["name"].includes(".csv") || files[i]["name"].includes(".sc")) {
-      console.log("readAsText");
-      read.readAsText(files[i]);
-    } else{
-      // console.log("readAsArrayBuffer");
-      // read.readAsBinaryString(files[i]);
-      // read.readAsArrayBuffer(files[i]);
-      console.log("readAsText");
-      read.readAsText(files[i]);
-    }
-    read.onloadend = function () {
-      var name = networkNameBox.val();
-      loadNetworkFile(name, read.result);
-      fileUploadForm[0].reset();
-      updateNetworks();
-    }
+  
+
+  
+  // Upload the files to the server. Use a different FileReader object for each file. This is because the onloadend function is called asynchronously. If we use the same FileReader object for all files, then the onloadend function will be called only after the last file is read. This will cause the same file to be uploaded multiple times.
+  for (var i=0; i<files.length; i++) {
+    var reader = new FileReader();
+    reader.onloadend = (function(file) {
+      return function(evt) {
+        createListItem(evt, file)
+      };
+    })(files[i]);
+    reader.readAsText(files[i]);
   }
+  // Reset the file input box
   $("#loadNetworkModal").modal('toggle');
+}
+
+function createListItem(evt, file) {
+  // console.log(evt.target.result)
+  // console.log(file.name);
+  if (evt.target.readyState == FileReader.DONE) { // DONE == 2
+    var file_content = evt.target.result;
+    var file_name = file.name;
+    // Remove the file extension
+    file_name = file_name.substring(0, file_name.lastIndexOf('.'));
+    // Remove any non-alphanumeric characters and spaces. Keep only underscores.
+    file_name = file_name.replace(/[^a-zA-Z0-9_]/g, "");
+    loadNetworkFile(file_name, file_content);
+    fileUploadForm[0].reset();
+    updateNetworks();
+  }
 }
 
 function showPageNumbers() {
