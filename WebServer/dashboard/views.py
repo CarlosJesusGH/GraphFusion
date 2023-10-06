@@ -54,9 +54,7 @@ def upload_network(request):
     except Exception as e:
         return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
     
-
 def download_networks(request):
-    print("start download_networks")
     try:
         networks = []
         n_list = os.listdir("./uploaded_networks")
@@ -68,6 +66,20 @@ def download_networks(request):
             networks.append((network_name, network_data))
         data = json.dumps({
         'networks': networks,
+        })
+        return HttpResponse(data)
+    except Exception as e:
+        return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
+    
+def delete_networks(request):
+    try:
+        # Delete all networks in the uploaded_networks folder
+        n_list = os.listdir("./uploaded_networks")
+        for network_name in n_list:
+            edgelist_path = "./uploaded_networks/" + network_name
+            os.remove(edgelist_path)
+        data = json.dumps({
+        'msg': "Successfully deleted network(s)",
         })
         return HttpResponse(data)
     except Exception as e:

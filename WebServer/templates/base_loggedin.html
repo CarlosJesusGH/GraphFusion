@@ -401,14 +401,11 @@
       </button>
     </div>
 
-    <!--  
-        Create button for deleteLoadedNetworks to call deleteLoadedNetworks function in base_loggedin.js
-      -->
-    <!-- <div style="position: absolute; bottom: 0; right:5px;left:5px;padding:5px;">
+    <div style="position: absolute; bottom: 0; right:5px;left:5px;padding:5px;">
       <button type="button" class="btn btn-danger" onclick="deleteLoadedNetworks()" style="width: 100%; padding: 10px;">
-        <i class="fa fa-trash fa-lg"></i> Delete All Networks
+        <i class="fa fa-trash fa-lg"></i> Delete All Loaded Networks
       </button>
-    </div> -->
+    </div>
 
   </div>
   <div class="row-fluid">
@@ -472,21 +469,8 @@
       download_networks();
     }
 
-    // Function to delete all loaded networks
-    function deleteLoadedNetworks() {
-      // log
-      console.log("deleteLoadedNetworks() called");
-      var loadedNetworks = $("#loadedNetworksList").find("li");
-      var loadedNetworksLength = loadedNetworks.length;
-      for (var i = 0; i < loadedNetworksLength; i++) {
-        var networkName = loadedNetworks[i].id;
-        deleteNetwork(networkName);
-      }
-    }
-
     function updateNetworks(){
       // just to avoid the error 'updateNetworks() is not defined'
-      console.log("updateNetworks() called in base_loggedin.html");
     }
 
   </script>

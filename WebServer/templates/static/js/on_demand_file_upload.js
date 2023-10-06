@@ -53,14 +53,12 @@ function loadNetworkFile(name, file_content) {
 }
 
 function uploadFile(event) {
-  console.log("uploadFile(), files.length:", files.length, "files:", files);
   event.stopPropagation();
   event.preventDefault();
   //TODO: START A LOADING SPINNER HERE
   for (var i=0; i<files.length; i++) {
     var reader = new FileReader();
     reader.onload = (function(file) { // reader.onloadend
-      console.log("onload");
       return function(evt) {
         uploadFileCreateListItem(evt, file)
       };
@@ -72,8 +70,6 @@ function uploadFile(event) {
 }
 
 function uploadFileCreateListItem(evt, file) {
-  // console.log("evt.target.result", evt.target.result)
-  // console.log("file.name", file.name);
   if (evt.target.readyState == FileReader.DONE) { // DONE == 2
     var file_content = evt.target.result;
     var file_name = file.name;
@@ -96,14 +92,8 @@ function uploadFileCreateListItem(evt, file) {
       }
     }
     // Send the file to the server
-    console.log("uploadFileCreateListItem() - sending file to server");
-    // var formData = new FormData();
-    // formData.append('file', file);
-    // formData.append('name', file_name);
     var data = {'Networks': []};
     data.Networks.push([file_name, file_content]);
-    // console.log("data", data);
-    // console.log("file_name", file_name);  
     $.ajax({
       url: '/dashboard/upload_network',
       type: 'POST',
@@ -113,7 +103,6 @@ function uploadFileCreateListItem(evt, file) {
       // processData: false,
       // contentType: false,
       success: function (data) {
-        console.log('success');
         var jsonparams = JSON.parse(data);
         var msg = jsonparams.msg;
         successAlert(msg);
@@ -170,7 +159,6 @@ function hidePageNumbers() {
 }
 
 function prepareUpload(event) {
-  console.log("prepareUpload()", event.target.files);
   files = event.target.files;
 }
 
@@ -188,6 +176,36 @@ function updateNetworkNamesInList(list) {
   for (var i in networkFiles) {
     list.append("<option value=\"" + i + "\">" + networkFiles[i][0] + "</option>");
   }
+}
+
+// Function to delete all loaded networks
+function deleteLoadedNetworks() {
+  // Show a confirmation dialog
+  var r = confirm("Are you sure you want to delete all loaded networks?");
+  if (r == false) {
+    return;
+  }
+  // Make a GET request to the server to delete the networks
+  $.ajax({
+    url: '/dashboard/delete_networks',
+    type: 'GET',
+    success: function (data) {
+      var jsonparams = JSON.parse(data);
+      var msg = jsonparams.msg;
+      successAlert(msg);
+      // Reset the network list
+      networkFiles = [];
+      loadedNetworksList.clear();
+      hidePageNumbers();
+    },
+    beforeSend: function (xhr, settings) {
+      xhr.setRequestHeader("X-CSRFToken", csrf_token);
+    },
+    error: function (xhr, textStatus, errorThrown) {
+      console.log('ERRORS: ' + textStatus);
+      errorAlert("Error occurred while deleting networks: " + xhr.responseText);
+    }
+  });
 }
 
 
