@@ -464,27 +464,12 @@
     <!-- /.modal-dialog -->
   </div>
   <script>
+    // Initial setup
     setUpOnDemandFileUpload($("#id_network_file_input"), $("#id_file_submit"), $("#id_networkNameInput"), $("#uploadedNetworks"), $("#fileUploadForm"));
     initialiseRunningTasksList('tasks-list');
-
-    // Function to add networks automatically
-    function addNetworksAuto() {
-      console.log("addNetworksAuto()");
-      // setUpOnDemandFileUpload(fileInputHtml, submitButton, networkName, networkListUL, fileUploadFormHtml)
-      // uploadFile();
-      var read = new FileReader();
-      for (var i = 0; i < files.length; i++) {
-        // read.readAsText(files[i]);
-        // read.readAsBinaryString(files[i]);
-        read.readAsArrayBuffer(files[i]);
-        read.onloadend = function () {
-          var name = networkNameBox.val();
-          loadNetworkFile(name, read.result);
-          fileUploadForm[0].reset();
-          updateNetworks();
-        }
-      }
-      // $("#loadNetworkModal").modal('toggle');
+    // If NetworkFiles is empty, load networks from the server using 'download_networks' function
+    if (networkFiles.length == 0) {
+      download_networks();
     }
 
     // Function to delete all loaded networks
@@ -500,8 +485,7 @@
     }
 
     function updateNetworks(){
-      // just to avoid the error
-      // log
+      // just to avoid the error 'updateNetworks() is not defined'
       console.log("updateNetworks() called in base_loggedin.html");
     }
 

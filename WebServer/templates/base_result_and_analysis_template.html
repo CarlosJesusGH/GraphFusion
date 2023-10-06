@@ -70,7 +70,7 @@
     downloadResultsButton.attr('href', "/TaskFactory/DownloadResult/" + taskId.toString() + "/");
   }
   function updateTaskList() {
-    console.log("updateTaskList - {{ task_type }}");
+    // console.log("updateTaskList - {{ task_type }}");
     getSuccessfulTasksForUser("{{ task_type }}", $("#previouslyComputedTasksList"));
   }
 </script>

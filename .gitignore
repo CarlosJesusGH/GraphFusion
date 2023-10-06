@@ -5,6 +5,10 @@ dev_utils/
 # any computations
 WebServer/*/computations/*
 
+# any uploaded network files
+WebServer/uploaded_networks/*
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
