@@ -65,7 +65,7 @@ def guest_login(request):
             request.session["error"] = "Username already taken."
             return HttpResponseRedirect("/")
         first_name = "guest"
-        last_name = "guest"
+        last_name = "user"
         email = "guest@guest.com"
         register_user(username, password, first_name, last_name, email)
         user = authenticate_user(username, password, request)

@@ -417,8 +417,19 @@
       </div>
     </div>
   </div>
+  <!-- Modal for loading new networks -->
+  <!-- 
+    To make the modal wider than the default width, we need to add the following class: col-
+    
+   -->
   <div class="modal fade" id="loadNetworkModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
     aria-hidden="true" style="z-index: 1051;">
+    <!-- 
+      style="z-index: 1051;" means that the modal will be on top of the sidebar.
+      In bootstrap, to make the modal wider, we need to add the following class: 
+      col-xs-12 col-sm-12 col-md-12 col-lg-12 
+      Or, instead of class modal, we can use modal-lg or modal-sm
+     -->
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -433,17 +444,13 @@
               <input type="text" style="width: calc(100% - 10px);" class="form-control centre-block"
                 id="id_networkNameInput" placeholder="Network Name">
             </div> -->
-            <!-- 
-              Form for uploading a single network file
-             -->
+            <!-- Form for uploading a single network file -->
             <!-- <div class="form-group">
               <label for="id_network_file_input">Choose File for Network</label>
               <input type="file" style="width: calc(100% - 10px);" class="form-control centre-block"
                 id="id_network_file_input">
             </div> -->
-            <!-- 
-              Form for uploading several network files
-             -->
+            <!-- Form for uploading several network files -->
             <div class="form-group">
               <label for="id_network_file_input">Choose Files</label>
               <input type="file" style="width: calc(100% - 10px);" class="form-control centre-block"
@@ -454,24 +461,267 @@
         <div class="modal-footer">
           <button id="id_file_submit" class="btn btn-primary centre-block" data-dismiss="modal">Load</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <br />
+          <button type="button" class="btn btn-link" data-toggle="modal" data-target="#modalReadMore">
+            Read more about network formats
+          </button>
         </div>
+      </div> <!-- /.modal-content -->
+    </div> <!-- /.modal-dialog -->
+  </div> <!-- /.modal -->
+</div> <!-- /.row-fluid -->
+<!-- Modal for reading more about network formats The modal is opened by clicking on the button 'Read more...' in the modal for loading new networks -->
+<div class="modal fade" id="modalReadMore" tabindex="-1" role="dialog" aria-labelledby="modalReadMoreLabel"
+  aria-hidden="true" style="z-index: 1051;">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>File Formats</h4>
       </div>
-      <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-  </div>
-  <script>
-    // Initial setup
-    setUpOnDemandFileUpload($("#id_network_file_input"), $("#id_file_submit"), $("#id_networkNameInput"), $("#uploadedNetworks"), $("#fileUploadForm"));
-    initialiseRunningTasksList('tasks-list');
-    // If NetworkFiles is empty, load networks from the server using 'download_networks' function
-    if (networkFiles.length == 0) {
-      download_networks();
-    }
+      <div class="modal-body">
+        <p>
+          The preferred format for network files in GraphFusion is <b>Edge List</b> or variations of it depending on the
+          type of network. The Edge List format is a simple text file with one edge per line. Each line contains two
+          node names separated by a tab or a space. The node names can be any string of characters, but they cannot
+          contain tabs or spaces. The node names are case sensitive.
+          </br></br>
+          <b>Adjacency matrices</b> are also allowed, but they are not recommended for large networks. The adjacency matrix is a square matrix with the same number of rows and columns as the number of nodes in the network. The value of each element in the matrix represents the weight of the edge between the corresponding row and column nodes. The adjacency matrix can be saved in a CSV file.
+          </br></br>
+          For more information please refer to the example netwoks in the 'example_networks' directory in this repository, or check them out online on the <a href="https://github.com/CarlosJesusGH/GraphFusion/tree/master/example_networks">Github repository</a>.
+          </br></br>
+          Following there is a list of the supported network types and one example for each.
+        </p>
+        <div id="accordion">
+          <!-- Card for 'Undirected networks'. -->
+          <div class="card">
+            <div class="card-header" id="headingUndirected">
+              <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseUndirected"
+                  aria-expanded="false" aria-controls="collapseUndirected">
+                  Undirected Networks
+                </button>
+              </h5>
+            </div> <!-- end of card-header -->
+            <div id="collapseUndirected" class="collapse" aria-labelledby="headingUndirected" data-parent="#accordion">
+              <div class="card-body">
+                <p>Undirected networks represent bidirectional relationships between entities without a preferred directionality. They are used to model systems where interactions between entities are symmetric. For example, a PPI network where the relationship between two proteins is the same regardless of which protein is the source and which is the target.</p>
+                <p><b>Example:</b></p>
+                <pre class="text-left">
+0 195
+1 72
+1 101
+1 129
+1 188
+2 11
+3 12
+3 25
+3 26
+3 127
+3 142
+3 153
+4 24
+4 39
+4 51
+5 71
+5 139
+6 41
+6 85
+6 202
+...
+                </pre>
+              </div> <!-- end of card-body -->
+            </div> <!-- end of collapse -->
+          </div> <!-- end of card -->
+          <!-- Card for 'Directed networks'. -->
+          <div class="card">
+            <div class="card-header" id="headingDirected">
+              <h5 class="mb-0">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseDirected"
+                  aria-expanded="false" aria-controls="collapseDirected">
+                  Directed Networks
+                </button>
+              </h5>
+            </div> <!-- end of card-header -->
+            <div id="collapseDirected" class="collapse" aria-labelledby="headingDirected" data-parent="#accordion">
+              <div class="card-body">
+                <p>Directed networks represent relationships between entities with a specific directionality. They are used to model systems where interactions between entities have an inherent direction. For example, a gene regulatory network where the relationship between two genes is different depending on which gene is the source and which is the target.</p>
+                <p><b>Example:</b></p>
+                <pre class="text-left">
+0 1
+0 683
+0 1541
+0 7
+0 522
+0 22
+0 24
+0 1049
+0 26
+0 27
+0 1052
+0 29
+0 30
+0 543
+0 35
+0 36
+0 37
+0 39
+0 41
+0 1543
+...
+                </pre>
+              </div> <!-- end of card-body -->
+            </div> <!-- end of collapse -->
+          </div> <!-- end of card -->
+          <!-- Card for 'Probabilistic networks'. -->
+          <div class="card">
+            <div class="card-header" id="headingProbabilistic">
+              <h5 class="mb-0">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseProbabilistic"
+                  aria-expanded="false" aria-controls="collapseProbabilistic">
+                  Probabilistic Networks
+                </button>
+              </h5>
+            </div> <!-- end of card-header -->
+            <div id="collapseProbabilistic" class="collapse" aria-labelledby="headingProbabilistic"
+              data-parent="#accordion">
+              <div class="card-body">
+                <p>They represent uncertainty in relationships between entities by assigning probabilities as weights on edges (links) between nodes. They are used to model systems where the strength or likelihood of interactions is variable, for example, a PPI network with weights on edges representing the interaction's probability.</p>
+                <p><b>Example:</b></p>
+                <pre class="text-left">
+ENSP00000000233 ENSP00000440005 0.862
+ENSP00000005226 ENSP00000381768 0.87
+ENSP00000005226 ENSP00000480279 0.933
+ENSP00000005257 ENSP00000230449 0.87
+ENSP00000005386 ENSP00000262265 0.828
+ENSP00000005386 ENSP00000318297 0.91
+ENSP00000005386 ENSP00000326031 0.799
+ENSP00000005386 ENSP00000473172 0.87
+ENSP00000006275 ENSP00000302783 0.825
+ENSP00000006275 ENSP00000324318 0.855
+ENSP00000006275 ENSP00000392495 0.828
+ENSP00000006275 ENSP00000470262 0.827
+ENSP00000008527 ENSP00000254657 0.771
+ENSP00000008527 ENSP00000254657 0.771
+ENSP00000008527 ENSP00000254657 0.771
+ENSP00000008527 ENSP00000308741 0.794
+ENSP00000008527 ENSP00000314420 0.836
+ENSP00000008527 ENSP00000314420 0.836
+ENSP00000008527 ENSP00000314420 0.836
+ENSP00000008527 ENSP00000324464 0.782
+...
+                </pre>
+              </div> <!-- end of card-body -->
+            </div> <!-- end of collapse -->
+          </div> <!-- end of card -->
+          <!-- Card for 'Simplicial complexes'. -->
+          <div class="card">
+            <div class="card-header" id="headingSimplicial">
+              <h5 class="mb-0">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseSimplicial"
+                  aria-expanded="false" aria-controls="collapseSimplicial">
+                  Simplicial Complexes
+                </button>
+              </h5>
+            </div> <!-- end of card-header -->
+            <div id="collapseSimplicial" class="collapse" aria-labelledby="headingSimplicial" data-parent="#accordion">
+              <div class="card-body">
+                <p>They model systems where interactions between entities are not limited to pairwise relationships, for example, a gene regulatory network where a third gene can influence the relationship between two genes. To analyze this type of network, we use Simplets, which generalize graphlets to simplicial complexes, capturing higher-order relationships between entities.</p>
+                <p><b>Example:</b></p>
+                <pre class="text-left">
+Yang_Yang Jingyi_Yu Zhang_Chen Siyuan_Li Xinqing_Guo
+Ying_Hu Hao_Huang Haihua_Xu
+Priyanshu_Das Bhadrachalam_Chitturi
+Boris_Klemz Günter_Rote
+Sevil_Dräxler Holger_Karl Zoltán_Ádám_Mann
+Jian_Peng Tanmay_Gangwani
+Richard_Altendorfer Christoph_Wilkmann
+Yang_Hu Yun_Gu Jie_Yang Guang-Zhong_Yang
+Francesco_Borrelli Xiaojing_Zhang Alexander_Liniger
+Chen_Fang Daniel_N._Rockmore Tom_Ginsburg David_C._Krakauer Nicholas_J._Foti
+Mehdi_Sharifzadeh Dan_Schonfeld Chirag_Agarwal Mohammed_Aloraini
+Tianchun_Wang Xi_Li _Zhang _Zhongfei Weisong_Hu Zhongang_Qi Guojie_Song
+Zhikun_Zhang Zhiguo_Shi Shibo_He Jiajun_Zhang Xiaohui_Liang
+Bernt_Schiele Qianru_Sun Mario_Fritz Liqian_Ma Seong_Joon_Oh Luc_Van_Gool
+Hervé_Debar Joaquin_Garcia-Alfaro Gustavo_Gonzalez-Granadillo
+Zilu_Zhang Tal_Friedman Guy_Van_den_Broeck Jingyi_Xu Yitao_Liang
+Nour_Murad Jean_Lebreton Sylvain_Bonhommeau Loic_Guegan
+Anca_Sticlaru Juergen_Gall Grigorios_Kalliatakis George_Stamatiadis Ales_Leonardis Klaus_D._McDonald-Maier Shoaib_Ehsan
+Seijoon_Kim Seongsik_Park Sungroh_Yoon Seil_Lee Ho_Bae
+Zining_Wang Wei_Zhan Masayoshi_Tomizuka
+...
+                </pre>
+              </div> <!-- end of card-body -->
+            </div> <!-- end of collapse -->
+          </div> <!-- end of card -->
+          <!-- Card for 'Hyper Networks'. -->
+          <div class="card">
+            <div class="card-header" id="headingHyper">
+              <h5 class="mb-0">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseHyper"
+                  aria-expanded="false" aria-controls="collapseHyper">
+                  Hyper Networks
+                </button>
+              </h5>
+            </div> <!-- end of card-header -->
+            <div id="collapseHyper" class="collapse" aria-labelledby="headingHyper" data-parent="#accordion">
+              <div class="card-body">
+                <p>They are networks where hyperedges rather than traditional edges can connect nodes. Hyperedges can connect multiple nodes simultaneously, representing complex relationships between entities, for example, a gene regulatory network where a single transcription factor can regulate a group of genes. To analyze these networks, we use hyper graphlets that extend the concept of graphlets to hyper networks.</p>
+                <p><b>Example:</b></p>
+                <pre class="text-left">
+0	269	525
+1	115	580	674	1252	1394
+2	704	1135
+3	336	1083
+4	78	247	371	846	1572
+5	104	163	465	1201
+6	854	1117	1122	1299	1326	1431
+7	120	227
+8	296	431	506
+9	196	367	1329
+10	948	1103
+11	65	633
+12	216	1282
+13	63	1352
+14	205	264	275	492	762	1076
+15	329	834	1139	1436
+16	429	576
+17	776	782	1123	1204
+18	159	1505
+19	1086	1090	1577
+...
+                </pre>
+              </div> <!-- end of card-body -->
+            </div> <!-- end of collapse -->
+          </div> <!-- end of card -->
+        </div> <!-- end of accordion -->
+      </div> <!-- end of modal-body -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div> <!-- end of modal-footer -->
+    </div> <!-- /.modal-content -->
+  </div> <!-- /.modal-dialog -->
+</div> <!-- /.modal -->
 
-    function updateNetworks(){
-      // just to avoid the error 'updateNetworks() is not defined'
-    }
 
-  </script>
-  {% endblock %}
+<script>
+  // Initial setup
+  setUpOnDemandFileUpload($("#id_network_file_input"), $("#id_file_submit"), $("#id_networkNameInput"), $("#uploadedNetworks"), $("#fileUploadForm"));
+  initialiseRunningTasksList('tasks-list');
+  // If NetworkFiles is empty, load networks from the server using 'download_networks' function
+  if (networkFiles.length == 0) {
+    download_networks();
+  }
+
+  // Keep the read more section collapsed when the modal is opened
+  $('#loadNetworkModal').on('hide.bs.modal', function () {
+    console.log('loadNetworkModal hide');
+    $('#collapseReadMore').collapse('hide');
+  })
+
+  function updateNetworks() {
+    // just to avoid the error 'updateNetworks() is not defined'
+  }
+
+</script>
+
+{% endblock %}
