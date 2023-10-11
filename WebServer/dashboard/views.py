@@ -1,4 +1,4 @@
-__author__ = 'varun'
+__author__ = 'varun & carlos garcia-hernandez'
 
 import os
 from django.template.loader import get_template
@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 from utils.UserUtils import get_name
 from TaskFactory.views import get_task_view_objects_for_user
 from authentication.home_page_queries import get_all_sample_networks
-
 import unicodedata
 import json
 
@@ -24,7 +23,6 @@ def user_home_page(request):
     context.update(csrf(request))
     return HttpResponse(get_template("dashboard/base_loggedin_home.html").render(context))
 
-
 @login_required
 def dashboard(request):
     result = get_task_view_objects_for_user(request=request)
@@ -36,11 +34,25 @@ def upload_network(request):
         data = json.loads(request.POST["data"])
         data_networks = data["Networks"]
         networks = []
-        # Format the networks
+        # Normalize the data
         for networkData in data_networks:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
             network_list = unicodedata.normalize('NFKD', networkData[1]).encode('ascii', 'ignore')
             networks.append((name, network_list))
+        # Check if the format is correct
+        for network_name, network_data in networks:
+            # print("network_name: " + network_name)
+            network_data = network_data.split("\n")
+            for i, line in enumerate(network_data):
+                # print("line: " + line)
+                # print("len(line.split())", len(line.split()), line.split())
+                # print("len(line.split(','))", len(line.split(',')), line.split(','))
+                # Check that the line is not empty, or not having only spaces or tabs, unless it's the last line.
+                if len(line.strip()) == 0 and i != len(network_data) - 1:
+                    return HttpResponseBadRequest("Error occurred while processing request: Line " + str(i+1) + " is empty")
+                # Check if the line fits the format of an edge list or an adjacency matrix. If line is empty, check it's not the last one If not, return an error
+                if len(line.split()) == 0 and len(line.split(',')) == 1 and i != len(network_data) - 1:
+                    return HttpResponseBadRequest("Incorrect format of network. Problem in line " + str(i+1))
         # Save the networks
         for network_name, network_data in networks:
             edgelist_path = "./uploaded_networks/" + network_name

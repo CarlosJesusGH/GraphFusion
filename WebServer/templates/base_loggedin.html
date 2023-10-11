@@ -386,7 +386,7 @@
     <div id="loadedNetworksList">
       <input class="search form-control" placeholder="Search" style="width: 100%; margin-bottom: 1px;" />
       <button class="btn btn-primary sort" data-sort="name" style="width: 100%; padding: 0;">
-        Sort by name
+        Sort By Name
       </button>
 
       <ul class="list">
@@ -403,7 +403,7 @@
 
     <div style="position: absolute; bottom: 0; right:5px;left:5px;padding:5px;">
       <button type="button" class="btn btn-danger" onclick="deleteLoadedNetworks()" style="width: 100%; padding: 10px;">
-        <i class="fa fa-trash fa-lg"></i> Delete All Loaded Networks
+        <i class="fa fa-trash fa-lg"></i> Delete Loaded Networks
       </button>
     </div>
 
@@ -487,7 +487,9 @@
           </br></br>
           <b>Adjacency matrices</b> are also allowed, but they are not recommended for large networks. The adjacency matrix is a square matrix with the same number of rows and columns as the number of nodes in the network. The value of each element in the matrix represents the weight of the edge between the corresponding row and column nodes. The adjacency matrix can be saved in a CSV file.
           </br></br>
-          For more information please refer to the example netwoks in the 'example_networks' directory in this repository, or check them out online on the <a href="https://github.com/CarlosJesusGH/GraphFusion/tree/master/example_networks">Github repository</a>.
+          For more information please refer to the example netwoks in the 'example_networks' directory in this repository, or check them out online on the <a href="https://github.com/CarlosJesusGH/GraphFusion/tree/master/example_networks" target="_blank">Github repository</a>.
+
+          
           </br></br>
           Following there is a list of the supported network types and one example for each.
         </p>
@@ -714,7 +716,6 @@ Zining_Wang Wei_Zhan Masayoshi_Tomizuka
 
   // Keep the read more section collapsed when the modal is opened
   $('#loadNetworkModal').on('hide.bs.modal', function () {
-    console.log('loadNetworkModal hide');
     $('#collapseReadMore').collapse('hide');
   })
 

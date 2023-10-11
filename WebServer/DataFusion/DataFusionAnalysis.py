@@ -67,21 +67,22 @@ class DataFusionAnalysis(Task):
 
     def __save_graph(self):
         for net_name in self.net_names:
-            blob = self.request_FILES[net_name]
+            print("net_name", net_name)
+            # blob = self.request_FILES[net_name]
             # print("blob", blob)
             # open("test_fname.txt", 'wb').write(ContentFile(b'new content'))
             # path = default_storage.save("test_fname.txt", ContentFile(blob.read()))
-            fs = FileSystemStorage(self.graph_path) #defaults to   MEDIA_ROOT  
-            filename = fs.save(net_name, ContentFile(blob.read()))
-            if ".csv" not in net_name:
-                filepath = self.graph_path + "/" + net_name
-                if ".hdf5" in net_name:
-                    with h5py.File(filepath, "r") as f:
-                        X = np.array(f.get('dataset'))
-                    np.savetxt(filepath + ".csv", X, delimiter="\t")
-                if ".edgelist" in net_name:
-                    X = nx.read_edgelist(filepath)
-                    np.savetxt(filepath + ".csv", nx.to_numpy_array(X), delimiter="\t")
+            # fs = FileSystemStorage(self.graph_path) #defaults to   MEDIA_ROOT  
+            # filename = fs.save(net_name, ContentFile(blob.read()))
+            # if ".csv" not in net_name:
+            #     filepath = self.graph_path + "/" + net_name
+            #     if ".hdf5" in net_name:
+            #         with h5py.File(filepath, "r") as f:
+            #             X = np.array(f.get('dataset'))
+            #         np.savetxt(filepath + ".csv", X, delimiter="\t")
+            #     if ".edgelist" in net_name:
+            #         X = nx.read_edgelist(filepath)
+            #         np.savetxt(filepath + ".csv", nx.to_numpy_array(X), delimiter="\t")
         print("self.facts", self.facts)
         pickle.dump(self.facts, open(self.operational_dir + "/facts.pkl", "wb"))
         pickle.dump(self.nmfif_params, open(self.operational_dir + "/nmfif_params.pkl", "wb"))

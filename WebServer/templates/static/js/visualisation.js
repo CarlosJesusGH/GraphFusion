@@ -19,6 +19,7 @@ function drawGraph(container, graphNodes, graphEdges, network) {
     },
     stabilize: true
   };
+  // From vis.js https://github.com/almende/vis
   network = new vis.Network(container, data, options);
 
   // add event listeners

@@ -73,8 +73,11 @@ function uploadFileCreateListItem(evt, file) {
   if (evt.target.readyState == FileReader.DONE) { // DONE == 2
     var file_content = evt.target.result;
     var file_name = file.name;
-    // Remove the file extension
-    file_name = file_name.substring(0, file_name.lastIndexOf('.'));
+    // console.log("file_name" + file_name);
+    // If file name contains a period, remove the extension
+    if (file_name.indexOf('.') != -1) {
+      file_name = file_name.substring(0, file_name.lastIndexOf('.'));
+    }
     // Remove any non-alphanumeric characters and spaces. Keep only underscores.
     file_name = file_name.replace(/[^a-zA-Z0-9_]/g, "");
     // Check if the file is too big, more than 100MB
@@ -197,6 +200,7 @@ function deleteLoadedNetworks() {
       networkFiles = [];
       loadedNetworksList.clear();
       hidePageNumbers();
+      updateNetworks();
     },
     beforeSend: function (xhr, settings) {
       xhr.setRequestHeader("X-CSRFToken", csrf_token);

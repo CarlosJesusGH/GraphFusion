@@ -129,6 +129,10 @@ function removeTasks(tasksToDelete) {
   for (var j = 0; j < tasksToDelete.length; j++) {
     runningTasksList.remove(taskNameValue, tasksToDelete[j]);
     successAlert("Task " + tasksToDelete[j] + " successfully completed.")
+    // Check if the page is the dashboard page
+    if (document.getElementById("dashboard-results-html")) {
+      navigateTo("/dashboard/");
+    }
   }
 }
 

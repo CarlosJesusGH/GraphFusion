@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.template import Context
 from django.template.loader import get_template
+from utils.NetworkFormatter import check_network_format
 from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required
 from utils.AJAX_Required import ajax_required
@@ -38,6 +39,15 @@ def visualise_alignment(request, task_id):
 def visualise(request):
     LOGGER.info("User " + str(request.user.username) + ", Visualisation")
     networks = json.loads(request.POST["data"])["Networks"]
+    # print("networks", networks)
+    for network in networks:
+        response = check_network_format(network[1], network_task_or_type='visualization', preferred_format='edgelist')
+        # print("response", response)
+        if not response[0]: # type: ignore
+            return HttpResponse("Error: Incorrect network format in network " + network[0] + ".")
+        if response[1]: # type: ignore
+            network[1] = response[1] # type: ignore
+            # print("Network " + network[0] + " converted to edgelist format.")
     nodes, edges = get_graph_nodes_and_edges(unicodedata.normalize('NFKD', networks[0][1]).encode('ascii', 'ignore'))
     context = Context({
         'nodes': nodes,

@@ -115,6 +115,10 @@
   </div>
   <!-- /.modal-dialog -->
 </div>
+
+<!-- Make a hidden element to detect when we are on this specific html -->
+<input type="hidden" id="dashboard-results-html" value="1">
+
 <script>
   var resultModal = $("#resultsModal");
   var $modalBodyResult = $('#modalBodyResult');
@@ -129,6 +133,7 @@
       callback: function (value) {
         if (value) {
           deleteTask(task_id, function () {
+            refreshRunningTasks();
             navigateTo("/dashboard/");
           });
         }
@@ -147,6 +152,7 @@
       callback: function (value) {
         if (value) {
           terminateTask(task_id, function () {
+            refreshRunningTasks();
             navigateTo("/dashboard/");
             successAlert("Task successfully terminated.");
           });
