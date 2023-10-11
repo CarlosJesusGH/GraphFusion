@@ -74,24 +74,34 @@ class NetworkProperties(Graph):
         if self.content[0].startswith("LEDA.GRAPH"):
             f.write("\n".join(self.content))
         else:
+            # print("log - right before convert_to_leda self.content", self.content)
             f.write(ListToLeda(graph_list="\n".join(self.content)).convert_to_leda())
         f.close()
-        self.result.gdd_signatures = ORCAExecutable(self.graph_path).run()
-        ndump_file = self.operational_dir + "/" + self.graph_name + ".res.ndump2"
-        if os.path.isfile(ndump_file):
-            command = PYTHON_PATH + " " + COMPUTE_GCM_PATH + " " + self.graph_name + ".res.ndump2 73 0"
-            LOGGER.info("Making system call: " + command)
-            sys_result = make_system_call(command, working_dir=self.operational_dir)
-            LOGGER.info(sys_result.stdout)
-            LOGGER.error(sys_result.stderr)
-            if os.path.isfile(self.operational_dir + "/" + self.graph_name + ".res_gcm73.png"):
-                self.result.gcm_matrix_png_data = '{0}'.format(
-                    get_string_for_png(self.operational_dir + "/" + self.graph_name + ".res_gcm73.png"))
-                LOGGER.info("PNG Data: " + str(len(self.result.gcm_matrix_png_data)))
+        print("log - self.graph_path", self.graph_path)
+        # try:
+        if True:
+            self.result.gdd_signatures = ORCAExecutable(self.graph_path).run()
+            print("log - self.result.gdd_signatures", self.result)
+            ndump_file = self.operational_dir + "/" + self.graph_name + ".res.ndump2"
+            if os.path.isfile(ndump_file):
+                command = PYTHON_PATH + " " + COMPUTE_GCM_PATH + " " + self.graph_name + ".res.ndump2 73 0"
+                LOGGER.info("Making system call: " + command)
+                sys_result = make_system_call(command, working_dir=self.operational_dir)
+                LOGGER.info(sys_result.stdout)
+                LOGGER.error(sys_result.stderr)
+                if os.path.isfile(self.operational_dir + "/" + self.graph_name + ".res_gcm73.png"):
+                    self.result.gcm_matrix_png_data = '{0}'.format(
+                        get_string_for_png(self.operational_dir + "/" + self.graph_name + ".res_gcm73.png"))
+                    LOGGER.info("PNG Data: " + str(len(self.result.gcm_matrix_png_data)))
+                else:
+                    self.result.error_while_gcm_matrix = True
             else:
                 self.result.error_while_gcm_matrix = True
-        else:
-            self.result.error_while_gcm_matrix = True
+        # except Exception as e:
+        #     print("log - error while computing gcm matrix")
+        #     LOGGER.error(e)
+        #     self.result.error_while_gcm_matrix = True
+        #     raise Exception("Error while computing gcm matrix")
 
     @classmethod
     def __get_avg_path_length(cls, graph):
@@ -118,7 +128,12 @@ class NetworkProperties(Graph):
         self.result.degree_dist = sorted(nx.degree(self.graph).values(), reverse=True)
         self.result.number_of_edges = len(self.edges())
         self.result.number_of_nodes = len(self.nodes())
+        # try:
         self.evaluate_heat_map_for_gcm()
+        # except Exception as e:
+        #     LOGGER.error(e)
+        #     self.result.error_while_gcm_matrix = True
+        #     raise Exception("Error while computing gcm matrix")
 
 
 class NetworkPropertiesResult:

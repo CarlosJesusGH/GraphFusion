@@ -48,6 +48,7 @@ class ORCAExecutable:
         return node_list, edge_list
 
     def write_orca(self, edge_list, node_count):
+        # print("log - write_orca", edge_list, node_count)
         f_write = open(self.output_file_name, 'w')
         f_write.write(str(node_count) + ' ' + str(len(edge_list)) + '\n')
 
@@ -81,19 +82,23 @@ class ORCAExecutable:
         self.write_orca(edge_list, len(node_list))
 
         result = make_system_call(ORCA_PATH + ' 5 ' + self.output_file_name + ' ' + self.temp_n_dump_2_file)
-        if result.return_code != 0:
+        if result.return_code != 0: # or result.stderr:
             raise AlignmentRunnerException("Error while running parallel runner for ORCA: " + str(result.stderr))
         return self.__parse_gdd_count()
 
     def run(self):
         LOGGER.info("Running ORCA for " + str(self.file_path))
         node_list, edge_list = self.read_leda()
+        # print("log - node_list", node_list, "edge_list", edge_list)
         self.write_orca(edge_list, len(node_list))
 
         result = make_system_call(ORCA_PATH + ' 5 ' + self.output_file_name + ' ' + self.temp_n_dump_2_file)
-        if result.return_code != 0:
+        print("log - orca result", result)
+        if result.return_code != 0:# or result.stderr:
+            print("log - orca ERROR", result.stderr)
+            # os.remove(self.original_n_dump_2)
             raise AlignmentRunnerException("Error while running parallel runner for ORCA: " + str(result.stderr))
-
+            # raise Exception("Error while running parallel runner for ORCA: " + str(result.stderr))
         self.format_n_dump(node_list)
         self.remove_computational_files()
 

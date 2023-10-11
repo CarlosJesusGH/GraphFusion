@@ -10,7 +10,7 @@
 
 {% block ANALYSIS_TAB %}
   <div id="propsDiv">
-    <h5>Select networks to run the analysis.</h5>
+    <h5>Select the networks to run the analysis.</h5>
 
     <div class="row-fluid" style="padding:5px;">
       <div class="row-fluid">
@@ -85,10 +85,17 @@
             'task_name': task_name
           },
           success: function (data) {
+            // console.log("log - data: " + data);
+            // If the data is a string and contains the word "Error" then it is an error message
+            // if (typeof data === 'string' && data.indexOf("Error") != -1) {
+            //   vexErrorAlert(data);
+            //   return;
+            // } else {
             $propsDiv.hide();
             $resultDiv.show();
             refreshRunningTasks();
             $('#result').html(data);
+            // }
           },
           beforeSend: function (xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
