@@ -3,6 +3,7 @@ from django.template import Context
 from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
 from django.db import connection
+from utils.NetworkFormatter import check_network_format
 from utils.AJAX_Required import ajax_required
 from .PairwiseAnalysis import PairwiseAnalysis, make_system_call
 from .settings import PAIRWISE_ANALYSIS_TASK, PAIRWISE_ANALYSIS_COMPUTATIONS_DIR, DISTANCES
@@ -34,14 +35,20 @@ def home_page(request):
 @login_required
 @ajax_required
 def run_pairwise_analysis(request):
+    print("log - run_pairwise_analysis")
     networks = json.loads(request.POST["data"])["Networks"]
     name = request.POST["name"]
+    for network in networks[0] + networks[1]:
+            response = check_network_format(network[1], network_task_or_type='undirected', preferred_format='edgelist')
+            if not response[0]: # type: ignore
+                return HttpResponse("Error: Incorrect network format in network " + network[0] + ".")
+            if response[1]: # type: ignore
+                network[1] = response[1] # type: ignore
     distances = map(lambda s: unicodedata.normalize('NFKD', s).encode('ascii', 'ignore'),
                     json.loads(request.POST["distances"]))
-    LOGGER.info("Executing PairwiseAnalysis for: " + str(request.user.username) + " with distances: " + str(distances))
+    # LOGGER.info("Executing PairwiseAnalysis for: " + str(request.user.username) + " with distances: " + str(distances))
     graphs_1 = []
     graphs_2 = []
-
     for net1 in networks[0]:
         graph_name = unicodedata.normalize('NFKD', net1[0]).encode('ascii', 'ignore')
         graph = unicodedata.normalize('NFKD', net1[1]).encode('ascii', 'ignore')

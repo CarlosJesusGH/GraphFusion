@@ -76,7 +76,7 @@ def get_view_for_task(task, user):
 @ajax_required
 def analyse_networks(request):
     try:
-        print("log - network properties analysis")
+        # print("log - network properties analysis")
         data = json.loads(request.POST["data"])["Networks"]
         task_name = request.POST["task_name"]
         for network in data:
@@ -86,7 +86,7 @@ def analyse_networks(request):
                 return HttpResponse("Error: Incorrect network format in network " + network[0] + ".")
             if response[1]: # type: ignore
                 network[1] = response[1] # type: ignore
-                print("Network " + network[0] + " converted to edgelist format.")
+                # print("Network " + network[0] + " converted to edgelist format.")
         networks = []
         for networkData in data:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
@@ -96,7 +96,7 @@ def analyse_networks(request):
             graphs=networks,
             user=request.user,
             task_name=task_name)
-        print("log - gcm_raw_data", gcm_raw_data)
+        # print("log - gcm_raw_data", gcm_raw_data)
         context = Context({
             'heading': heading,
             'rows': rows,

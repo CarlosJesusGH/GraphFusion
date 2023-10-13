@@ -93,7 +93,7 @@ class ORCAExecutable:
         self.write_orca(edge_list, len(node_list))
 
         result = make_system_call(ORCA_PATH + ' 5 ' + self.output_file_name + ' ' + self.temp_n_dump_2_file)
-        print("log - orca result", result)
+        # print("log - orca result", result)
         if result.return_code != 0:# or result.stderr:
             print("log - orca ERROR", result.stderr)
             # os.remove(self.original_n_dump_2)
