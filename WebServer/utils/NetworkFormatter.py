@@ -49,6 +49,8 @@ def check_undirected_network_format(network, preferred_format):
       # Write graph to a string with delimiter="\t"
       parsed_network = "\n".join(["\t".join(map(str, row)) for row in adjmatrix])
       print("parsed_network as adjmatrix", parsed_network)
+    elif preferred_format == 'edgelist':
+      parsed_network = unicode("\n".join([" ".join(map(str, edge)) for edge in nx.to_edgelist(G)]), "utf-8")
   except:  
     #  Check if the network can be parsed as an adjacency matrix
     try:
@@ -73,12 +75,7 @@ def check_undirected_network_format(network, preferred_format):
       if G is None or not G.nodes():
         return False, None
       elif preferred_format == 'edgelist':
-        edgelist = nx.to_edgelist(G)
-        # Write graph to a string and convert to unicode to avoid error 'TypeError: normalize() argument 2 must be unicode, not str'
-        parsed_network = "\n".join([" ".join(map(str, edge)) for edge in edgelist])
-        # parsed_network = parsed_network.encode('utf-8')
-        parsed_network = unicode(parsed_network, "utf-8")
-        # print("parsed_network as edgelist", parsed_network)
+        parsed_network = unicode("\n".join([" ".join(map(str, edge)) for edge in nx.to_edgelist(G)]), "utf-8")
     except Exception as e:
       print("Exception", e, "e.message", e.message)
       return False, None
