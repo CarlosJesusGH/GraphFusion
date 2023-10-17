@@ -1,7 +1,8 @@
 from django.http import HttpResponse
+from django.http.response import HttpResponseBadRequest
 from django.template import Context
 from django.template.loader import get_template
-from utils.NetworkFormatter import check_network_format
+from utils.InputFormatter import check_input_format
 from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required
 from utils.AJAX_Required import ajax_required
@@ -26,7 +27,7 @@ def home_page(request):
 
 @login_required
 @ajax_required
-def visualise_alignment(request, task_id):
+def visualize_alignment(request, task_id):
     graphs = get_nodes_and_edges_for_task(task_id=task_id, user=request.user)
     context = Context({
         'graphs': graphs
@@ -36,15 +37,15 @@ def visualise_alignment(request, task_id):
 
 @login_required
 @ajax_required
-def visualise(request):
-    LOGGER.info("User " + str(request.user.username) + ", Visualisation")
+def visualize(request):
+    LOGGER.info("User " + str(request.user.username) + ", Visualization")
     networks = json.loads(request.POST["data"])["Networks"]
     # print("networks", networks)
     for network in networks:
-        response = check_network_format(network[1], network_task_or_type='visualization', preferred_format='edgelist')
+        response = check_input_format(network[1], input_task_or_type='visualization', preferred_format='edgelist')
         # print("response", response)
         if not response[0]: # type: ignore
-            return HttpResponse("Error: Incorrect network format in network " + network[0] + ".")
+            return HttpResponseBadRequest("Error: Incorrect network format in network " + network[0] + ".")
         if response[1]: # type: ignore
             network[1] = response[1] # type: ignore
             # print("Network " + network[0] + " converted to edgelist format.")

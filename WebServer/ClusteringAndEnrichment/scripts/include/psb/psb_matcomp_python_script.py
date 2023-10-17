@@ -55,8 +55,8 @@ valuesNotInOriginal, alreadyPaired_inReconstructed = computeNewPairs(R_reconstru
 plotAssociationScores(valuesNotInOriginal, alreadyPaired_inReconstructed, thresholdF1, outputfile_dist)
 
 # compute predictions
-entitylist_rows = pd.read_csv(op_dir + "/" + entitylist_rows_filename).iloc[:,0].values
-entitylist_cols = pd.read_csv(op_dir + "/" + entitylist_cols_filename).iloc[:,0].values
+entitylist_rows = pd.read_csv(op_dir + "/" + entitylist_rows_filename, header=None).iloc[:,0].values
+entitylist_cols = pd.read_csv(op_dir + "/" + entitylist_cols_filename, header=None).iloc[:,0].values
 
 # TODO: remove later
 entitylist_rows, entitylist_cols = entitylist_rows[0:204], entitylist_cols[0:204]

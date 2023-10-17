@@ -48,8 +48,8 @@ def loadEntityAnnotations(entities, anno_filePath, verbose=False):
     # if verbose: print(len(dfAnnotations['Official Symbol'].unique()))
     # annotatedProteins = dfAnnotations['Official Symbol'].unique()
     # if verbose: print(len(annotatedProteins), 'genes annotated with ', aspect, ' out of ', len(entities))
-    annotatedEntities = pd.read_csv(op_dir + "/" + entitylist_filename).iloc[:,0].values
-    if verbose: print(len(annotatedEntities), 'entities annotated out of ', len(entities))
+    # annotatedEntities = pd.read_csv(op_dir + "/" + entitylist_filename).iloc[:,0].values
+    # if verbose: print(len(annotatedEntities), 'entities annotated out of ', len(entities))
     # dfAnnotationsNetwork = dfAnnotations[dfAnnotations['Official Symbol'].isin(entities)]
     dfAnnotationsNetwork = dfAnnotations[dfAnnotations.iloc[:,0].isin(entities)]
     if verbose: print("dfAnnotationsNetwork", dfAnnotationsNetwork)
@@ -95,7 +95,7 @@ if True:
             categoriesToDrugs[category].append(entities[random.randint(0,len(entities)-1)])
 ---------------------------------------------------------------- """
 
-entities = pd.read_csv(op_dir + "/" + entitylist_filename).iloc[:,0].values
+entities = pd.read_csv(op_dir + "/" + entitylist_filename, header=None).iloc[:,0].values
 # print("len(entities)", len(entities))
 # print("entities", entities)
 categoriesToEntities = loadEntityAnnotations(entities, enrichments_anno, verbose=False)

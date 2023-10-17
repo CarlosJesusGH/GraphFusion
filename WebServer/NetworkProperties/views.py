@@ -1,8 +1,9 @@
 from django.http import HttpResponse
+from django.http.response import HttpResponseBadRequest
 from django.template import Context
 from django.template.loader import get_template
 from DataVsModelAnalysis.DataVsModelAnalysisResult import get_string_for_png
-from utils.NetworkFormatter import check_network_format
+from utils.InputFormatter import check_input_format
 from django.core.context_processors import csrf
 from .settings import NETWORK_PROPERTIES_COMPUTATIONS_DIR, NETWORK_PROPERTIES_TASK, NETWORKS_NAMES_MAPPINGS_FILE_NAME, \
     NETWORK_RESULT_VIEW_FILE_NAME, DEGREE_DISTRIBUTION_FILE
@@ -79,14 +80,13 @@ def analyse_networks(request):
         # print("log - network properties analysis")
         data = json.loads(request.POST["data"])["Networks"]
         task_name = request.POST["task_name"]
+        # Check if the network format is correct
         for network in data:
-            response = check_network_format(network[1], network_task_or_type='undirected', preferred_format='edgelist')
-            # print("response", response)
-            if not response[0]: # type: ignore
-                return HttpResponse("Error: Incorrect network format in network " + network[0] + ".")
-            if response[1]: # type: ignore
-                network[1] = response[1] # type: ignore
-                # print("Network " + network[0] + " converted to edgelist format.")
+            check_response = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist')
+            if not check_response[0]:
+                return HttpResponseBadRequest("Error: Incorrect network format in network " + network[0] + ".")
+            if check_response[1]:
+                network[1] = check_response[1]
         networks = []
         for networkData in data:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')

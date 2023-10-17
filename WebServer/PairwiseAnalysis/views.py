@@ -1,9 +1,10 @@
 from django.http import HttpResponse
+from django.http.response import HttpResponseBadRequest
 from django.template import Context
 from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from utils.NetworkFormatter import check_network_format
+from utils.InputFormatter import check_input_format
 from utils.AJAX_Required import ajax_required
 from .PairwiseAnalysis import PairwiseAnalysis, make_system_call
 from .settings import PAIRWISE_ANALYSIS_TASK, PAIRWISE_ANALYSIS_COMPUTATIONS_DIR, DISTANCES
@@ -39,9 +40,9 @@ def run_pairwise_analysis(request):
     networks = json.loads(request.POST["data"])["Networks"]
     name = request.POST["name"]
     for network in networks[0] + networks[1]:
-            response = check_network_format(network[1], network_task_or_type='undirected', preferred_format='edgelist')
+            response = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist')
             if not response[0]: # type: ignore
-                return HttpResponse("Error: Incorrect network format in network " + network[0] + ".")
+                return HttpResponseBadRequest("Error: Incorrect network format in network " + network[0] + ".")
             if response[1]: # type: ignore
                 network[1] = response[1] # type: ignore
     distances = map(lambda s: unicodedata.normalize('NFKD', s).encode('ascii', 'ignore'),

@@ -75,7 +75,10 @@ factor = np.loadtxt(open(op_dir + "/" + fact_name, "rb"), delimiter="\t", skipro
 print("factor.shape", factor.shape)
 
 # entities = range(factor.shape[0])
-entities = pd.read_csv(op_dir + "/" + entitylist_filename).iloc[:,0].values
+# Load entity list. The [:,0] is to get the first column of the dataframe, which is the list of entities. Load it with header=None to avoid the first row being interpreted as the header.
+entities = pd.read_csv(op_dir + "/" + entitylist_filename, header=None).iloc[:,0].values
+
+# print("entities", entities)
 # entities = np.loadtxt(open(op_dir + "/" + "icell_genelist.csv", "rb"), delimiter="\t", skiprows=0)
 # print("entities", entities)
 # clusters = extractClusters(factor)

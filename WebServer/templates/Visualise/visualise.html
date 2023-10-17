@@ -40,7 +40,7 @@
     getAndAppendFinishedTasksForUser("{{ task_type }}", list);
   }
 
-  function getNetworkVisualisation() {
+  function getNetworkVisualization() {
     var data = {'Networks': [networkFiles[$networkNamesList.val()]]};
     Pace.restart();
     $.ajax({
@@ -57,13 +57,13 @@
         xhr.setRequestHeader("X-CSRFToken", csrf_token);
       },
       error: function (xhr, textStatus, errorThrown) {
-        errorAlert("Unable to obtain visualisation for selected network. " + xhr.responseText);
+        errorAlert("Unable to obtain visualization for selected network. " + xhr.responseText);
         Pace.stop();
       }
     });
   }
 
-  function getAlignmentVisualisation() {
+  function getAlignmentVisualization() {
     Pace.restart();
     $.ajax({
       url: '/Visualise/alignment/' + $networkNamesList.val() + "/",
@@ -77,7 +77,7 @@
         xhr.setRequestHeader("X-CSRFToken", csrf_token);
       },
       error: function (xhr, textStatus, errorThrown) {
-        errorAlert("Unable to obtain visualisation for selected alignment result. " + xhr.responseText);
+        errorAlert("Unable to obtain visualization for selected alignment result. " + xhr.responseText);
         Pace.stop();
       }
     });
@@ -85,9 +85,9 @@
 
   function submitNetworkForAnalysis() {
     if ($networkNamesList.find(":selected").hasClass("task-result")) {
-      getAlignmentVisualisation();
+      getAlignmentVisualization();
     } else {
-      getNetworkVisualisation();
+      getNetworkVisualization();
     }
   }
 </script>

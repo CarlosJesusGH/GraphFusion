@@ -10,7 +10,7 @@ function setUpUrlMappings() {
   var DASHBOARD = "dashboard";
   var NETWORK_PROPERTIES = "networkProperties";
   var ALIGNMENT = "alignment";
-  var VISUALISE = "Visualise";
+  var VISUALIZE = "Visualise";
   var PAIRWISE_ANALYSIS = "pairwiseAnalysis";
   var DATA_VS_MODEL = "DataVsModel";
   var ADMIN_CENTER = "AdminCenter";
@@ -40,7 +40,7 @@ function setUpUrlMappings() {
   urlMappings["/" + DASHBOARD + "/gc/"] = DASHBOARD;
   urlMappings["/" + NETWORK_PROPERTIES + "/"] = NETWORK_PROPERTIES;
   urlMappings["/" + ALIGNMENT + "/"] = ALIGNMENT;
-  urlMappings["/" + VISUALISE + "/"] = VISUALISE;
+  urlMappings["/" + VISUALIZE + "/"] = VISUALIZE;
   urlMappings["/" + PAIRWISE_ANALYSIS + "/"] = PAIRWISE_ANALYSIS;
   urlMappings["/" + DATA_VS_MODEL + "/"] = DATA_VS_MODEL;
   urlMappings["/" + ADMIN_CENTER + "/"] = ADMIN_CENTER;

@@ -6,6 +6,7 @@ from django.http.response import HttpResponseBadRequest
 from django.template import Context
 from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
+from utils.InputFormatter import check_input_format
 from utils.AJAX_Required import ajax_required
 import logging
 import json
@@ -91,13 +92,16 @@ def analysis_page(request):
 
 @login_required
 @ajax_required
-def visualise_factor(request):
-    print("visualise_factor")
+def visualize_factor(request):
     try:
         # print("request.POST", request.POST)
-        print("request.FILES", request.FILES)
+        # print("request.FILES", request.FILES)
         data = json.loads(request.POST["data"])
         cluster_fact = data["cluster_fact"]
+        # Check if the input format is correct
+        check_response, cluster_fact[1] = check_input_format(cluster_fact[1], input_task_or_type='factor', verbose=False) # type: ignore
+        if not check_response: 
+            return HttpResponseBadRequest("Error occurred while processing request: " + cluster_fact[0])
         cluster_fact_name = unicodedata.normalize('NFKD', cluster_fact[0]).encode('ascii', 'ignore')
         cluster_fact_data = unicodedata.normalize('NFKD', cluster_fact[1]).encode('ascii', 'ignore')
         operational_dir = COMPUTATIONS_DIR + "/clustering_enrichment"
@@ -144,25 +148,35 @@ def visualise_factor(request):
 @login_required
 @ajax_required
 def compute_clusters(request):
-    print("start compute_clusters")
+    # print("start compute_clusters")
     try:
         # print("request.POST", request.POST)
         # print("request.FILES", request.FILES)
         data = json.loads(request.POST["data"])
         cluster_fact = data["cluster_fact"]
+        # Check if the input format is correct
+        check_response, cluster_fact[1] = check_input_format(cluster_fact[1], input_task_or_type='factor', verbose=False) # type: ignore
+        if not check_response: 
+            return HttpResponseBadRequest("Error occurred while processing request: " + cluster_fact[0])
         cluster_fact_name = unicodedata.normalize('NFKD', cluster_fact[0]).encode('ascii', 'ignore')
         # cluster_fact_data = unicodedata.normalize('NFKD', cluster_fact[1]).encode('ascii', 'ignore')
         operational_dir = COMPUTATIONS_DIR + "/clustering_enrichment"
         LOGGER.info("Executing clustering for fact: " + str(cluster_fact_name) + " in dir: " + operational_dir)
         # _save_text_file_to_dir(operational_dir, cluster_fact_name, cluster_fact_data)
-        _save_blob_file_to_dir(operational_dir, CLUSTERS_ENTITYLIST_FILENAME, request.FILES["clusters_entitylist_file"])
+        # Check the entity list file format
+        check_response, entities = check_input_format(request.FILES["clusters_entitylist_file"], input_task_or_type='entitylist', verbose=False) # type: ignore
+        if not check_response:
+            return HttpResponseBadRequest("Error occurred while processing 'entity list' file. " + str(entities) + ".")
+        _save_text_file_to_dir(operational_dir, CLUSTERS_ENTITYLIST_FILENAME, entities)
+        # If the factor file is a matrix, check that the number of rows in the matrix is equal to the number of entities in the entity list file
         if os.path.isfile(os.path.join(operational_dir, CLUSTERS_ENTITYLIST_FILENAME)):
             entities = np.genfromtxt(os.path.join(operational_dir, CLUSTERS_ENTITYLIST_FILENAME), dtype=str)
             factor = np.genfromtxt(os.path.join(operational_dir, cluster_fact_name))
-            if entities.shape[0] -1 != factor.shape[0]:
+            if entities.shape[0] != factor.shape[0]:
                 print("entities.shape", entities.shape)
                 print("factor.shape", factor.shape)
-                raise Exception("Number of entities in entitylist file (+header): {}, does not match number of rows in factor file: {}".format(entities.shape[0],factor.shape[0]))  
+                print("entities", entities)
+                raise Exception("Number of entities in entitylist file: {}, does not match number of rows in factor file: {}".format(entities.shape[0],factor.shape[0]))  
         clusters_img, clusters = _compute_clusters_for_factor(op_dir=operational_dir, fact_name=cluster_fact_name)
         data = json.dumps({
         'msg': "Successfully computed clusters",
@@ -170,7 +184,6 @@ def compute_clusters(request):
         'clusters': clusters,
         })
         return HttpResponse(data)
-
     except Exception as e:
         LOGGER.error(e)
         print("error", e)
@@ -181,8 +194,8 @@ def compute_clusters(request):
 def compute_enrichments(request):
     print("start compute_enrichments")
     try:
-        print("request.POST", request.POST)
-        print("request.FILES", request.FILES)
+        # print("request.POST", request.POST)
+        # print("request.FILES", request.FILES)
         data = json.loads(request.POST["data"])
         cluster_fact = data["cluster_fact"]
         # enrichments_anno = data["enrichments_anno"]
@@ -190,7 +203,12 @@ def compute_enrichments(request):
         # task_dir = data["task_dir"]
         operational_dir = COMPUTATIONS_DIR + "/clustering_enrichment"
         LOGGER.info("Executing enrichments for fact: " + str(cluster_fact) + " and annotations in dir: " + operational_dir)
-        _save_blob_file_to_dir(operational_dir, ENRICHMENTS_ANNO_FILENAME, request.FILES["annotations"])
+        # Check the annotations file format
+        check_response, annotations = check_input_format(request.FILES["annotations"], input_task_or_type='entityanno', verbose=False) # type: ignore
+        if not check_response:
+            return HttpResponseBadRequest("Error occurred while processing 'annotations' file. " + str(annotations) + ".")
+        _save_text_file_to_dir(operational_dir, ENRICHMENTS_ANNO_FILENAME, annotations)
+        # _save_blob_file_to_dir(operational_dir, ENRICHMENTS_ANNO_FILENAME, request.FILES["annotations"])
         enrichments_img, clusters_enriched = _compute_enrichments_for_clusters(op_dir=operational_dir, fact_name=cluster_fact, enrichments_anno=ENRICHMENTS_ANNO_FILENAME)
         data = json.dumps({
         'msg': "Successfully computed enrichments",
@@ -236,13 +254,14 @@ def _compute_enrichments_for_clusters(op_dir, fact_name, enrichments_anno):
 
 def _save_text_file_to_dir(directory, filename, filedata):
     print("_save_text_file_to_dir for file:", filename)
-    edgelist_path = directory + "/" + filename
-    f = open(edgelist_path, "w")
+    file_path = directory + "/" + filename
+    f = open(file_path, "w")
     f.write(filedata)
     f.close()
 
 def _save_blob_file_to_dir(directory, filename, filedata):
     print("_save_blob_file_to_dir for file:", filename)
+    print("filedata", filedata)
     sys_call_result = make_system_call("rm -f " + directory + "/" + filename)
     print("sys_call_result", sys_call_result)
     blob = filedata

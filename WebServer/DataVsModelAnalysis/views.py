@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
+from utils.InputFormatter import check_input_format
 from utils.AJAX_Required import ajax_required
 from django.http import HttpResponse
+from django.http.response import HttpResponseBadRequest
 from django.template.loader import get_template
 from django.template import Context
 from .settings import DATA_VS_MODEL_TASK, MODELS, DATA_VS_MODEL_COMPUTATIONS_DIR, RESULT_IMAGE_FILES
@@ -60,8 +62,14 @@ def get_raw_data_for_task(task):
 @login_required
 @ajax_required
 def run_data_vs_model_analysis(request):
-    networks = map(lambda a: map(lambda x: unicodedata.normalize('NFKD', x).encode('ascii', 'ignore'), a),
-                   json.loads(request.POST["networks"]))
+    networks = map(lambda a: map(lambda x: unicodedata.normalize('NFKD', x).encode('ascii', 'ignore'), a), json.loads(request.POST["networks"]))
+    # Check if the network format is correct
+    for network in networks:
+        response = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist')
+        if not response[0]:
+            return HttpResponseBadRequest("Error: Incorrect network format in network " + network[0] + ".")
+        if response[1]:
+            network[1] = response[1]
     task_name = request.POST["name"]
     distances = map(lambda s: unicodedata.normalize('NFKD', s).encode('ascii', 'ignore'),
                     json.loads(request.POST["distances"]))

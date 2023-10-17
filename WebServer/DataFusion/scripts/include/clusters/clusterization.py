@@ -75,9 +75,9 @@ factor = np.loadtxt(open(op_dir + "/" + fact_name, "rb"), delimiter="\t", skipro
 print("factor.shape", factor.shape)
 
 # entities = range(factor.shape[0])
-entities = pd.read_csv(op_dir + "/" + entitylist_filename).iloc[:,0].values
+entities = pd.read_csv(op_dir + "/" + entitylist_filename, header=None).iloc[:,0].values
 # entities = np.loadtxt(open(op_dir + "/" + "icell_genelist.csv", "rb"), delimiter="\t", skiprows=0)
-print("entities", entities)
+# print("entities", entities)
 # clusters = extractClusters(factor)
 clusters = extractClusters(entities, factor)
 

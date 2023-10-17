@@ -1,18 +1,19 @@
 <div class="row-fluid">
   {% csrf_token %}
   <h3>Clustering and Enrichment</h3>
-  <h5>Select GDV or Factor to be analyzed</h5>
-
+  <h5>Select a factor</h5>
+  <p>
+    A factor is a low-dimensional representation of the data, such as a multimodal embedding, a principal component, a t-SNE embedding, or a graphlet degree vector matrix (where the number of rows in the matrix is equal to the number of nodes in the network, and the columns are the Graphlet Degree Vectors, i.e., 11 columns per node representing the coordinates corresponding to the 11 non-redundant orbits). The input file should be a tab-separated matrix without a header or row names. The values should be positive real numbers. The matrix does not need to be square or symmetric.
+  </p>
   <div class="row-fluid" style="padding:5px;">
     <div class="row-fluid">
-      <!-- initial button -->
       <div class="form-group col-lg-3">
         <select id="clusterFact" class="form-control col-sm-4" style="min-width: 250px;" />
       </div>
       <div class="form-group">
         <div class="col-sm-2">
-          <button class="btn btn-success" onclick="getVisualisation(); return false;" style="right:0"
-            id="analyseButton">Visualise
+          <button class="btn btn-success" onclick="getVisualization(); return false;" style="right:0"
+            id="analyseButton">Visualize
           </button>
         </div>
       </div>
@@ -91,7 +92,7 @@
                 <br />
                 <div id="div_clusters_table">
                   <h3>Drugstone container</h3>
-                  Use the table below to select the clusters to be visualised in the drugstone container.
+                  Use the table below to select the clusters to be visualized in the drugstone container.
                   <br /> <br />
                   <!-- drugstone-container -->
                   <!-- {% if network %} -->
@@ -196,7 +197,7 @@
                 <br />
                 <div id="div_enrichments_table">
                   <h3>Drugstone container</h3>
-                  Use the table below to select the clusters to be visualised in the drugstone container.
+                  Use the table below to select the clusters to be visualized in the drugstone container.
                   <br /> <br />
                   <!-- drugstone-container -->
                   <!-- {% if network %} -->
@@ -263,8 +264,8 @@
       updateNetworkNamesInList($clusterFact);
     }
 
-    function getVisualisation() {
-      console.log("getVisualisation()");
+    function getVisualization() {
+      // console.log("getVisualization()");
       var cluster_fact = $("#clusterFact").val();
       if (cluster_fact == null) {
         vexErrorAlert("You should select a factor to visualize it.");
@@ -277,7 +278,7 @@
       fd.append("data", JSON.stringify(data));
       Pace.track(function () {
         $.ajax({
-          url: '/ClusteringAndEnrichment/visualise_factor/',
+          url: '/ClusteringAndEnrichment/visualize_factor/',
           type: 'POST',
           data: fd,
           processData: false,  // tell jQuery not to process the data
@@ -402,16 +403,20 @@
       var fd = new FormData();
       var read = new FileReader();
       if (document.getElementById("clusters_entitylist_file").value == "") {
-        vexErrorAlert("You should select an entity list file to compute clusters.");
-        return;
-      } else if (clusters_entitylist_file.name.includes(".edgelist") || clusters_entitylist_file.name.includes(".csv")) {
-        console.log("readAsText:" + clusters_entitylist_file.name);
-        read.readAsText(clusters_entitylist_file);
-      } else {
-        console.log("readAsArrayBuffer:" + clusters_entitylist_file.name);
-        // read.readAsBinaryString(files[i]);
-        read.readAsArrayBuffer(clusters_entitylist_file);
+        // vexErrorAlert("You should select an entity list file to compute clusters.");
+        // return;
+        successAlert("Not entity list file selected. The default entity list file will be used.");
       }
+      console.log("readAsText:" + clusters_entitylist_file.name);
+      read.readAsText(clusters_entitylist_file);
+      // else if (clusters_entitylist_file.name.includes(".edgelist") || clusters_entitylist_file.name.includes(".csv")) {
+      //   console.log("readAsText:" + clusters_entitylist_file.name);
+      //   read.readAsText(clusters_entitylist_file);
+      // } else {
+      //   console.log("readAsArrayBuffer:" + clusters_entitylist_file.name);
+      //   // read.readAsBinaryString(files[i]);
+      //   read.readAsArrayBuffer(clusters_entitylist_file);
+      // }
       read.onloadend = function () {
         console.log('read.onloadend for file: ' + clusters_entitylist_file.name);
         // -----

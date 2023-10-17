@@ -11,6 +11,6 @@ urlpatterns = [
     url(r'^compute_clusters/$', compute_clusters),
     # url(r'^enrichment_analysis/$', enrichment_analysis),
     url(r'^compute_enrichments/$', compute_enrichments),
-    url(r'^visualise_factor/$', visualise_factor),
+    url(r'^visualize_factor/$', visualize_factor),
     url(r'^update_drugstone_container/', update_drugstone_container),
 ]
