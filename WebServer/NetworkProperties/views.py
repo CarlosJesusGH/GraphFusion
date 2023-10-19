@@ -82,11 +82,10 @@ def analyse_networks(request):
         task_name = request.POST["task_name"]
         # Check if the network format is correct
         for network in data:
-            check_response = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist')
-            if not check_response[0]:
+            check_response, network[1] = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist')
+            if not check_response:
                 return HttpResponseBadRequest("Error: Incorrect network format in network " + network[0] + ".")
-            if check_response[1]:
-                network[1] = check_response[1]
+        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         networks = []
         for networkData in data:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')

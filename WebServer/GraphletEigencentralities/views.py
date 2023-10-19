@@ -6,6 +6,7 @@ from django.http.response import HttpResponseBadRequest
 from django.template import Context
 from django.template.loader import get_template
 from django.contrib.auth.decorators import login_required
+from utils.InputFormatter import check_input_format
 from utils.AJAX_Required import ajax_required
 import logging
 import json
@@ -36,13 +37,19 @@ def analysis_page(request):
 @login_required
 @ajax_required
 def submit_analysis_backend(request):
-    print("start submit_analysis_backend")
+    # print("start submit_analysis_backend")
     try:
         # print("request.POST", request.POST)
         # print("request.FILES", request.FILES)
         task_name = request.POST["task_name"]        
         data = json.loads(request.POST["data"])
         data_networks = data["Networks"]
+        # Check if the network format is correct
+        for network in data_networks:
+            check_response, network[1] = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist')
+            if not check_response:
+                return HttpResponseBadRequest("Error: Incorrect format in network " + network[0] + ".")
+        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         networks = []
         for networkData in data_networks:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
