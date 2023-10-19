@@ -2,6 +2,8 @@ from django.http import HttpResponse
 from django.template import Context
 from django.template.loader import get_template
 from DataVsModelAnalysis.DataVsModelAnalysisResult import get_string_for_png
+from utils.InputFormatter import check_input_format
+from django.http.response import HttpResponseBadRequest
 from django.core.context_processors import csrf
 from .settings import DIRECTED_NETWORK_PROPERTIES_COMPUTATIONS_DIR, DIRECTED_NETWORK_PROPERTIES_TASK, DIRECTED_NETWORKS_NAMES_MAPPINGS_FILE_NAME, \
     DIRECTED_NETWORK_RESULT_VIEW_FILE_NAME, DEGREE_DISTRIBUTION_FILE
@@ -75,6 +77,12 @@ def get_view_for_task(task, user):
 def analyse_networks(request):
     data = json.loads(request.POST["data"])["Networks"]
     task_name = request.POST["task_name"]
+    # Check if the network format is correct
+    for network in data:
+        check_response, network[1] = check_input_format(network[1], input_task_or_type='directed', preferred_format='edgelist')
+        if not check_response:
+            return HttpResponseBadRequest("Error: Incorrect format in network " + network[0] + ".")
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     networks = []
     for networkData in data:
         name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')

@@ -85,12 +85,6 @@
             'task_name': task_name
           },
           success: function (data) {
-            // console.log("log - data: " + data);
-            // If the data is a string and contains the word "Error" then it is an error message
-            // if (typeof data === 'string' && data.indexOf("Error") != -1) {
-            //   vexErrorAlert(data);
-            //   return;
-            // } else {
             $propsDiv.hide();
             $resultDiv.show();
             refreshRunningTasks();
@@ -102,6 +96,7 @@
           },
           error: function (jqXHR, textStatus, errorThrown) {
             console.log('ERRORS: ' + textStatus);
+            errorAlert(jqXHR.responseText);
           }
         });
       })
