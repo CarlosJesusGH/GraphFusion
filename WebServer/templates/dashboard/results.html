@@ -94,6 +94,14 @@
   </div>
 </div>
 
+<!-- 
+  Include a button to delete all tasks
+ -->
+<div class="row">
+  <div class="col-sm-12">
+    <button class="btn btn-danger" onclick="deleteAllTasks();return false;">Delete All Tasks</button>
+  </div>
+
 <div class="modal fade" id="resultsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true"
      style="z-index: 1051;">
@@ -133,6 +141,25 @@
       callback: function (value) {
         if (value) {
           deleteTask(task_id, function () {
+            refreshRunningTasks();
+            navigateTo("/dashboard/");
+          });
+        }
+      }
+    });
+    return false;
+  }
+
+  function deleteAllTasks() {
+    vex.dialog.confirm({
+      message: 'Are you sure you want to delete all tasks?',
+      css: {
+        height: '50px !important'
+      },
+      contentCSS: {height: '50px !important'},
+      callback: function (value) {
+        if (value) {
+          deleteTasksAll(function () {
             refreshRunningTasks();
             navigateTo("/dashboard/");
           });

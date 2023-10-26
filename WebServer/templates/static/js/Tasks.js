@@ -98,6 +98,25 @@ function deleteTask($task_id, callback) {
   });
 }
 
+function deleteTasksAll(callback) {
+  $.ajax({
+    url: '/TaskFactory/delete_all_tasks/',
+    type: 'POST',
+    data: {},
+    success: function (data) {
+      successAlert(data);
+      callback();
+    },
+    beforeSend: function (xhr, settings) {
+      xhr.setRequestHeader("X-CSRFToken", csrf_token);
+    },
+    error: function (xhr, textStatus, errorThrown) {
+      console.log('ERRORS: ' + textStatus);
+      errorAlert("Error occurred while deleting task: " + xhr.responseText);
+    }
+  });
+}
+
 function terminateTask($task_id, callback) {
   $.ajax({
     url: '/TaskFactory/terminate-task/' + $task_id.toString() + "/",
