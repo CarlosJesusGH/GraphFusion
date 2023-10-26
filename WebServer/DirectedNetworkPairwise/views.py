@@ -11,6 +11,8 @@ import json
 import logging
 import unicodedata
 import os
+from utils.InputFormatter import check_input_format
+from django.http.response import HttpResponseBadRequest
 
 LOGGER = logging.getLogger(__name__)
 
@@ -35,6 +37,12 @@ def home_page(request):
 @ajax_required
 def run_pairwise_analysis(request):
     networks = json.loads(request.POST["data"])["Networks"]
+    # Check if the network format is correct
+    for network in networks[0] + networks[1]:
+        check_response, network[1] = check_input_format(network[1], input_task_or_type='directed', preferred_format='edgelist')
+        if not check_response:
+            return HttpResponseBadRequest("Error: Incorrect format in network " + network[0] + ".")
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     name = request.POST["name"]
     distances = map(lambda s: unicodedata.normalize('NFKD', s).encode('ascii', 'ignore'),
                     json.loads(request.POST["distances"]))

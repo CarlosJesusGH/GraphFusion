@@ -21,6 +21,7 @@ from django.core.files.storage import default_storage, FileSystemStorage
 # task's own imports
 from .ProbabilisticNetworksModelAnalysis import *
 from .ProbabilisticNetworksModelAnalysisResult import *
+from utils.InputFormatter import check_input_format
 
 LOGGER = logging.getLogger(__name__)
 
@@ -32,32 +33,68 @@ def analysis_page(request):
     })
     return HttpResponse(get_template("ProbabilisticNetworks/modelAnalysis/analysis.html").render(context))
 
-@login_required
-@ajax_required
-def submit_analysis_properties(request):
-    data = json.loads(request.POST["data"])["Networks"]
-    task_name = request.POST["task_name"]
-    networks = []
-    for networkData in data:
-        name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
-        network_list = unicodedata.normalize('NFKD', networkData[1]).encode('ascii', 'ignore')
-        networks.append((name, network_list))
-    heading, rows, deg_dists, gcm_raw_data, network_names, task = get_network_probabilistic_analysis_for_graphs(
-        graphs=networks,
-        user=request.user,
-        task_name=task_name)
-    context = Context({
-        'heading': heading,
-        'rows': rows,
-        'gcm_raw_data': gcm_raw_data,
-        'network_names': network_names,
-        'deg_dist': __save_deg_dist_image(deg_dists, task=task)
-    })
-    rendered_view = get_template("ProbabilisticNetworks/modelAnalysis/result.html").render(context)
-    with open(COMPUTATIONS_DIR + "/" + task.operational_directory +
-                      "/" + RESULT_VIEW_FILE, "w") as f:
-        f.write(rendered_view)
-    return HttpResponse(rendered_view)
+def check_input(request_POST, data):
+    try:
+        model_name = request_POST["model_name"]
+        distribution_name = request_POST["distribution_name"]
+        model_nodes = int(data["model_nodes"])
+        model_radius = int(data["model_radius"])
+        model_density = float(data["model_density"])
+        distribution_mean = float(data["distribution_mean"])
+        distribution_variance = float(data["distribution_variance"])
+        # distribution_empirical_file = data["distribution_empirical_file"]
+        distribution_empirical_file = json.loads(unicodedata.normalize('NFKD', data["distribution_empirical_file"]).encode('ascii', 'ignore'))[0]
+        # print("model_name", model_name, "distribution_name", distribution_name, "model_nodes", model_nodes, "model_radius", model_radius, "model_density", model_density, "distribution_mean", distribution_mean, "distribution_variance", distribution_variance, "distribution_empirical_file", distribution_empirical_file)
+    except Exception as e:
+        LOGGER.error(e)
+        return HttpResponseBadRequest("Error: Incorrect format in the values. Input could not be parsed.")
+    if model_name == "hyper_geometric":
+        # 1.1 Hyper Geometric:
+        # G = Network_Models.get_Hyper_Geometric(Node=model_nodes, Radius=model_radius)
+        if model_nodes < 10:
+            return HttpResponseBadRequest("Error: Number of nodes must be a positive integer greater than 10.")
+        if model_radius <= 0:
+            return HttpResponseBadRequest("Error: Radius must be a positive integer.")
+    elif model_name == "barabasi_albert" or model_name == "erdos_renyi":
+        # 1.2 Barabasi
+        # G = Network_Models.get_m_for_barabasi_albert(Nodes=model_nodes, density=model_density)
+        # 1.3 Erdos Renyi
+        # G = Network_Models.get_Erdos_Renyi(Nodes=model_nodes, density=model_density)
+        if model_nodes < 10:
+            return HttpResponseBadRequest("Error: Number of nodes must be a positive integer greater than 10.")
+        if model_density <= 0 or model_density > 1:
+            return HttpResponseBadRequest("Error: Density must be a positive float between 0 and 1.")
+        
+        model_edges = int(round(model_nodes/2 - np.sqrt(model_nodes**2/4 - model_nodes*(model_nodes-1)*model_density/2)))
+        # m >= 1 and m < n
+        if model_edges < 1 or model_edges >= model_nodes:
+            return HttpResponseBadRequest("Error: Number of edges must be a positive integer less than the number of nodes. According to the number of nodes and the density, the number of edges is " + str(model_edges) + ".")
+    else:
+        return HttpResponseBadRequest("Error: Model name not recognized.")
+    if distribution_name == "uniform":
+        # 2.1.1 Uniform_distribution
+        # distribution = Uniform_distribution(nodes=len(G.nodes))
+        # distribution = Network_Models.Uniform_distribution(nodes=len(G.edges))
+        pass
+    elif distribution_name == "beta":
+        # 2.1.2 Beta_distribution
+        # Note: The mean is the average of a group of numbers, and the variance measures the average degree to which each number is different from the mean.
+        # distribution = Network_Models.Beta_distribution(nodes=len(G.edges), mean=0.5, variance=0.2)
+        # distribution = Network_Models.Beta_distribution(nodes=len(G.edges), mean=distribution_mean, variance=distribution_variance)
+        if distribution_mean <= 0 or distribution_mean > 1:
+            return HttpResponseBadRequest("Error: Mean must be a float between 0 and 1.")
+        if distribution_variance <= 0 or distribution_variance > 1:
+            return HttpResponseBadRequest("Error: Variance must be a float between 0 and 1.")
+    elif distribution_name == "empirical":
+        # 2.1.3 Empirical_Distribution
+        # distribution = Network_Models.Empirical_Distribution(path=operational_dir+"distribution_empirical_file", size=len(G.edges))
+        # distribution = Network_Models.Empirical_Distribution(path=operational_dir+distribution_empirical_file, size=len(G.edges))
+        if distribution_empirical_file == "":
+            return HttpResponseBadRequest("Error: Empirical distribution file is empty.")
+        check_response, _ = check_input_format(distribution_empirical_file, input_task_or_type='probabilistic', preferred_format='edgelist', verbose=False)
+        if not check_response:
+            return HttpResponseBadRequest("Error: Incorrect format in the empirical distribution file.")
+    return False
 
 # from django.views.decorators.http import require_POST
 # @require_POST
@@ -67,18 +104,15 @@ def submit_analysis_properties(request):
 def submit_analysis(request):
     print("start submit_analysis")
     try:
-        print("request.POST", request.POST)
-        print("request.FILES", request.FILES)   
-        # data = json.loads(request.POST["data"])["Networks"]
-        task_name = request.POST["task_name"]     
+        # print("request.POST", request.POST)
+        # print("request.FILES", request.FILES)
+        task_name = request.POST["task_name"]
         data = json.loads(request.POST["data"])
-        # data_networks = data["Networks"]
-        networks = []
-        # for networkData in data_networks:
-        #     name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
-        #     network_list = unicodedata.normalize('NFKD', networkData[1]).encode('ascii', 'ignore')
-        #     networks.append((name, network_list))
-        # run analysis
+        check_input_res = check_input(request.POST, data)
+        if check_input_res:
+            return check_input_res
+        # return HttpResponseBadRequest("Error: Incorrect format in network " + network[0] + ".")
+        # Run analysis
         LOGGER.info("Executing Analysis for: " + str(request.user.username) + " with task_name: " + str(task_name))
         request_FILES = request.FILES
         task = ProbabilisticNetworksModelAnalysis(request.POST, data, request_FILES, task_name=task_name, user=request.user)

@@ -14,6 +14,8 @@ import json
 import unicodedata
 import ast
 import os
+from utils.InputFormatter import check_input_format
+from django.http.response import HttpResponseBadRequest
 
 
 LOGGER = logging.getLogger(__name__)
@@ -60,8 +62,14 @@ def get_raw_data_for_task(task):
 @login_required
 @ajax_required
 def run_data_vs_model_analysis(request):
-    networks = map(lambda a: map(lambda x: unicodedata.normalize('NFKD', x).encode('ascii', 'ignore'), a),
-                   json.loads(request.POST["networks"]))
+    data_networks = json.loads(request.POST["networks"])
+    # Check if the network format is correct
+    for network in data_networks:
+        check_response, network[1] = check_input_format(network[1], input_task_or_type='directed', preferred_format='edgelist')
+        if not check_response:
+            return HttpResponseBadRequest("Error: Incorrect format in network " + network[0] + ".")
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    networks = map(lambda a: map(lambda x: unicodedata.normalize('NFKD', x).encode('ascii', 'ignore'), a), data_networks)
     task_name = request.POST["name"]
     distances = map(lambda s: unicodedata.normalize('NFKD', s).encode('ascii', 'ignore'),
                     json.loads(request.POST["distances"]))

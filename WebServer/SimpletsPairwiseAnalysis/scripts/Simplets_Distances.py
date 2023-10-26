@@ -199,7 +199,6 @@ def getCorrelationMatrices(allIndexes, testMode):
 # ---------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------
-print("Hello world from python script")
 args = sys.argv[1:]
 print("args", args)
 

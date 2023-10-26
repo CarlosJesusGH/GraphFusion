@@ -21,6 +21,8 @@ from django.core.files.storage import default_storage, FileSystemStorage
 # task's own imports
 from .ProbabilisticNetworksNetAnalysis import *
 from .ProbabilisticNetworksNetAnalysisResult import *
+from utils.InputFormatter import check_input_format
+from django.http.response import HttpResponseBadRequest
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,33 +33,6 @@ def analysis_page(request):
         'task_type': PROBABILISTIC_NETWORKS_NET_ANALYSIS_TASK,
     })
     return HttpResponse(get_template("ProbabilisticNetworks/netAnalysis/analysis.html").render(context))
-
-@login_required
-@ajax_required
-def submit_analysis_properties(request):
-    data = json.loads(request.POST["data"])["Networks"]
-    task_name = request.POST["task_name"]
-    networks = []
-    for networkData in data:
-        name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
-        network_list = unicodedata.normalize('NFKD', networkData[1]).encode('ascii', 'ignore')
-        networks.append((name, network_list))
-    heading, rows, deg_dists, gcm_raw_data, network_names, task = get_network_probabilistic_analysis_for_graphs(
-        graphs=networks,
-        user=request.user,
-        task_name=task_name)
-    context = Context({
-        'heading': heading,
-        'rows': rows,
-        'gcm_raw_data': gcm_raw_data,
-        'network_names': network_names,
-        'deg_dist': __save_deg_dist_image(deg_dists, task=task)
-    })
-    rendered_view = get_template("ProbabilisticNetworks/netAnalysis/result.html").render(context)
-    with open(COMPUTATIONS_DIR + "/" + task.operational_directory +
-                      "/" + RESULT_VIEW_FILE, "w") as f:
-        f.write(rendered_view)
-    return HttpResponse(rendered_view)
 
 # from django.views.decorators.http import require_POST
 # @require_POST
@@ -73,6 +48,13 @@ def submit_analysis(request):
         task_name = request.POST["task_name"]     
         data = json.loads(request.POST["data"])
         data_networks = data["Networks"]
+        # print("data_networks", data_networks)
+        # Check the network format
+        for network in data_networks:
+            check_response, network[1] = check_input_format(network[1], input_task_or_type='probabilistic', preferred_format='edgelist', verbose=True)
+            if not check_response:
+                return HttpResponseBadRequest("Error: Incorrect format in network " + network[0] + ".")
+        # ^^^^^^^^^^^^^^^^^^^^^^^^
         networks = []
         for networkData in data_networks:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')

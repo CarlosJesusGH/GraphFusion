@@ -1114,8 +1114,6 @@ if False:
 
   # %%time
 
-  print("Hello World!")
-
   start = time.time()
   # // Reading files in, mind that C++ assumes column-major format which does not always correspond to how the data was generated.
   # // Check that the matrix read is as you expect, the option arma::hdf5_opts::trans perform transposition if it isn't
@@ -1156,8 +1154,6 @@ if False:
   ### joint_nmtf
 
   # %%time
-
-  print("Hello World!")
 
   start = time.time()
   # // Reading files in, mind that C++ assumes column-major format which does not always correspond to how the data was generated.
@@ -1211,8 +1207,6 @@ if False:
   ### mixed_nmf
 
   # %%time
-
-  print("Hello World!")
 
   start = time.time()
   # // Reading files in, mind that C++ assumes column-major format which does not always correspond to how the data was generated.

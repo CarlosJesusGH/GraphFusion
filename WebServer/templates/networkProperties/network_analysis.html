@@ -85,11 +85,11 @@
             'task_name': task_name
           },
           success: function (data) {
-            $propsDiv.hide();
-            $resultDiv.show();
+            // $propsDiv.hide();
+            // $resultDiv.show();
+            // $('#result').html(data);
             refreshRunningTasks();
-            $('#result').html(data);
-            // }
+            successAlert(data);
           },
           beforeSend: function (xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);

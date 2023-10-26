@@ -13,6 +13,7 @@ import logging
 from datetime import datetime
 import json
 from StringIO import StringIO
+import os
 
 LOGGER = logging.getLogger(__name__)
 
@@ -70,6 +71,36 @@ def delete_task(request, task_id):
         task.delete()
         return HttpResponse("Task successfully deleted.")
     return HttpResponseBadRequest("Error occurred while deleting task")
+
+@login_required
+@ajax_required
+def delete_all_tasks(request):
+    LOGGER.info("Deleting all tasks for user: " + str(request.user))
+    tasks = get_all_tasks_for_user(user=request.user)
+    for task in tasks:
+        if task and DELETE_TASK_FUNCTION_MAPPINGS[task.task_type](task=task):
+            task.delete()
+        else:
+            return HttpResponseBadRequest("Error occurred while deleting task")
+    # Find all the directories containing the word 'computations' in the nameand delete them
+    LOGGER.info("Deleting all remaining computations directories.")
+    # Do this in python 'DIR=( $(find -name "computations" -type d) )'
+    # Then do this in python 'for dir in DIR: os.rmdir(dir)'
+    os.system("find -name 'computations' -type d -exec rm -rf {} +")
+    for dir in os.listdir("."):
+        if dir.startswith("computations"):
+            # os.rmdir(dir)
+            print("dir", dir)
+    # Now do the same but recursively
+    # os.system("find -name 'computations' -type d -exec rm -rf {} +")
+    # for dir in os.listdir("."):
+    #     if dir.startswith("computations"):
+    #         os.rmdir(dir)
+
+    
+    # All tasks successfully deleted
+    return HttpResponse("All tasks successfully deleted.")
+    
 
 
 @login_required

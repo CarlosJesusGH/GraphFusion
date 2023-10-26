@@ -14,17 +14,18 @@ def check_input_format(input_data, input_task_or_type, preferred_format='', verb
   :param preferred_format: The preferred format for the network (e.g. 'edgelist', 'adjmatrix', 'adjlist').  # ref: https://medium.com/basecs/from-theory-to-practice-representing-graphs-cfd782c5be38
   :return: True if the network is correctly formatted, False otherwise.
   """
+  if verbose: print("check_input_format - input_task_or_type:", input_task_or_type, ", preferred_format:", preferred_format)
   if input_task_or_type == 'undirected' or input_task_or_type == 'directed' or input_task_or_type == 'visualization':
     return check_undirected_network_format(input_data, preferred_format, verbose)
   elif input_task_or_type == 'factor':
     return check_factor_format(input_data, verbose)
   elif input_task_or_type == 'entitylist' or input_task_or_type == 'entityanno':
     return check_entityfile_format(input_data, input_task_or_type, verbose)
-  # elif network_task_or_type == 'probabilistic':
-  #     return check_probabilistic_network_format(network)
-  # elif network_task_or_type == 'hyper':
+  elif input_task_or_type == 'probabilistic':
+      return check_probabilistic_network_format(input_data, preferred_format, verbose)
+  # elif input_task_or_type == 'hyper':
   #     return check_hyper_network_format(network)
-  # elif network_task_or_type == 'simplicial_complex':
+  # elif input_task_or_type == 'simplicial_complex':
   #     return check_simplicial_complex_network_format(network)
   else:
     return False, None
@@ -96,6 +97,90 @@ def check_undirected_network_format(network, preferred_format, verbose=False):
       return False, None
   # Otherwise, the network is correctly formatted
   return True, parsed_network
+
+def check_probabilistic_network_format(network, preferred_format, verbose=False):
+  """
+  Checks the probabilistic network for formatting errors.
+  :param network: The probabilistic network to be checked.
+  :param preferred_format: The preferred format for the network (e.g. 'edgelist', 'adjmatrix', 'adjlist').
+  :param verbose: Whether to print debugging information.
+  :return: True if the network is correctly formatted, False otherwise.
+  """
+  parsed_network = None
+  # Check if the network can be parsed as a weighted edgelist
+  try:
+    G = nx.parse_edgelist(network.split("\n"), nodetype=str, data=(('weight',float),))
+    if verbose: print("G", G, "G.nodes()", G.nodes())
+    if verbose: print("G.edges(data=True)", G.edges(data=True))
+    # if G is None or empty, return False
+    if G is None or not G.nodes():
+      if verbose: print("G is None or empty", G, "G.nodes()", G.nodes())
+      raise Exception("G is None or empty")
+    elif preferred_format == 'adjmatrix':
+      if verbose: print("preferred_format", preferred_format)
+      # Get the adjacency matrix from the network. Use Python 2.7
+      adjmatrix = nx.to_numpy_matrix(G).tolist()
+      if verbose: print("adjmatrix", adjmatrix)
+      # Write adjmatrix to a string with delimiter="\t
+      parsed_network = unicode("\n".join(["\t".join(map(str, row)) for row in adjmatrix]), "utf-8")
+      if verbose: print("parsed_network as adjmatrix", parsed_network)
+    elif preferred_format == 'edgelist':
+      if verbose: print("preferred_format", preferred_format)
+      # Write edgelist to a string with delimiter=" ", the third element is the weight value only, not the dictionary
+      # parsed_network = unicode("\n".join([" ".join(map(str, edge)) for edge in nx.to_edgelist(G)]), "utf-8")
+      parsed_network = unicode("\n".join([" ".join(map(str, [edge[0], edge[1], edge[2]['weight'] if 'weight' in edge[2] else 1.0])) for edge in nx.to_edgelist(G)]), "utf-8")
+    else:
+      if verbose: print("preferred_format not valid: ", preferred_format)
+      raise Exception("preferred_format value is not valid")
+      
+  except Exception as e:
+    if verbose: print("Exception", e, "e.message", e.message)
+    #  Check if the network can be parsed as a weighted adjacency matrix
+    try:
+      # G = nx.parse_adjlist(network.split("\n"))
+      # Numpy load from text
+      # Check if the file is tab-delimited or space-delimited or comma-delimited
+      if "\t" in network:
+        delimiter = "\t"
+      elif " " in network:
+        delimiter = " "
+      elif "," in network:
+        delimiter = ","
+      else:
+        delimiter = None
+      if verbose: print("delimiter", delimiter)
+      if delimiter:
+        X = np.loadtxt(network.split("\n"), delimiter=delimiter, skiprows=0)
+      else:
+        X = np.loadtxt(network.split("\n"), skiprows=0)
+      if verbose: print("X", X)
+      G = nx.from_numpy_matrix(X)
+      if verbose: print("G", G, "G.nodes()", G.nodes())
+      if verbose: print("G.edges(data=True)", G.edges(data=True))
+      # if G is None or empty, return False
+      if G is None or not G.nodes():
+        return False, None
+      elif preferred_format == 'edgelist':
+        if verbose: print("preferred_format", preferred_format)
+        parsed_network = unicode("\n".join([" ".join(map(str, [edge[0], edge[1], edge[2]['weight'] if 'weight' in edge[2] else 1.0])) for edge in nx.to_edgelist(G)]), "utf-8")
+      elif preferred_format == 'adjmatrix':
+        if verbose: print("preferred_format", preferred_format)
+        # Get the adjacency matrix from the network. Use Python 2.7
+        adjmatrix = nx.to_numpy_matrix(G).tolist()
+        if verbose: print("adjmatrix", adjmatrix)
+        # Write adjmatrix to a string with delimiter="\t"
+        parsed_network = unicode("\n".join(["\t".join(map(str, row)) for row in adjmatrix]), "utf-8")
+        if verbose: print("parsed_network as adjmatrix", parsed_network)
+      else:
+        if verbose: print("preferred_format not valid: ", preferred_format)
+        raise Exception("preferred_format value is not valid")
+    except Exception as e:
+      if verbose: print("Exception", e, "e.message", e.message)
+      return False, None
+  # Otherwise, the network is correctly formatted
+  if verbose: print("the network is correctly formatted - parsed_network", parsed_network)
+  return True, parsed_network
+
 
 def check_factor_format(factor, verbose=False):
   """

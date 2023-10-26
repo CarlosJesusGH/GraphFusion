@@ -287,6 +287,7 @@ Model Analysis
         },
         error: function (jqXHR, textStatus, errorThrown) {
           console.log('ERRORS: ' + textStatus);
+          errorAlert(jqXHR.responseText);
         }
       });
     })

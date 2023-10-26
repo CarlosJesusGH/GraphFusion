@@ -1,4 +1,4 @@
-__author__ = 'varun & carlos garcia-hernandez'
+__author__ = 'varun and carlos garcia-hernandez'
 
 import os
 from django.template.loader import get_template

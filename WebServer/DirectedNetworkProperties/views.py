@@ -42,7 +42,7 @@ def __combine_deg_dist(data):
     return result
 
 
-def __save_deg_dist_image(lists, task):
+def _save_deg_dist_image(lists, task):
     fig = plt.figure()
     sub_plot = fig.add_subplot(111)
     x_upper_limit = -1
@@ -88,22 +88,27 @@ def analyse_networks(request):
         name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
         network_list = unicodedata.normalize('NFKD', networkData[1]).encode('ascii', 'ignore')
         networks.append((name, network_list))
-    heading, rows, deg_dists, gcm_raw_data, network_names, task = get_network_properties_for_graphs(
-        graphs=networks,
-        user=request.user,
-        task_name=task_name)
-    context = Context({
-        'heading': heading,
-        'rows': rows,
-        'gcm_raw_data': gcm_raw_data,
-        'network_names': network_names,
-        'deg_dist': __save_deg_dist_image(deg_dists, task=task)
-    })
-    rendered_view = get_template("DirectedNetworks/networkProperties/properties.html").render(context)
-    with open(DIRECTED_NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory +
-                      "/" + DIRECTED_NETWORK_RESULT_VIEW_FILE_NAME, "w") as f:
-        f.write(rendered_view)
-    return HttpResponse(rendered_view)
+    if False: # Compute everything in the background
+        heading, rows, deg_dists, gcm_raw_data, network_names, task = get_network_properties_for_graphs(
+            graphs=networks,
+            user=request.user,
+            task_name=task_name)
+        context = Context({
+            'heading': heading,
+            'rows': rows,
+            'gcm_raw_data': gcm_raw_data,
+            'network_names': network_names,
+            'deg_dist': __save_deg_dist_image(deg_dists, task=task)
+        })
+        rendered_view = get_template("DirectedNetworks/networkProperties/properties.html").render(context)
+        with open(DIRECTED_NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory +
+                        "/" + DIRECTED_NETWORK_RESULT_VIEW_FILE_NAME, "w") as f:
+            f.write(rendered_view)
+        return HttpResponse(rendered_view)
+    else:
+        get_network_properties_for_graphs(graphs=networks, user=request.user, task_name=task_name)
+        return HttpResponse("Submitted")
+    
 
 
 def delete_data_for_task(task):

@@ -92,7 +92,7 @@ class ProbabilisticNetworksModelAnalysis(Task):
 
     def __run_task(self):
         # return make_system_call("ls " + self.operational_dir, working_dir=self.operational_dir)
-        print("self.request_POST", self.request_POST)
+        # print("self.request_POST", self.request_POST)
         # params = "empty "
         params = self.operational_dir + " "
         params += self.request_POST["model_name"] + " "
@@ -103,7 +103,7 @@ class ProbabilisticNetworksModelAnalysis(Task):
         params += self.data["distribution_mean"] + " "
         params += self.data["distribution_variance"] + " "
         params += self.data["distribution_empirical_file"] + " "
-        print("params", params)
+        # print("params", params)
         return make_system_call("bash " + BASH_SCRIPT_PATH + " " + params, working_dir=self.operational_dir)
         # return make_system_call("bash " + PSB_MATCOMP_SCRIPT_PATH + " " + op_dir + " " + fact_name + " " + PSB_MATCOMP_OUT_FILES[0] + " " + PSB_MATCOMP_OUT_FILES[1] + " " + PSB_MATCOMP_ENTITYLIST_ROWS + " " + PSB_MATCOMP_ENTITYLIST_COLS, working_dir=op_dir)
     

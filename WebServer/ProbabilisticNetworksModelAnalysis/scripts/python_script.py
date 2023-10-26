@@ -12,7 +12,6 @@ import sys
 # ---------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------
-print("Hello world from python script")
 operational_dir = sys.argv[1]
 args = sys.argv[2:]
 print("args", args)
@@ -26,7 +25,7 @@ def get_linenumber():
     return cf.f_back.f_lineno
 
 print("os.getcwd()", os.getcwd() + "/")
-print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls", shell=True))
+# print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls", shell=True))
 
 # Our packages:
 # os.chdir("/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksModelAnalysis/scripts")
@@ -55,8 +54,8 @@ elif model_name == "erdos_renyi":
 else:
     print("error model_name:", model_name)
 
-print("len(G.nodes)", len(G.nodes))
-print("len(G.edges)", len(G.edges))
+# print("len(G.nodes)", len(G.nodes))
+# print("len(G.edges)", len(G.edges))
 
 if distribution_name == "uniform":
     # 2.1.1 Uniform_distribution
@@ -65,12 +64,14 @@ if distribution_name == "uniform":
 elif distribution_name == "beta":
     # 2.1.2 Beta_distribution
     # Note: The mean is the average of a group of numbers, and the variance measures the average degree to which each number is different from the mean.
-    distribution = Network_Models.Beta_distribution(nodes=len(G.edges), mean=0.5, variance=0.2)
+    # distribution = Network_Models.Beta_distribution(nodes=len(G.edges), mean=0.5, variance=0.2)
+    distribution = Network_Models.Beta_distribution(nodes=len(G.edges), mean=distribution_mean, variance=distribution_variance)
 elif distribution_name == "empirical":
     # 2.1.3 Empirical_Distribution
     distribution = Network_Models.Empirical_Distribution(path=operational_dir+"distribution_empirical_file", size=len(G.edges))
+    # distribution = Network_Models.Empirical_Distribution(path=operational_dir+distribution_empirical_file, size=len(G.edges))
 
 print("len(distribution)", len(distribution))
-print("distribution", distribution)
+# print("distribution", distribution)
 
 Network_Models.Apply_Prob(G=G, save_directory=operational_dir, distribution=distribution, Name="model_created")

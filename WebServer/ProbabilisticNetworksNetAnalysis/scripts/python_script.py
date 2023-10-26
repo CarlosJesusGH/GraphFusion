@@ -25,7 +25,7 @@ def get_linenumber():
     return cf.f_back.f_lineno
 
 print("os.getcwd()", os.getcwd() + "/")
-print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls", shell=True))
+# print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls", shell=True))
 
 # Our packages:
 # os.chdir("/home/Downloads/GC3-WWW/www/GC3Env/GC3/WebServer/ProbabilisticNetworksNetAnalysis/scripts")
@@ -96,6 +96,6 @@ Script_Parallel_Nodes_Count_Dist.Prepare_Matrix_GDV(Name_Network_Prob, save_dire
 
 # -------------------------------------------
 
-print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls", shell=True))
+# print("line:", get_linenumber(), "subprocess ls:", subprocess.check_output("ls", shell=True))
 
 # -------------------------------------------
