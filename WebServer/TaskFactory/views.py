@@ -77,31 +77,25 @@ def delete_task(request, task_id):
 def delete_all_tasks(request):
     LOGGER.info("Deleting all tasks for user: " + str(request.user))
     tasks = get_all_tasks_for_user(user=request.user)
+    print("tasks: " + str(tasks))
     for task in tasks:
         if task and DELETE_TASK_FUNCTION_MAPPINGS[task.task_type](task=task):
             task.delete()
         else:
             return HttpResponseBadRequest("Error occurred while deleting task")
-    # Find all the directories containing the word 'computations' in the nameand delete them
-    LOGGER.info("Deleting all remaining computations directories.")
-    # Do this in python 'DIR=( $(find -name "computations" -type d) )'
-    # Then do this in python 'for dir in DIR: os.rmdir(dir)'
-    os.system("find -name 'computations' -type d -exec rm -rf {} +")
-    for dir in os.listdir("."):
-        if dir.startswith("computations"):
-            # os.rmdir(dir)
-            print("dir", dir)
-    # Now do the same but recursively
-    # os.system("find -name 'computations' -type d -exec rm -rf {} +")
-    # for dir in os.listdir("."):
-    #     if dir.startswith("computations"):
-    #         os.rmdir(dir)
-
-    
+    # Find all the directories containing the word 'computations'
+    for dirpath, dirnames, _ in os.walk(os.getcwd()):
+        for dirname in dirnames:
+            if dirname == 'computations':
+                # Find the subdirectories and delete them
+                for dirpath2, dirnames2, _ in os.walk(os.path.join(dirpath, dirname)):
+                    for dirname2 in dirnames2:
+                        if os.path.isdir(os.path.join(dirpath2, dirname2)):
+                            print("removing directory:", os.path.join(dirpath2, dirname2))
+                            os.rmdir(os.path.join(dirpath2, dirname2))
     # All tasks successfully deleted
     return HttpResponse("All tasks successfully deleted.")
     
-
 
 @login_required
 @ajax_required
