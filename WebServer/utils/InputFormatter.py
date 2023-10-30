@@ -23,10 +23,10 @@ def check_input_format(input_data, input_task_or_type, preferred_format='', verb
     return check_entityfile_format(input_data, input_task_or_type, verbose)
   elif input_task_or_type == 'probabilistic':
       return check_probabilistic_network_format(input_data, preferred_format, verbose)
+  elif input_task_or_type == 'simplicial_complex':
+      return check_simplicial_complex_format(input_data, verbose)
   # elif input_task_or_type == 'hyper':
   #     return check_hyper_network_format(network)
-  # elif input_task_or_type == 'simplicial_complex':
-  #     return check_simplicial_complex_network_format(network)
   else:
     return False, None
     
@@ -181,52 +181,86 @@ def check_probabilistic_network_format(network, preferred_format, verbose=False)
   if verbose: print("the network is correctly formatted - parsed_network", parsed_network)
   return True, parsed_network
 
-
-def check_factor_format(factor, verbose=False):
+def check_simplicial_complex_format(network, verbose=False):
   """
-  Checks a factor network for formatting errors. A factor matrix is similar to a weighted adjacency matrix, but it does not have to be symmetric.
-  :param factor: The factor network to be checked.
+  Checks the simplicial complex for formatting errors. A simplicial complex is a network where each node is a set of nodes representing a facet. This facet is represented as a string of nodes separated by a space, tab or comma.
+  :param network: The simplicial complex network to be checked.
   :param verbose: Whether to print debugging information.
   :return: True if the network is correctly formatted, False otherwise.
   """
-  # First try to parse the network as a undirected network
-  # try:
-  #   response = check_undirected_network_format(input, preferred_format='adjmatrix', verbose=verbose)
-  #   if not response[0]:
-  #     raise Exception("Factor could not be loaded as adjacency matrix")
-  #   return response
-  # except Exception as e:
-  #   if verbose: print("Exception", e, "e.args", e.args)
-  if True:
-    # If that fails, try to parse the network as a numpy matrix
-    parsed_network = None
-    try:
-      # Check if the file is tab-delimited or space-delimited or comma-delimited
-      if "\t" in factor:
-        delimiter = "\t"
-      elif " " in factor:
-        delimiter = " "
-      elif "," in factor:
-        delimiter = ","
-      else:
-        delimiter = None
-      if verbose: print("delimiter", delimiter)
-      if delimiter:
-        X = np.loadtxt(factor.split("\n"), delimiter=delimiter, skiprows=0)
-      else:
-        X = np.loadtxt(factor.split("\n"), skiprows=0)
-      # if X is None or empty, return False
-      if X is None or not X.any():
-        return False, None
-      else:
-        # Write X to a string with delimiter="\t"
-        parsed_network = unicode("\n".join(["\t".join(map(str, row)) for row in X]), "utf-8")
-        if verbose: print("parsed_network as factor", parsed_network)
-    except Exception as e:
-      if verbose: print("Exception", e, "e.args", e.args)
+  # Check if the file can be read as a list of facets
+  try:
+    # Check if the file is tab-delimited or space-delimited or comma-delimited
+    if "\t" in network:
+      delimiter = "\t"
+    elif " " in network:
+      delimiter = " "
+    elif "," in network:
+      delimiter = ","
+    else:
+      delimiter = None
+    if verbose: print("delimiter", delimiter)
+    if delimiter:
+      facets = [set(facet.split(delimiter)) for facet in network.split("\n")]
+    else:
+      facets = [set(facet.split()) for facet in network.split("\n")]
+    if verbose: print("len(facets)", len(facets))
+    # if verbose: print("facets", facets)
+    # if facets is None or empty, return False
+    if facets is None or not facets:
+      return False, "The input file is empty."
+    # elif facets has empty sets, return False
+    elif any(not facet for facet in facets):
+      return False, "There are empty sets in the input file."
+    else:
+      # Write facets to a string with delimiter="\n"
+      parsed_network = unicode("\n".join([" ".join(map(str, facet)) for facet in facets]), "utf-8")
+      if verbose: print("parsed_network[:10] as facets", parsed_network.split("\n")[:10])
+  except Exception as e:
+    if verbose: print("Exception", e, "e.args", e.args)
+    return False, None
+  # Otherwise, the network is correctly formatted
+  return True, parsed_network
+
+# ----------------------------------------
+# Other file types different from networks
+# ----------------------------------------
+
+def check_factor_format(factor, verbose=False):
+  """
+  Checks a factor for formatting errors. A factor matrix is similar to a weighted adjacency matrix, but it does not have to be symmetric.
+  :param factor: The factor network to be checked.
+  :param verbose: Whether to print debugging information.
+  :return: True if the factor is correctly formatted, False otherwise.
+  """
+  parsed_input = None
+  try:
+    # Check if the file is tab-delimited or space-delimited or comma-delimited
+    if "\t" in factor:
+      delimiter = "\t"
+    elif " " in factor:
+      delimiter = " "
+    elif "," in factor:
+      delimiter = ","
+    else:
+      delimiter = None
+    if verbose: print("delimiter", delimiter)
+    if delimiter:
+      X = np.loadtxt(factor.split("\n"), delimiter=delimiter, skiprows=0)
+    else:
+      X = np.loadtxt(factor.split("\n"), skiprows=0)
+    # if X is None or empty, return False
+    if X is None or not X.any():
       return False, None
-    # Otherwise, the network is correctly formatted
-    return True, parsed_network
+    else:
+      # Write X to a string with delimiter="\t"
+      parsed_input = unicode("\n".join(["\t".join(map(str, row)) for row in X]), "utf-8")
+      if verbose: print("parsed_input as factor", parsed_input)
+  except Exception as e:
+    if verbose: print("Exception", e, "e.args", e.args)
+    return False, None
+  # Otherwise, the network is correctly formatted
+  return True, parsed_input
 
 def check_entityfile_format(entity_file, input_task_or_type, verbose=False):
   file_content = unicodedata.normalize('NFKD', unicode(entity_file.read(), "utf-8")).encode('ascii', 'ignore')
