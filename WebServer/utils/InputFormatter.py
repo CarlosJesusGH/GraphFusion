@@ -24,9 +24,9 @@ def check_input_format(input_data, input_task_or_type, preferred_format='', verb
   elif input_task_or_type == 'probabilistic':
       return check_probabilistic_network_format(input_data, preferred_format, verbose)
   elif input_task_or_type == 'simplicial_complex':
-      return check_simplicial_complex_format(input_data, verbose)
-  # elif input_task_or_type == 'hyper':
-  #     return check_hyper_network_format(network)
+      return check_simplicial_complex_format(input_data, preferred_format, verbose)
+  elif input_task_or_type == 'hyper':
+      return check_hyper_network_format(input_data, preferred_format, verbose)
   else:
     return False, None
     
@@ -181,7 +181,7 @@ def check_probabilistic_network_format(network, preferred_format, verbose=False)
   if verbose: print("the network is correctly formatted - parsed_network", parsed_network)
   return True, parsed_network
 
-def check_simplicial_complex_format(network, verbose=False):
+def check_simplicial_complex_format(network, preferred_format, verbose=False):
   """
   Checks the simplicial complex for formatting errors. A simplicial complex is a network where each node is a set of nodes representing a facet. This facet is represented as a string of nodes separated by a space, tab or comma.
   :param network: The simplicial complex network to be checked.
@@ -201,11 +201,11 @@ def check_simplicial_complex_format(network, verbose=False):
       delimiter = None
     if verbose: print("delimiter", delimiter)
     if delimiter:
-      facets = [set(facet.split(delimiter)) for facet in network.split("\n")]
+      facets = [facet.split(delimiter) for facet in network.split("\n")]
     else:
-      facets = [set(facet.split()) for facet in network.split("\n")]
+      facets = [facet.split() for facet in network.split("\n")]
     if verbose: print("len(facets)", len(facets))
-    # if verbose: print("facets", facets)
+    if verbose: print("facets[:10]", facets[:10])
     # if facets is None or empty, return False
     if facets is None or not facets:
       return False, "The input file is empty."
@@ -213,8 +213,10 @@ def check_simplicial_complex_format(network, verbose=False):
     elif any(not facet for facet in facets):
       return False, "There are empty sets in the input file."
     else:
-      # Write facets to a string with delimiter="\n"
-      parsed_network = unicode("\n".join([" ".join(map(str, facet)) for facet in facets]), "utf-8")
+      # Write facets to a string with delimiter="\n" and preffered_format as separator between nodes
+      if not preferred_format:
+        preferred_format = " "
+      parsed_network = unicode("\n".join([preferred_format.join(map(str, facet)) for facet in facets]), "utf-8")
       if verbose: print("parsed_network[:10] as facets", parsed_network.split("\n")[:10])
   except Exception as e:
     if verbose: print("Exception", e, "e.args", e.args)
@@ -222,6 +224,26 @@ def check_simplicial_complex_format(network, verbose=False):
   # Otherwise, the network is correctly formatted
   return True, parsed_network
 
+def check_hyper_network_format(network, preferred_format, verbose=False):
+  """
+  Checks the hyper network for formatting errors. A hyper network is a network where edges can connect more than two nodes. This hyper edge is represented as a string of nodes separated by a space, tab or comma.
+  :param network: The hyper network to be checked.
+  :param verbose: Whether to print debugging information.
+  :return: True if the network is correctly formatted, False otherwise.
+  """
+  # Since the hyper network input file format is the same as for the simplicial complex, we can use the same function
+  check_response, parsed_network = check_simplicial_complex_format(network, preferred_format, verbose)
+  if check_response:
+    # Verify that the first element of each edge is not repeated
+    edges = [edge.split(preferred_format) for edge in parsed_network.split("\n")]
+    if len(edges) != len(set([edge[0] for edge in edges])):
+      return False, "The first column of the input file contains duplicates."
+    # Verify that each edge has at least two nodes, excluding the first column. Consider that the last line of the file may be empty
+    if any(len(edge) < 3 for edge in edges[:-1]):
+      print("The index of the edges with less than two nodes is:", [i for i, edge in enumerate(edges) if len(edge) < 3])
+      return False, "There are edges with less than two nodes."
+  return check_response, parsed_network
+  
 # ----------------------------------------
 # Other file types different from networks
 # ----------------------------------------
@@ -272,7 +294,11 @@ def check_entityfile_format(entity_file, input_task_or_type, verbose=False):
       # Parse the file as a list of entities as a list of strings
       file_content = file_content.split("\n")
       # Get only unique values in the list
-      file_content = list(set(file_content))
+      # file_content = list(set(file_content))
+      # Check if exists duplicates
+      if len(file_content) != len(set(file_content)):
+        if verbose: print("The file contains duplicates")
+        return False, "The file contains duplicates"
       # Remove empty strings
       file_content = filter(None, file_content)
       # Parse back to a one-column file
@@ -288,7 +314,11 @@ def check_entityfile_format(entity_file, input_task_or_type, verbose=False):
       # Parse the file as a list of entities as a list of strings
       file_content = file_content.split("\n")
       # Get only unique values in the list
-      file_content = list(set(file_content))
+      # file_content = list(set(file_content))
+      # Check if exists duplicates
+      if len(file_content) != len(set(file_content)):
+        if verbose: print("The file contains duplicates")
+        return False, "The file contains duplicates"
       # Remove empty strings
       file_content = filter(None, file_content)
       # Parse back to a two-column file

@@ -21,6 +21,7 @@ from django.core.files.storage import default_storage, FileSystemStorage
 # task's own imports
 from .HyperGraphletsNetAnalysis import *
 from .HyperGraphletsNetAnalysisResult import *
+from utils.InputFormatter import check_input_format
 
 LOGGER = logging.getLogger(__name__)
 
@@ -46,6 +47,13 @@ def submit_analysis(request):
         task_name = request.POST["task_name"]     
         data = json.loads(request.POST["data"])
         data_networks = data["Networks"]
+        # Check the network format
+        for network in data_networks:
+            check_response, network[1] = check_input_format(network[1], input_task_or_type='hyper', preferred_format="\t", verbose=True)
+            if not check_response:
+                err_msg = "Error: Incorrect format in input file '" + network[0] + "'. " + (network[1] if network[1] is not None else "")
+                return HttpResponseBadRequest(err_msg)
+        # ^^^^^^^^^^^^^^^^^^^^^^^^
         networks = []
         for networkData in data_networks:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')

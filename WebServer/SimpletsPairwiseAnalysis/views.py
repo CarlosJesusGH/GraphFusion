@@ -90,7 +90,7 @@ def run_dvm_analysis(request):
     networks = map(lambda a: map(lambda x: unicodedata.normalize('NFKD', x).encode('ascii', 'ignore'), a), json.loads(request.POST["networks"]))
     # Check the network format
     for network in networks:
-        check_response, network[1] = check_input_format(network[1], input_task_or_type='simplicial_complex', verbose=True)
+        check_response, network[1] = check_input_format(network[1], input_task_or_type='simplicial_complex', verbose=False)
         if not check_response:
             err_msg = "Error: Incorrect format in input file '" + network[0] + "'. " + (network[1] if network[1] is not None else "")
             return HttpResponseBadRequest(err_msg)
