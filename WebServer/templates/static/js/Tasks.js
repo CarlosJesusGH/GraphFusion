@@ -1,5 +1,6 @@
 /**
- * Created by varun on 11/05/15.
+ * Created by varun on 11/05/2015.
+ * Updated by carlos on 2023.
  */
 
 
@@ -211,4 +212,17 @@ function initialiseRunningTasksList(tasks_list) {
   setInterval(function () {
     refreshRunningTasks();
   }, 5000);
+}
+
+function getDateBasedTaskName(TaskType) {
+  var objectDate = new Date();
+    var time = objectDate.toLocaleTimeString([], {
+        hourCycle: 'h24',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    var date = objectDate.toLocaleDateString('sv');
+    var taskName = TaskType + "_" + date + "_" + time;
+    return taskName;
 }
