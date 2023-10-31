@@ -2,7 +2,10 @@
 
 {% block ANALYSIS_TAB %}
   {% csrf_token %}
-  <h5>Select Networks from list below to submit a network alignment task</h5>
+  <h5>
+    Select undirected networks from the lists to run the alignment task. Select an algorithm and provide the required
+    parameters.
+  </h5>
   <div class="row" style="padding:5px;">
     <div class="col-sm-10">
       <form class="form-horizontal">
@@ -107,6 +110,7 @@
     var networkNamesList1 = $('#networkNamesList1');
     var alpha = $('#alphaInput');
     var taskName = $("#taskNameInput");
+    taskName.val(getDateBasedTaskName("PairwiseAlignment"));
     var graalOptions = $('#graal-options');
     var miGraalOptions = $('#mi-graal-options');
     var lGraalOptions = $("#l-graal-options");

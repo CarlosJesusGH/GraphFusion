@@ -10,8 +10,9 @@
 
 {% block ANALYSIS_TAB %}
   <div id="propsDiv">
-    <h5>Select Networks from for running multiple alignment</h5>
-
+    <h5>
+      Select two or more undirected networks from the list to run the multiple-alignment task. Provide the required parameters.
+    </h5>
     <div class="row-fluid" style="padding:5px;">
       <div class="row-fluid">
         <form class="form-horizontal">
@@ -106,6 +107,7 @@
   <script type="text/javascript">
     updateNetworks();
     var $taskName = $("#taskNameInput");
+    $taskName.val(getDateBasedTaskName("MultipleAlignment"));
     var $resultDiv = $("#result");
     var $propsDiv = $("#propsDiv");
     var $kValues = $("#kValuesInput");
