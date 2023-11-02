@@ -61,12 +61,12 @@ def _check_input(max_iter, delta_min, ks, request_FILES):
     request_FILES[REQUEST_FILES[0]] = ContentFile(sequence_sim.encode("utf-8"))
     return False
 
-def _check_sequence_sim(data_networks, request_FILES):
+def _check_sequence_sim(data_networks, request_FILES, verbose=False):
     # Check that the sequence similarity file corresponds to the networks
     # print("data_networks", data_networks)
     # print("request_FILES", request_FILES)
     sequence_sim = request_FILES[REQUEST_FILES[0]].read().decode("utf-8")
-    print("sequence_sim[:100]", sequence_sim[:100])
+    if verbose: print("sequence_sim[:100]", sequence_sim[:100])
     # Get all the nodes from first two columns in the sequence similarity file. The third column is the association strength. The first row is the header.
     sequence_sim_nodes = set()
     for line in sequence_sim.split("\n")[1:]:
@@ -74,7 +74,7 @@ def _check_sequence_sim(data_networks, request_FILES):
             continue
         sequence_sim_nodes.add(line.split()[0])
         sequence_sim_nodes.add(line.split()[1])
-    print("sequence_sim_nodes[:10]", list(sequence_sim_nodes)[:10])
+    if verbose: print("sequence_sim_nodes[:10]", list(sequence_sim_nodes)[:10])
     # Get all the nodes from the networks
     networks_nodes = set()
     for network in data_networks:
@@ -83,7 +83,7 @@ def _check_sequence_sim(data_networks, request_FILES):
                 continue
             networks_nodes.add(line.split()[0])
             networks_nodes.add(line.split()[1])
-    print("networks_nodes[:10]", list(networks_nodes)[:10])
+    if verbose: print("networks_nodes[:10]", list(networks_nodes)[:10])
     # Check that all nodes in the sequence similarity file exists in the networks
     if not sequence_sim_nodes.issubset(networks_nodes):
         # Print the nodes that are not present in the networks
@@ -111,27 +111,32 @@ def submit_analysis(request):
         delta_min = data["delta_min"]
         ks = data["ks"]
         data_networks = data["Networks"]
-        if False:
-            # vvvvvvvvvvvvvvvvvvvvvvvvvvv
-            # Check the input file format
-            check_input_res = _check_input(max_iter, delta_min, ks, request.FILES)
-            if check_input_res:
-                return check_input_res
-        if False:
-            for network in data_networks:
-                check_response, network[1] = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist', verbose=False)
-                if not check_response:
-                    err_msg = "Error: Incorrect format in input file '" + network[0] + "'. " + (network[1] if network[1] is not None else "")
-                    return HttpResponseBadRequest(err_msg)
-            # Check that the sequence similarity file corresponds to the networks
-            check_input_res = _check_sequence_sim(data_networks, request.FILES)
-            if check_input_res:
-                return check_input_res
-            # Warning: every time you read a TemporaryUploadedFile, you need to reset the pointer to the beginning of the file
-            # sequence_sim = request.FILES[REQUEST_FILES[0]].read().decode("utf-8")
-            # print("flag - sequence_sim", sequence_sim[:100])
-            request.FILES[REQUEST_FILES[0]].seek(0)
-            # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        # vvvvvvvvvvvvvvvvvvvvvvvvvvv
+        # Check the input parameters
+        check_input_res = _check_input(max_iter, delta_min, ks, request.FILES)
+        if check_input_res:
+            return check_input_res
+        # Check the input networks
+        for network in data_networks:
+            check_response, network[1] = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist', verbose=False)
+            if not check_response:
+                err_msg = "Error: Incorrect format in input file '" + network[0] + "'. " + (network[1] if network[1] is not None else "")
+                return HttpResponseBadRequest(err_msg)
+        # Check that the sequence similarity file corresponds to the networks
+        check_input_res = _check_sequence_sim(data_networks, request.FILES)
+        if check_input_res:
+            return check_input_res
+        # Warning: every time you read a TemporaryUploadedFile, you need to reset the pointer to the beginning of the file
+        # sequence_sim = request.FILES[REQUEST_FILES[0]].read().decode("utf-8")
+        # print("flag - sequence_sim", sequence_sim[:100])
+        # request.FILES[REQUEST_FILES[0]].seek(0)
+        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        # Add a '1.0' value to each edge in the networks. Check that the line is not empty.
+        # This is done to comply with the format of the networks in the fuse_alignment script.
+        for networkData in data_networks:
+            # networkData[1] = "\n".join(map(lambda x: x + " 1.0", networkData[1].split("\n")))
+            networkData[1] = "\n".join(map(lambda x: x + " 1.0" if x.strip() != "" else "", networkData[1].split("\n")))
+        # Encode the unicode characters to ascii
         networks = []
         for networkData in data_networks:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')

@@ -42,7 +42,7 @@ def check_undirected_network_format(network, preferred_format, verbose=False):
   # Check if the network can be parsed as an edgelist
   try:
     G = nx.parse_edgelist(network.split("\n"))
-    if verbose: print("G", G, "G.nodes()", G.nodes())
+    if verbose: print("G", G, "G.nodes()[:10]", G.nodes()[:10])
     # if G is None or empty, return False
     if G is None or not G.nodes():
       if verbose: print("G is None or empty", G, "G.nodes()", G.nodes())
@@ -51,13 +51,16 @@ def check_undirected_network_format(network, preferred_format, verbose=False):
       if verbose: print("preferred_format", preferred_format)
       # Get the adjacency matrix from the network. Use Python 2.7
       adjmatrix = nx.to_numpy_matrix(G).tolist()
-      if verbose: print("adjmatrix", adjmatrix)
+      if verbose: print("adjmatrix[:10]", adjmatrix[:10])
       # Write adjmatrix to a string with delimiter="\t"
       parsed_network = unicode("\n".join(["\t".join(map(str, row)) for row in adjmatrix]), "utf-8")
-      if verbose: print("parsed_network as adjmatrix", parsed_network)
+      if verbose: print("parsed_network as adjmatrix[:10]", parsed_network[:10])
     elif preferred_format == 'edgelist':
       if verbose: print("preferred_format", preferred_format)
-      parsed_network = unicode("\n".join([" ".join(map(str, edge)) for edge in nx.to_edgelist(G)]), "utf-8")
+      # Print the edgelist without the dictionary
+      if verbose: print("G.edges(data=False)[:10]", G.edges(data=False)[:10])
+      # parsed_network = unicode("\n".join([" ".join(map(str, edge)) for edge in nx.to_edgelist(G)]), "utf-8")
+      parsed_network = unicode("\n".join([" ".join(map(str, edge)) for edge in G.edges(data=False)]), "utf-8")
   except:  
     #  Check if the network can be parsed as an adjacency matrix
     try:
@@ -96,6 +99,7 @@ def check_undirected_network_format(network, preferred_format, verbose=False):
       if verbose: print("Exception", e, "e.message", e.message)
       return False, None
   # Otherwise, the network is correctly formatted
+  if verbose: print("parsed_network[:10] as lines:", parsed_network.split("\n")[:10])
   return True, parsed_network
 
 def check_probabilistic_network_format(network, preferred_format, verbose=False):
