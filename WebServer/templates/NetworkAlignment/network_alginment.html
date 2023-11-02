@@ -58,7 +58,7 @@
                 <label class="control-label" for="seedValue">Seed Value</label>
               </div>
               <div class="col-lg-6">
-                <input id="seedValue" type="number">
+                <input id="seedValue" type="number" value="0" min="0">
               </div>
             </div>
           </div>
@@ -216,7 +216,7 @@
           },
           error: function (xhr, textStatus, errorThrown) {
             console.log('ERRORS: ' + textStatus);
-            errorAlert("Error occurred while submitting task: " + xhr.responseText);
+            errorAlert(xhr.responseText);
           }
         });
       });

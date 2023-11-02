@@ -220,7 +220,7 @@ function getDateBasedTaskName(TaskType) {
         hourCycle: 'h24',
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit'
+        // second: '2-digit'
     });
     var date = objectDate.toLocaleDateString('sv');
     var taskName = TaskType + "_" + date + "_" + time;

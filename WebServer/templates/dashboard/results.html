@@ -42,8 +42,14 @@
               <i class="fa fa-check-circle fa-2x success-color"></i>
             {% endif %}
           </td>
-          <td>
+          <!-- <td> -->
+          <td class="hint--bottom hint--info hint--bounce" data-hint="Finish Time: {{ task.get_finish_time }}">
             {{ task.get_start_time }}
+            <!-- 
+              To include a hover message to this 'td' element, add the following:
+              <td class="hint--bottom hint--info hint--bounce" data-hint="Message">
+
+             -->
           </td>
           {#          <td>#}
           {#            {{ task.get_finish_time }}#}

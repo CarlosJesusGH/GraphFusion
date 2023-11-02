@@ -51,7 +51,7 @@ def submit_analysis(request):
         # print("data_networks", data_networks)
         # Check the network format
         for network in data_networks:
-            check_response, network[1] = check_input_format(network[1], input_task_or_type='probabilistic', preferred_format='edgelist', verbose=True)
+            check_response, network[1] = check_input_format(network[1], input_task_or_type='probabilistic', preferred_format='edgelist', verbose=False)
             if not check_response:
                 return HttpResponseBadRequest("Error: Incorrect format in network " + network[0] + ".")
         # ^^^^^^^^^^^^^^^^^^^^^^^^

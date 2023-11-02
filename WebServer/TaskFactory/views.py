@@ -14,6 +14,7 @@ from datetime import datetime
 import json
 from StringIO import StringIO
 import os
+from utils.SystemCall import make_system_call
 
 LOGGER = logging.getLogger(__name__)
 
@@ -92,7 +93,8 @@ def delete_all_tasks(request):
                     for dirname2 in dirnames2:
                         if os.path.isdir(os.path.join(dirpath2, dirname2)):
                             print("removing directory:", os.path.join(dirpath2, dirname2))
-                            os.rmdir(os.path.join(dirpath2, dirname2))
+                            # os.rmdir(os.path.join(dirpath2, dirname2))
+                            result = make_system_call("rm -r " + os.path.join(dirpath2, dirname2))
     # All tasks successfully deleted
     return HttpResponse("All tasks successfully deleted.")
     

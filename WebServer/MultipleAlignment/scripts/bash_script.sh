@@ -18,13 +18,13 @@ echo -e "\t************************"
 echo -e "\trunning Fuse-NMTF"
 cp ../../scripts/fuse_nmtf/*.m .
 octave octave_script.m --no-window-system
-rm block_matrices.m factorization.m run_nmtf.m top_export.m
+# rm block_matrices.m factorization.m run_nmtf.m top_export.m
 
 echo -e "\t************************"
 echo -e "\trunning Fuse-Alignment"
 cp ../../scripts/fuse_alignment/FUSE.out .
 ./FUSE.out -n network_list.txt -s sequence_scores.lst -t nmtf_scores.lst -o fuse_alignment_output.txt
-rm FUSE.out
+# rm FUSE.out
 
 # ----------------------------------------------
 echo -e "\tend of script '$shell_script_name'"

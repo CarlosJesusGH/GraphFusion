@@ -33,7 +33,7 @@ def analysis_page(request):
     })
     return HttpResponse(get_template("ProbabilisticNetworks/modelAnalysis/analysis.html").render(context))
 
-def check_input(request_POST, data):
+def _check_input(request_POST, data):
     try:
         model_name = request_POST["model_name"]
         distribution_name = request_POST["distribution_name"]
@@ -108,7 +108,7 @@ def submit_analysis(request):
         # print("request.FILES", request.FILES)
         task_name = request.POST["task_name"]
         data = json.loads(request.POST["data"])
-        check_input_res = check_input(request.POST, data)
+        check_input_res = _check_input(request.POST, data)
         if check_input_res:
             return check_input_res
         # return HttpResponseBadRequest("Error: Incorrect format in network " + network[0] + ".")

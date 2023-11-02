@@ -20,6 +20,7 @@ from django.core.files.storage import default_storage, FileSystemStorage
 from .MultipleAlignmentAnalysis import *
 from .MultipleAlignmentResult import *
 # from TaskFactory.views import get_task_view_objects_for_user
+from utils.InputFormatter import check_input_format, check_column_list_format
 
 LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +31,69 @@ def analysis_page(request):
         'task_type': MULTIPLE_ALIGNMENT_TASK,
     })
     return HttpResponse(get_template("MultipleAlignment/analysis.html").render(context))
+
+
+def _check_input(max_iter, delta_min, ks, request_FILES):
+    if int(max_iter) <= 0:
+        return HttpResponseBadRequest("Invalid max_iter")
+    if float(delta_min) <= 0:
+        return HttpResponseBadRequest("Invalid delta_min")
+    if len(ks) == 0:
+        return HttpResponseBadRequest("Invalid ks")
+    else:
+        # Split ks by spaces or commas depending on the input
+        ks = ks.split(",") if "," in ks else ks.split()
+        for k in ks:
+            if int(k) <= 0:
+                return HttpResponseBadRequest("Invalid ks")
+    if len(request_FILES) == 0:
+        return HttpResponseBadRequest("Invalid sequence similarity file")
+    if REQUEST_FILES[0] not in request_FILES:
+        return HttpResponseBadRequest("Invalid sequence similarity file")
+    # Read TemporaryUploadedFile into string
+    sequence_sim = request_FILES[REQUEST_FILES[0]].read().decode("utf-8")
+    check_response, sequence_sim = check_column_list_format(sequence_sim, num_of_columns=3, col_id_numerical=[2], parsed_delimiter=' ', add_headers= ["Gene1", "Gene2", "Association_strength"], verbose=False)
+    if not check_response:
+        err_msg = "Invalid sequence similarity file. " + (sequence_sim if sequence_sim is not None else "")
+        return HttpResponseBadRequest(err_msg)
+    # print("sequence_sim[:100]", sequence_sim[:100])
+    # Update TemporaryUploadedFile with new string
+    request_FILES[REQUEST_FILES[0]] = ContentFile(sequence_sim.encode("utf-8"))
+    return False
+
+def _check_sequence_sim(data_networks, request_FILES):
+    # Check that the sequence similarity file corresponds to the networks
+    # print("data_networks", data_networks)
+    # print("request_FILES", request_FILES)
+    sequence_sim = request_FILES[REQUEST_FILES[0]].read().decode("utf-8")
+    print("sequence_sim[:100]", sequence_sim[:100])
+    # Get all the nodes from first two columns in the sequence similarity file. The third column is the association strength. The first row is the header.
+    sequence_sim_nodes = set()
+    for line in sequence_sim.split("\n")[1:]:
+        if line.strip() == "":
+            continue
+        sequence_sim_nodes.add(line.split()[0])
+        sequence_sim_nodes.add(line.split()[1])
+    print("sequence_sim_nodes[:10]", list(sequence_sim_nodes)[:10])
+    # Get all the nodes from the networks
+    networks_nodes = set()
+    for network in data_networks:
+        for line in network[1].split("\n"):
+            if line.strip() == "":
+                continue
+            networks_nodes.add(line.split()[0])
+            networks_nodes.add(line.split()[1])
+    print("networks_nodes[:10]", list(networks_nodes)[:10])
+    # Check that all nodes in the sequence similarity file exists in the networks
+    if not sequence_sim_nodes.issubset(networks_nodes):
+        # Print the nodes that are not present in the networks
+        print("sequence_sim_nodes - networks_nodes", sequence_sim_nodes - networks_nodes)
+        return HttpResponseBadRequest("Invalid sequence similarity file, some nodes are not present in the networks")
+    # Update TemporaryUploadedFile with new string
+    # request_FILES[REQUEST_FILES[0]] = ContentFile(sequence_sim.encode("utf-8"))
+    # Warning: every time you read a TemporaryUploadedFile, you need to reset the pointer to the beginning of the file
+    request_FILES[REQUEST_FILES[0]].seek(0)
+    return False
 
 # from django.views.decorators.http import require_POST
 # @require_POST
@@ -45,8 +109,29 @@ def submit_analysis(request):
         task_name = data["task_name"]
         max_iter = data["max_iter"]
         delta_min = data["delta_min"]
-        data_networks = data["Networks"]
         ks = data["ks"]
+        data_networks = data["Networks"]
+        if False:
+            # vvvvvvvvvvvvvvvvvvvvvvvvvvv
+            # Check the input file format
+            check_input_res = _check_input(max_iter, delta_min, ks, request.FILES)
+            if check_input_res:
+                return check_input_res
+        if False:
+            for network in data_networks:
+                check_response, network[1] = check_input_format(network[1], input_task_or_type='undirected', preferred_format='edgelist', verbose=False)
+                if not check_response:
+                    err_msg = "Error: Incorrect format in input file '" + network[0] + "'. " + (network[1] if network[1] is not None else "")
+                    return HttpResponseBadRequest(err_msg)
+            # Check that the sequence similarity file corresponds to the networks
+            check_input_res = _check_sequence_sim(data_networks, request.FILES)
+            if check_input_res:
+                return check_input_res
+            # Warning: every time you read a TemporaryUploadedFile, you need to reset the pointer to the beginning of the file
+            # sequence_sim = request.FILES[REQUEST_FILES[0]].read().decode("utf-8")
+            # print("flag - sequence_sim", sequence_sim[:100])
+            request.FILES[REQUEST_FILES[0]].seek(0)
+            # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         networks = []
         for networkData in data_networks:
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
@@ -63,7 +148,7 @@ def submit_analysis(request):
         return HttpResponse(data)
     except Exception as e:
         LOGGER.error(e)
-        return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
+        return HttpResponseBadRequest(e.message)
 
 # not used yet
 def MultipleAlignment_extra_task(request):

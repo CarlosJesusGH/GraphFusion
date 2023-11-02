@@ -248,6 +248,58 @@ def check_hyper_network_format(network, preferred_format, verbose=False):
 # Other file types different from networks
 # ----------------------------------------
 
+def check_column_list_format(input_data, num_of_columns, col_id_numerical=[], parsed_delimiter="\t", add_headers=False, verbose=False):
+  """
+  Checks the input for formatting errors. The input file will usually be tab-delimited or space-delimited or comma-delimited. The input file will commonly have one or more columns. Some columns might be textual (e.g. gene names), while others might be numerical (e.g. gene expression values).
+  :param input_data: The input data to be checked.
+  :param num_of_columns: The number of columns in the input data.
+  :param col_id_numerical: The list of column ids that must be numerical.
+  :param verbose: Whether to print debugging information.
+  :return: True if the input data is correctly formatted, False otherwise.
+  """
+  # Check if the file is tab-delimited or space-delimited or comma-delimited
+  if "\t" in input_data:
+    delimiter = "\t"
+  elif " " in input_data:
+    delimiter = " "
+  elif "," in input_data:
+    delimiter = ","
+  else:
+    delimiter = None
+  if verbose: print("delimiter", delimiter)
+  if delimiter:
+    lines = [line.split(delimiter) for line in input_data.split("\n")]
+  else:
+    lines = [line.split() for line in input_data.split("\n")]
+  if verbose: print("len(lines)", len(lines))
+  if verbose: print("lines[:10]", lines[:10])
+  # if lines is None or empty, return False
+  if lines is None or not lines:
+    return False, "The input file is empty."
+  # elif lines has empty sets, return False
+  elif any(not line for line in lines):
+    return False, "There are empty sets in the input file."
+  # elif lines has a different number of columns than num_of_columns columns, return False. Ignore the last line in case it is empty.
+  elif any(len(line) != num_of_columns for line in lines[:-1]):
+    # Print the index of the lines with a different number of columns than num_of_columns
+    print("The index of the lines with a different number of columns than " + str(num_of_columns) + " is:", [i for i, line in enumerate(lines[:-1]) if len(line) != num_of_columns])
+    return False, "There are lines with a different number of columns than " + str(num_of_columns) + "."
+  # elif lines has a column with index in col_id_numerical that is not numerical, return False. Ignore the last line in case it is empty.
+  elif any(not all(line[col_id].replace(".", "", 1).replace("-","",1).isdigit() for col_id in col_id_numerical) for line in lines[:-1]):
+    # Print the index of the lines with a column with index in col_id_numerical that is not numerical
+    print("The index of the lines with a column with index in col_id_numerical that is not numerical is:", [i for i, line in enumerate(lines[:-1]) if not all(line[col_id].replace(".", "", 1).replace("-","",1).isdigit() for col_id in col_id_numerical)])
+    return False, "There are lines with a column with index '" + str(col_id_numerical) + "' that is not numerical."
+  # Otherwise, the input data is correctly formatted
+  # Write lines to a string with delimiter="\n" and parsed_delimiter as separator between columns
+  if not parsed_delimiter:
+    parsed_delimiter = "\t"
+  if add_headers:
+    lines.insert(0, add_headers)
+  parsed_input = unicode("\n".join([parsed_delimiter.join(map(str, line)) for line in lines]), "utf-8")
+  if verbose: print("parsed_input[:10] as lines", parsed_input.split("\n")[:10])
+  return True, parsed_input
+
+
 def check_factor_format(factor, verbose=False):
   """
   Checks a factor for formatting errors. A factor matrix is similar to a weighted adjacency matrix, but it does not have to be symmetric.

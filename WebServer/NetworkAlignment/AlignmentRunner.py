@@ -53,9 +53,11 @@ class AlignmentRunner(Task):
         g1_nodes, _ = get_graph_nodes_and_edges(self.graph1)
         g2_nodes, _ = get_graph_nodes_and_edges(self.graph2)
         if len(g1_nodes) > len(g2_nodes):
-            self.result.error = "Number of nodes in first network should not be greater than second network."
-            self.save_task_finished()
-            raise AlignmentRunnerException(self.result.error)
+            # self.result.error = "Number of nodes in first network should not be greater than second network."
+            # self.save_task_finished()
+            # raise AlignmentRunnerException(self.result.error)
+            # Change the order of the graphs
+            self.graph1, self.graph2 = self.graph2, self.graph1
 
     @classmethod
     def __get_fresh_dir(cls):

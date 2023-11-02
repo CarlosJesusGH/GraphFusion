@@ -124,8 +124,8 @@
     var sequence_scores_file;
     $("#sequence_scores_file").on('change', function () {
       sequence_scores_file = this.files[0];
-      if (sequence_scores_file.size > 10000000) {
-        alert('max upload size is 1MB');
+      if (sequence_scores_file.size > 100000000) {
+        alert('max upload size is 100MB');
       } else {
         // Also see .name, .type
         console.log('sequence_scores_file loaded: ' + annotations_file.name);
@@ -200,7 +200,7 @@
             },
             error: function (jqXHR, textStatus, errorThrown) {
               console.log('ERRORS: ' + textStatus);
-              errorAlert("Error occurred while computing analysis: " + jqXHR.responseText);
+              errorAlert(jqXHR.responseText);
             }
           });
         });
