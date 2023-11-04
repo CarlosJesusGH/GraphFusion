@@ -3,7 +3,7 @@
   <h3>Clustering and Enrichment</h3>
   <h5>Select a factor</h5>
   <p>
-    A factor is a low-dimensional representation of the data, such as a multimodal embedding, a principal component, a t-SNE embedding, or a graphlet degree vector matrix (where the number of rows in the matrix is equal to the number of nodes in the network, and the columns are the Graphlet Degree Vectors, i.e., 11 columns per node representing the coordinates corresponding to the 11 non-redundant orbits). The input file should be a tab-separated matrix without a header or row names. The values should be positive real numbers. The matrix does not need to be square or symmetric.
+    A factor is a low-dimensional representation of the data, such as a multimodal embedding, a principal component, a t-SNE embedding, or a graphlet degree vector matrix (where the number of rows in the matrix is equal to the number of nodes in the network, and the columns are the Graphlet Degree Vectors, i.e., 11 columns per node representing the coordinates corresponding to the 11 non-redundant orbits). The input file should be a tab-separated matrix without a header or row names. The values should be positive real numbers. The matrix does not need to be square or symmetric. If an edgelist or weighted edgelist is provided, the factor will be computed using the adjacency matrix of the network. 
   </p>
   <div class="row-fluid" style="padding:5px;">
     <div class="row-fluid">

@@ -23,8 +23,8 @@ from .DataFusionAnalysisResult import get_df_result_for_task as df_view_for_task
 # from .DataFusionAnalysisResult import get_all_results, get_all_downloadable_results
 # from .DataFusionAnalysisResult import compute_clusters_for_factor, compute_enrichments_for_clusters, compute_icell_for_factor, compute_gdv_for_icell, compute_gdv_similarities, compute_psb_roc_for_factor
 from .DataFusionAnalysisResult import *
-
 # from TaskFactory.views import get_task_view_objects_for_user
+from utils.InputFormatter import check_input_format, check_column_list_format
 
 LOGGER = logging.getLogger(__name__)
 
@@ -39,6 +39,62 @@ def analysis_page(request):
     })
     return HttpResponse(get_template("DataFusion/analysis.html").render(context))
 
+def _check_input(max_iter, delta_min, facts, request_FILES):
+    if int(max_iter) <= 0:
+        return HttpResponseBadRequest("Invalid max_iter")
+    if float(delta_min) <= 0:
+        return HttpResponseBadRequest("Invalid delta_min")
+    for fact in facts:
+        counter = fact["counter"]
+        ks = fact["M2Ks"]
+        if ks is None or len(ks) == 0:
+            return HttpResponseBadRequest("Invalid ks in row " + str(counter))
+        else:
+            # Split ks by spaces or commas depending on the input
+            ks = ks.split(",") if "," in ks else ks.split()
+            for k in ks:
+                if int(k) <= 0:
+                    return HttpResponseBadRequest("Invalid ks in row " + str(counter))
+        if fact["factType"] not in [x[0] for x in FACTORIZATION_TYPE[1:]]:
+            return HttpResponseBadRequest("Invalid factType in row " + str(counter))
+        if fact["initType"] not in [x[0] for x in FACTOR_INIT_TYPE]:
+            return HttpResponseBadRequest("Invalid initType in row " + str(counter))
+        if "M0" not in fact.keys() or len(fact["M0"]) == 0 or fact["M0"] not in request_FILES.keys():
+            return HttpResponseBadRequest("Invalid factor/network (M0) in row " + str(counter))
+        # Check if the Ks are correct for the given factorization type and factor size
+        factor = request_FILES[fact["M0"]].read().decode("utf-8")
+        # m = factor_rows, n = factor_cols
+        m = len([row for row in factor.split("\n") if len(row) > 0])
+        n = len(factor.split("\n")[0].split("\t"))
+        print("factor_rows", m, "factor_cols", n)
+        # From the NMFIF documentation:
+            # NMF decomposes a rectangular matrix X E Rm*n in the product of positive factors F E R+ m*k and G E R+ n*k two, with k <= min(m, n), such that kX - F GT kF 2 is minimized.
+            # NMTF decomposes a rectangular matrix X E Rm*n in the product of three positive factors F E R+ m*k 1 , S E R+ k1 *k2 and G E R+ n*k2 , with k1, k2 <= min(m, n), such that kX - F SG T kF 2 is minimized.
+            # SNMF decomposes a symmetric matrix X E Rn*n in the product of two positive factors G E Rn*k +, with k <= n, such that kX - GGT k2 is minimized. F
+            # SNMTF decomposes a symmetric matrix X E Rn*n in the product of two positive factors G E R+ n*k and S E R+ k*k , with k <= n, such that kX - GSGT kF 2 is minimized.
+        if fact["factType"] == FACTORIZATION_TYPE[1][0]:    # NMF
+            if len(ks) > 1:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[1][1] + ", only one k is allowed.")
+            if int(ks[0]) > min(m, n):
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[1][1] + ", k must be <= min(m, n).")
+        elif fact["factType"] == FACTORIZATION_TYPE[2][0]:  # NMTF
+            if len(ks) != 2:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[2][1] + ", two ks are required.")
+            if int(ks[0]) > min(m, n) or int(ks[1]) > min(m, n):
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[2][1] + ", k1 and k2 must be <= min(m, n).")
+        elif fact["factType"] == FACTORIZATION_TYPE[3][0]:  # SNMF
+            if len(ks) > 1:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[3][1] + ", only one k is allowed.")
+            if int(ks[0]) > n:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[3][1] + ", k must be <= n.")
+        elif fact["factType"] == FACTORIZATION_TYPE[4][0]:  # SNMTF
+            if len(ks) != 2:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[4][1] + ", two ks are required.")
+            if int(ks[0]) > n or int(ks[1]) > n:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[4][1] + ", k1 and k2 must be <= n.")
+    LOGGER.info("All input checks passed")
+    return False
+
 # from django.views.decorators.http import require_POST
 # @require_POST
 @login_required
@@ -47,8 +103,8 @@ def analysis_page(request):
 def submit_analysis(request):
     print("start submit_analysis")
     try:
-        print("request.POST", request.POST)
-        print("request.FILES", request.FILES)        
+        # print("request.POST", request.POST)
+        # print("request.FILES", request.FILES)        
         data = json.loads(request.POST["data"])
         facts = data["facts"]
         task_name = data["task_name"]
@@ -56,6 +112,32 @@ def submit_analysis(request):
         net_names = data["net_names"]
         max_iter = data["max_iter"]
         delta_min = data["delta_min"]
+        print("facts", facts)
+        # print("task_name", task_name)
+        # print("setup", setup)
+        print("net_names", net_names)
+        # print("max_iter", max_iter)
+        # print("delta_min", delta_min)
+        # vvvvvvvvvvvvvvvvvvvvvvvvvvv
+        # Check the input networks/factors
+        for net_name in net_names:
+            # If network name is not present in the facts, skip it
+            if net_name not in [value for fact in facts for value in fact.values()]:
+                continue
+            network = [net_name, request.FILES[net_name].read().decode("utf-8")]
+            print("network[0]", network[0])
+            check_response, network[1] = check_input_format(network[1], input_task_or_type='factor', verbose=True)
+            if not check_response:
+                err_msg = "Error: Incorrect format in input file '" + network[0] + "'. " + (network[1] if network[1] is not None else "")
+                return HttpResponseBadRequest(err_msg)
+            print("network passed")
+            request.FILES[net_name] = ContentFile(network[1].encode("utf-8"))
+        # Check the input parameters
+        check_input_res = _check_input(max_iter, delta_min, facts, request.FILES)
+        if check_input_res:
+            return check_input_res
+        return HttpResponseBadRequest("Not implemented yet")
+        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         LOGGER.info("Executing DataFusionAnalysis for: " + str(request.user.username) + " with task_name: " + str(task_name))
         request_FILES = request.FILES
         task = DataFusionAnalysis(facts, net_names, request_FILES, task_name=task_name, setup=setup, user=request.user, max_iter=max_iter, delta_min=delta_min)

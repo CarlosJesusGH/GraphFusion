@@ -311,6 +311,24 @@ def check_factor_format(factor, verbose=False):
   :param verbose: Whether to print debugging information.
   :return: True if the factor is correctly formatted, False otherwise.
   """
+  # First, check if the input is a two-column edgelist file using the 'check_column_list_format' method, in that case, parse it as network and obtain the adjacency matrix as factor
+  check_response, parsed_input = check_column_list_format(factor, num_of_columns=2, col_id_numerical=[], parsed_delimiter="\t", verbose=False)
+  if check_response:
+    # Parse the network as an adjacency matrix
+    check_response, parsed_input = check_undirected_network_format(parsed_input, preferred_format='adjmatrix', verbose=False)
+    if check_response:
+      factor = parsed_input
+      print("Input is a two-column edgelist file, parsed as network and obtained the adjacency matrix as factor")
+  else:
+    # Second, check if the input is a three-column weighted edgelist file using the 'check_column_list_format' method, in that case, parse it as probabilistic network and obtain the adjacency matrix as factor using the 'check_probabilistic_network_format' method
+    check_response, parsed_input = check_column_list_format(factor, num_of_columns=3, col_id_numerical=[2], parsed_delimiter="\t", verbose=False)
+    if check_response:
+      # Parse the network as an adjacency matrix
+      check_response, parsed_input = check_probabilistic_network_format(parsed_input, preferred_format='adjmatrix', verbose=False)
+      if check_response:
+        factor = parsed_input
+        print("Input is a three-column weighted edgelist file, parsed as probabilistic network and obtained the adjacency matrix as factor")
+  # Then, work with the factor matrix
   parsed_input = None
   try:
     # Check if the file is tab-delimited or space-delimited or comma-delimited
@@ -333,7 +351,7 @@ def check_factor_format(factor, verbose=False):
     else:
       # Write X to a string with delimiter="\t"
       parsed_input = unicode("\n".join(["\t".join(map(str, row)) for row in X]), "utf-8")
-      if verbose: print("parsed_input as factor", parsed_input)
+      if verbose: print("parsed_input[:100]", parsed_input[:100])
   except Exception as e:
     if verbose: print("Exception", e, "e.args", e.args)
     return False, None

@@ -126,10 +126,6 @@ def submit_analysis(request):
         check_input_res = _check_sequence_sim(data_networks, request.FILES)
         if check_input_res:
             return check_input_res
-        # Warning: every time you read a TemporaryUploadedFile, you need to reset the pointer to the beginning of the file
-        # sequence_sim = request.FILES[REQUEST_FILES[0]].read().decode("utf-8")
-        # print("flag - sequence_sim", sequence_sim[:100])
-        # request.FILES[REQUEST_FILES[0]].seek(0)
         # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         # Add a '1.0' value to each edge in the networks. Check that the line is not empty.
         # This is done to comply with the format of the networks in the fuse_alignment script.

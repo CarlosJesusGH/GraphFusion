@@ -67,13 +67,16 @@ class DataFusionAnalysis(Task):
 
     def __save_graph(self):
         for net_name in self.net_names:
+            # Check that the network name is present in the facts, otherwise skip it
+            if net_name not in [value for fact in self.facts for value in fact.values()]:
+                continue
             print("net_name", net_name)
-            # blob = self.request_FILES[net_name]
+            blob = self.request_FILES[net_name]
             # print("blob", blob)
             # open("test_fname.txt", 'wb').write(ContentFile(b'new content'))
             # path = default_storage.save("test_fname.txt", ContentFile(blob.read()))
-            # fs = FileSystemStorage(self.graph_path) #defaults to   MEDIA_ROOT  
-            # filename = fs.save(net_name, ContentFile(blob.read()))
+            fs = FileSystemStorage(self.graph_path) #defaults to   MEDIA_ROOT  
+            fs.save(net_name, ContentFile(blob.read()))
             # if ".csv" not in net_name:
             #     filepath = self.graph_path + "/" + net_name
             #     if ".hdf5" in net_name:

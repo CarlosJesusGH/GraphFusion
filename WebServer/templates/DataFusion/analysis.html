@@ -62,7 +62,23 @@
   <div id="propsDiv">
     <div class="row">
       <div class="col-lg-8">
-        <h5>Select Networks for running the data fusion analysis</h5>
+        <h5>
+          Select Networks/Factors to run the analysis.
+        </h5>
+        <p>
+          Matrix factorization is a technique used to approximate a matrix X by the product of several smaller matrices, referred to as factors. GraphFusion offers four distinct variants of non-negative matrix factorization (NMF, NMTF, SNMF, and SNMTF) to help combine multiple networks.
+          <!-- </br>
+          <b>NMF</b> decomposes a rectangular matrix X ∈ Rm×n in the product of positive factors F ∈ R+ m×k and G ∈ R+ n×k two, with k ≤ min(m, n), such that kX − F GT kF 2 is minimized.
+          </br>
+          <b>NMTF</b> decomposes a rectangular matrix X ∈ Rm×n in the product of three positive factors F ∈ R+ m×k 1 , S ∈ R+ k1 ×k2 and G ∈ R+ n×k2 , with k1, k2 ≤ min(m, n), such that kX − F SG T kF 2 is minimized.
+          </br>
+          <b>SNMF</b> decomposes a symmetric matrix X ∈ Rn×n in the product of two positive factors G ∈ Rn×k +, with k ≤ n, such that kX − GGT k2 is minimized. F
+          </br>
+          <b>SNMTF</b> decomposes a symmetric matrix X ∈ Rn×n in the product of two positive factors G ∈ R+ n×k and S ∈ R+ k×k , with k ≤ n, such that kX − GSGT kF 2 is minimized.  -->
+          
+        </p>
+        {% load static %} <img src="{% static 'media/nmfif_matrix_fact_types.png' %}" style="width: 100%; border-radius: 10px;">
+        </br></br>
       </div>
       <div class="col-lg-4">
         <button class="btn btn-primary" onclick="clearFactorizations(); return false;" id="clear">Clear all </button>
@@ -233,7 +249,8 @@
               <!-- <div class="col-lg-2">
                 <label class="control-label" for="taskNameInput">Task Name</label>
               </div> -->
-              <div class="col-lg-3">
+              <div class="col-lg-6">
+                <label class="control-label" for="taskNameInput">Task Name</label>
                 <input class="form-control" id="taskNameInput" type="text" placeholder="Task Name">
               </div>
             </div>
@@ -258,6 +275,7 @@
     var $networkNamesList1 = $('#networkNamesList1');
     var $networkNamesList2 = $('#networkNamesList2');
     var $taskName = $("#taskNameInput");
+    $taskName.val(getDateBasedTaskName("DataFusion"));
     var $kValues = $("#kValuesInput");
     var _max_iter = "100";
     var _delta_min = "10e-6";
@@ -412,7 +430,9 @@
         if ($("#M2_" + i).val())
           fact["M2"] = networkFiles[$("#M2_" + i).val()][0]
         if ($("#kValuesInput_" + i).val())
+          var ks = ""
           ks = $("#kValuesInput_" + i).val()
+          // console.log("ks: " + ks); console.log("typeof ks: " + typeof ks);
           ks = ks.replaceAll(',', ' ');
           ks = ks.replaceAll('  ', ' ');
           fact["M2Ks"] = ks
