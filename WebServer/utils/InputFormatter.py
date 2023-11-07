@@ -286,12 +286,12 @@ def check_column_list_format(input_data, num_of_columns, col_id_numerical=[], pa
   # elif lines has a different number of columns than num_of_columns columns, return False. Ignore the last line in case it is empty.
   elif any(len(line) != num_of_columns for line in lines[:-1]):
     # Print the index of the lines with a different number of columns than num_of_columns
-    print("The index of the lines with a different number of columns than " + str(num_of_columns) + " is:", [i for i, line in enumerate(lines[:-1]) if len(line) != num_of_columns])
+    if verbose: print("The index of the lines with a different number of columns than " + str(num_of_columns) + " is:", [i for i, line in enumerate(lines[:-1]) if len(line) != num_of_columns])
     return False, "There are lines with a different number of columns than " + str(num_of_columns) + "."
   # elif lines has a column with index in col_id_numerical that is not numerical, return False. Ignore the last line in case it is empty.
   elif any(not all(line[col_id].replace(".", "", 1).replace("-","",1).isdigit() for col_id in col_id_numerical) for line in lines[:-1]):
     # Print the index of the lines with a column with index in col_id_numerical that is not numerical
-    print("The index of the lines with a column with index in col_id_numerical that is not numerical is:", [i for i, line in enumerate(lines[:-1]) if not all(line[col_id].replace(".", "", 1).replace("-","",1).isdigit() for col_id in col_id_numerical)])
+    if verbose: print("The index of the lines with a column with index in col_id_numerical that is not numerical is:", [i for i, line in enumerate(lines[:-1]) if not all(line[col_id].replace(".", "", 1).replace("-","",1).isdigit() for col_id in col_id_numerical)])
     return False, "There are lines with a column with index '" + str(col_id_numerical) + "' that is not numerical."
   # Otherwise, the input data is correctly formatted
   # Write lines to a string with delimiter="\n" and parsed_delimiter as separator between columns

@@ -39,13 +39,28 @@ def analysis_page(request):
     })
     return HttpResponse(get_template("DataFusion/analysis.html").render(context))
 
+def _get_factor_shape(request_FILES, fact_name):
+    factor = request_FILES[fact_name].read().decode("utf-8")
+    request_FILES[fact_name].seek(0)
+    n_rows = len([row for row in factor.split("\n") if len(row) > 0])
+    n_cols = len(factor.split("\n")[0].split("\t"))
+    return n_rows, n_cols
+
 def _check_input(max_iter, delta_min, facts, request_FILES):
     if int(max_iter) <= 0:
         return HttpResponseBadRequest("Invalid max_iter")
     if float(delta_min) <= 0:
         return HttpResponseBadRequest("Invalid delta_min")
+    factorization_shapes = []
     for fact in facts:
+        print("-"*50); print("fact", fact)
         counter = fact["counter"]
+        if fact["factType"] not in [x[0] for x in FACTORIZATION_TYPE[1:]]:
+            return HttpResponseBadRequest("Invalid 'Type of factorization' in row " + str(counter))
+        if fact["initType"] not in [x[0] for x in FACTOR_INIT_TYPE]:
+            return HttpResponseBadRequest("Invalid 'Type of initialization' in row " + str(counter))
+        if "M0" not in fact.keys() or len(fact["M0"]) == 0 or fact["M0"] not in request_FILES.keys():
+            return HttpResponseBadRequest("Invalid factor/network (M0) in row " + str(counter))
         ks = fact["M2Ks"]
         if ks is None or len(ks) == 0:
             return HttpResponseBadRequest("Invalid ks in row " + str(counter))
@@ -55,44 +70,121 @@ def _check_input(max_iter, delta_min, facts, request_FILES):
             for k in ks:
                 if int(k) <= 0:
                     return HttpResponseBadRequest("Invalid ks in row " + str(counter))
-        if fact["factType"] not in [x[0] for x in FACTORIZATION_TYPE[1:]]:
-            return HttpResponseBadRequest("Invalid factType in row " + str(counter))
-        if fact["initType"] not in [x[0] for x in FACTOR_INIT_TYPE]:
-            return HttpResponseBadRequest("Invalid initType in row " + str(counter))
-        if "M0" not in fact.keys() or len(fact["M0"]) == 0 or fact["M0"] not in request_FILES.keys():
-            return HttpResponseBadRequest("Invalid factor/network (M0) in row " + str(counter))
         # Check if the Ks are correct for the given factorization type and factor size
-        factor = request_FILES[fact["M0"]].read().decode("utf-8")
         # m = factor_rows, n = factor_cols
-        m = len([row for row in factor.split("\n") if len(row) > 0])
-        n = len(factor.split("\n")[0].split("\t"))
-        print("factor_rows", m, "factor_cols", n)
-        # From the NMFIF documentation:
-            # NMF decomposes a rectangular matrix X E Rm*n in the product of positive factors F E R+ m*k and G E R+ n*k two, with k <= min(m, n), such that kX - F GT kF 2 is minimized.
-            # NMTF decomposes a rectangular matrix X E Rm*n in the product of three positive factors F E R+ m*k 1 , S E R+ k1 *k2 and G E R+ n*k2 , with k1, k2 <= min(m, n), such that kX - F SG T kF 2 is minimized.
-            # SNMF decomposes a symmetric matrix X E Rn*n in the product of two positive factors G E Rn*k +, with k <= n, such that kX - GGT k2 is minimized. F
-            # SNMTF decomposes a symmetric matrix X E Rn*n in the product of two positive factors G E R+ n*k and S E R+ k*k , with k <= n, such that kX - GSGT kF 2 is minimized.
+        m, n = _get_factor_shape(request_FILES, fact["M0"])
+        X_shape = (m, n)
+        print("X_shape", X_shape)
+        # Check the Ks for the given factorization type
         if fact["factType"] == FACTORIZATION_TYPE[1][0]:    # NMF
-            if len(ks) > 1:
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[1][1] + ", only one k is allowed.")
+            # NMF decomposes a rectangular matrix X E Rm*n in the product of positive factors F E R+ m*k and G E R+ n*k two, with k <= min(m, n), such that ||X-F*GT||F^2 is minimized.
+            if len(ks) != 1:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[1][1] + "', only one k is allowed.")
             if int(ks[0]) > min(m, n):
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[1][1] + ", k must be <= min(m, n).")
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[1][1] + "', k must be <= min(m, n). Input factor has " + str(m) + " rows and " + str(n) + " columns.")
+            # min||X-F*GT||
+            F_shape = (m, int(ks[0]))
+            G_shape = (n, int(ks[0]))
+            factorization_shapes.append((X_shape, F_shape, None, G_shape))
         elif fact["factType"] == FACTORIZATION_TYPE[2][0]:  # NMTF
+            # NMTF decomposes a rectangular matrix X E Rm*n in the product of three positive factors F E R+ m*k 1 , S E R+ k1 *k2 and G E R+ n*k2 , with k1, k2 <= min(m, n), such that ||X-F*S*GT||F^2 is minimized.
             if len(ks) != 2:
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[2][1] + ", two ks are required.")
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[2][1] + "', two ks are required.")
             if int(ks[0]) > min(m, n) or int(ks[1]) > min(m, n):
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[2][1] + ", k1 and k2 must be <= min(m, n).")
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[2][1] + "', k1 and k2 must be <= min(m, n). Input factor has " + str(m) + " rows and " + str(n) + " columns.")
+            # min||X-F*S*GT||F^2
+            F_shape = (m, int(ks[0]))
+            S_shape = (int(ks[0]), int(ks[1]))
+            G_shape = (n, int(ks[1]))
+            factorization_shapes.append((X_shape, F_shape, S_shape, G_shape))
         elif fact["factType"] == FACTORIZATION_TYPE[3][0]:  # SNMF
-            if len(ks) > 1:
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[3][1] + ", only one k is allowed.")
+            # SNMF decomposes a symmetric matrix X E Rn*n in the product of two positive factors G E Rn*k +, with k <= n, such that ||X-G*GT||F^2 is minimized.
+            if m != n:
+                return HttpResponseBadRequest("Invalid input factor in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[3][1] + "', the factor must be square. Input factor has " + str(m) + " rows and " + str(n) + " columns.")
+            if len(ks) != 1:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[3][1] + "', only one k is allowed.")
             if int(ks[0]) > n:
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[3][1] + ", k must be <= n.")
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[3][1] + "', k must be <= n. Input factor has " + str(m) + " rows and " + str(n) + " columns.")
+            # min||X-G*GT||F^2
+            G_shape = (m, int(ks[0]))
+            factorization_shapes.append((X_shape, None, None, G_shape))
         elif fact["factType"] == FACTORIZATION_TYPE[4][0]:  # SNMTF
+            # SNMTF decomposes a symmetric matrix X E Rn*n in the product of two positive factors G E R+ n*k and S E R+ k*k , with k <= n, such that ||X-G*S*GT||F^2 is minimized.
+            if m != n:
+                return HttpResponseBadRequest("Invalid input factor in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[4][1] + "', the factor must be square. Input factor has " + str(m) + " rows and " + str(n) + " columns.")
             if len(ks) != 2:
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[4][1] + ", two ks are required.")
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[4][1] + "', two ks are required.")
             if int(ks[0]) > n or int(ks[1]) > n:
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For factType " + FACTORIZATION_TYPE[4][1] + ", k1 and k2 must be <= n.")
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[4][1] + "', k1 and k2 must be <= n. Input factor has " + str(m) + " rows and " + str(n) + " columns.")
+            # min||X-G*S*GT||F^2
+            G_shape = (m, int(ks[0]))
+            S_shape = (int(ks[0]), int(ks[1]))
+            factorization_shapes.append((X_shape, None, S_shape, G_shape))
+        # Check the shape of the contraint factors if present
+        if "M1C" in fact.keys() and len(fact["M1C"]) > 0:
+            # Get size of the constraint matrix
+            M1C_shape = _get_factor_shape(request_FILES, fact["M1C"])
+            print("M1C_shape", M1C_shape)
+            # Check that the constraint matrix has the correct size
+            if M1C_shape != (m, m):
+                return HttpResponseBadRequest("Invalid constraint matrix in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[1][1] + "', the constraint matrix must be square and have the same number of rows as the input factor. Input factor has " + str(m) + " rows and " + str(n) + " columns. Constraint matrix has " + str(M1C_shape[0]) + " rows and " + str(M1C_shape[1]) + " columns.")
+        if "M3C" in fact.keys() and len(fact["M3C"]) > 0:
+            # Get size of the constraint matrix
+            M3C_shape = _get_factor_shape(request_FILES, fact["M3C"])
+            print("M3C_shape", M3C_shape)
+            # Check that the constraint matrix has the correct size
+            if M3C_shape != (n, n):
+                return HttpResponseBadRequest("Invalid constraint matrix in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[1][1] + "', the constraint matrix must be square and have the same number of columns as the input factor. Input factor has " + str(m) + " rows and " + str(n) + " columns. Constraint matrix has " + str(M3C_shape[0]) + " rows and " + str(M3C_shape[1]) + " columns.")
+    # Check the shape of the shared factors if present
+    fact_sharings = []
+    up, down, updown = FACTOR_SHARE_DIRECTION[1][0], FACTOR_SHARE_DIRECTION[2][0], FACTOR_SHARE_DIRECTION[3][0]
+    for fact in facts:
+        M1S = ""
+        if "M1S" in fact.keys() and len(fact["M1S"]) > 0:
+            M1S = fact["M1S"]
+            print("M1S", M1S)
+        M3S = ""
+        if "M3S" in fact.keys() and len(fact["M3S"]) > 0:
+            M3S = fact["M3S"]
+            print("M3S", M3S)
+        fact_sharings.append((M1S, M3S))
+    print("fact_sharing", fact_sharings)
+    # Check that the shared factors are correct.
+    for i, (M1S, M3S) in enumerate(fact_sharings):
+        # Don't allow sharing of both factors M1S and M3S in the same direction
+        if (M1S == up or M1S == updown) and (M3S == up or M3S == updown):
+            return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". Cannot share both factors in the same direction.")
+        if (M1S == down or M1S == updown) and (M3S == down or M3S == updown):
+            return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". Cannot share both factors in the same direction.")
+        # Don't allow the first row to share factors in the up or updown direction
+        if i == 0 and (M1S == up or M1S == updown or M3S == up or M3S == updown):
+            return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". Cannot share factors in the upwards or upwards+downwards direction in the first row.")
+        # Don't allow the last row to share factors in the down or updown direction
+        if i == len(fact_sharings) - 1 and (M1S == down or M1S == updown or M3S == down or M3S == updown):
+            return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". Cannot share factors in the downwards or upwards+downwards direction in the last row.")
+        # Check that the shared factors have the correct size. It means that the number of columns of the factor shared downwards must be equal to the number of rows of the factor shared upwards in the next row.
+        downwards_shape, upwards_shape = None, None
+        if M1S == down or M1S == updown:
+            downwards_shape = factorization_shapes[i][1]
+        elif M3S == down or M3S == updown:
+            downwards_shape = factorization_shapes[i][3]
+        if downwards_shape is not None:
+            if fact_sharings[i+1][0] == up or fact_sharings[i+1][0] == updown:
+                upwards_shape = factorization_shapes[i+1][1]
+            elif fact_sharings[i+1][1] == up or fact_sharings[i+1][1] == updown:
+                upwards_shape = factorization_shapes[i+1][3]
+            if upwards_shape is None:
+                return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". Cannot share factors in the downwards or upwards+downwards direction if the next row does not share factors in the upwards or upwards+downwards direction.")
+        print("downwards_shape", downwards_shape)
+        print("upwards_shape", upwards_shape)
+        print("fact_sharings", fact_sharings)
+        if downwards_shape is not None and upwards_shape is not None and (downwards_shape[0] != upwards_shape[0] or downwards_shape[1] != upwards_shape[1]):
+            return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". The shape of the factor shared downwards must be equal to the shape of the factor shared upwards in the next row. Factor shared downwards has shape " + str(downwards_shape) + ". Factor shared upwards has shape " + str(upwards_shape) + ".")
+        # Check if there is any missmatched upwards sharing
+        if (M1S == up or M1S == updown or M3S == up or M3S == updown) and (fact_sharings[i-1][0] != down and fact_sharings[i-1][0] != updown and fact_sharings[i-1][1] != down and fact_sharings[i-1][1] != updown):
+            return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". Cannot share factors in the upwards or upwards+downwards direction if the previous row does not share factors in the downwards or upwards+downwards direction.")
     LOGGER.info("All input checks passed")
+    # return HttpResponseBadRequest("No errors found. Not ready yet.")
     return False
 
 # from django.views.decorators.http import require_POST
@@ -101,7 +193,7 @@ def _check_input(max_iter, delta_min, facts, request_FILES):
 @ajax_required
 # @csrf_exempt
 def submit_analysis(request):
-    print("start submit_analysis")
+    # print("start submit_analysis")
     try:
         # print("request.POST", request.POST)
         # print("request.FILES", request.FILES)        
@@ -112,10 +204,10 @@ def submit_analysis(request):
         net_names = data["net_names"]
         max_iter = data["max_iter"]
         delta_min = data["delta_min"]
-        print("facts", facts)
+        # print("facts", facts)
         # print("task_name", task_name)
         # print("setup", setup)
-        print("net_names", net_names)
+        # print("net_names", net_names)
         # print("max_iter", max_iter)
         # print("delta_min", delta_min)
         # vvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -125,18 +217,16 @@ def submit_analysis(request):
             if net_name not in [value for fact in facts for value in fact.values()]:
                 continue
             network = [net_name, request.FILES[net_name].read().decode("utf-8")]
-            print("network[0]", network[0])
-            check_response, network[1] = check_input_format(network[1], input_task_or_type='factor', verbose=True)
+            # print("network[0]", network[0])
+            check_response, network[1] = check_input_format(network[1], input_task_or_type='factor', verbose=False)
             if not check_response:
                 err_msg = "Error: Incorrect format in input file '" + network[0] + "'. " + (network[1] if network[1] is not None else "")
                 return HttpResponseBadRequest(err_msg)
-            print("network passed")
             request.FILES[net_name] = ContentFile(network[1].encode("utf-8"))
         # Check the input parameters
         check_input_res = _check_input(max_iter, delta_min, facts, request.FILES)
         if check_input_res:
             return check_input_res
-        return HttpResponseBadRequest("Not implemented yet")
         # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
         LOGGER.info("Executing DataFusionAnalysis for: " + str(request.user.username) + " with task_name: " + str(task_name))
         request_FILES = request.FILES
@@ -145,7 +235,7 @@ def submit_analysis(request):
         return HttpResponse("Successfully submitted task " + task_name)
     except Exception as e:
         LOGGER.error(e)
-        return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
+        return HttpResponseBadRequest(e.message)
 
 def compute_psb_matcomp(request):
     print("start compute_psb_matcomp")

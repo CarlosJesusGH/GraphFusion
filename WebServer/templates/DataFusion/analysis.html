@@ -484,7 +484,10 @@
           },
           error: function (xhr, textStatus, errorThrown) {
             console.log('ERRORS: ' + textStatus);
-            errorAlert("Error occurred while computing datafusion analysis: " + xhr.responseText);
+            if (xhr.responseText.length < 50)
+              errorAlert(xhr.responseText);
+            else
+              vexErrorAlert(xhr.responseText);
           }
         });
       });
