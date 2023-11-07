@@ -12,10 +12,12 @@
   <div class="panel-body">
     <div class="row">
       <div class="col-lg-6">
+        <h5>Select the factor:</h5>
         <select id="clusterFact" class="form-control">
-          <option value="0">Select the factor</option>
           {% for output_file in output_files %}
-            <option value="{{ output_file }}">{{ output_file }}</option>
+            {% if 'csv' in output_file %}
+              <option value="{{ output_file }}">{{ output_file }}</option>
+            {% endif %}
           {% endfor %}
         </select>
       </div>
@@ -76,9 +78,12 @@
     <div class="row">
       <div class="col-lg-6">
         <select id="iCellFact" class="form-control">
-          <option value="0">Select the factor</option>
+          <h5>Select the factor:</h5>
+          <!-- <option value="0">Select the factor</option> -->
           {% for output_file in output_files %}
-            <option value="{{ output_file }}">{{ output_file }}</option>
+            {% if 'csv' in output_file %}
+              <option value="{{ output_file }}">{{ output_file }}</option>
+            {% endif %}
           {% endfor %}
         </select>
       </div>
@@ -269,7 +274,7 @@
         },
         error: function (xhr, textStatus, errorThrown) {
           console.log('ERRORS: ' + textStatus);
-          errorAlert("Error occurred while computing pairwise analysis: " + xhr.responseText);
+          errorAlert(xhr.responseText);
         }
       });
     });
@@ -331,7 +336,7 @@
           },
           error: function (xhr, textStatus, errorThrown) {
               console.log('ERRORS: ' + textStatus);
-              errorAlert("Error occurred while computing the clusters: " + xhr.responseText);
+              errorAlert(xhr.responseText);
             }
         });
       })
@@ -394,7 +399,7 @@
           },
           error: function (xhr, textStatus, errorThrown) {
             console.log('ERRORS: ' + textStatus);
-            errorAlert("Error occurred while computing the enrichments: " + xhr.responseText);
+            errorAlert(xhr.responseText);
           }
         });
       })
@@ -472,7 +477,7 @@
           },
           error: function (xhr, textStatus, errorThrown) {
             console.log('ERRORS: ' + textStatus);
-            errorAlert("Error occurred while computing gdv similarity: " + xhr.responseText);
+            errorAlert(xhr.responseText);
           }
         });
       });

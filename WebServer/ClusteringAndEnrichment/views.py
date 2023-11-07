@@ -164,18 +164,19 @@ def compute_clusters(request):
         LOGGER.info("Executing clustering for fact: " + str(cluster_fact_name) + " in dir: " + operational_dir)
         # _save_text_file_to_dir(operational_dir, cluster_fact_name, cluster_fact_data)
         # Check the entity list file format
-        check_response, entities = check_input_format(request.FILES["clusters_entitylist_file"], input_task_or_type='entitylist', verbose=False) # type: ignore
+        check_response, entities = check_input_format(request.FILES["clusters_entitylist_file"].read().decode("utf-8"), input_task_or_type='entitylist', verbose=False) # type: ignore
         if not check_response:
             return HttpResponseBadRequest("Error occurred while processing 'entity list' file. " + str(entities) + ".")
+        request.FILES["clusters_entitylist_file"].seek(0)
         _save_text_file_to_dir(operational_dir, CLUSTERS_ENTITYLIST_FILENAME, entities)
         # If the factor file is a matrix, check that the number of rows in the matrix is equal to the number of entities in the entity list file
         if os.path.isfile(os.path.join(operational_dir, CLUSTERS_ENTITYLIST_FILENAME)):
             entities = np.genfromtxt(os.path.join(operational_dir, CLUSTERS_ENTITYLIST_FILENAME), dtype=str)
             factor = np.genfromtxt(os.path.join(operational_dir, cluster_fact_name))
             if entities.shape[0] != factor.shape[0]:
-                print("entities.shape", entities.shape)
-                print("factor.shape", factor.shape)
-                print("entities", entities)
+                # print("entities.shape", entities.shape)
+                # print("factor.shape", factor.shape)
+                # print("entities", entities)
                 raise Exception("Number of entities in entitylist file: {}, does not match number of rows in factor file: {}".format(entities.shape[0],factor.shape[0]))  
         clusters_img, clusters = _compute_clusters_for_factor(op_dir=operational_dir, fact_name=cluster_fact_name)
         data = json.dumps({
@@ -204,7 +205,7 @@ def compute_enrichments(request):
         operational_dir = COMPUTATIONS_DIR + "/clustering_enrichment"
         LOGGER.info("Executing enrichments for fact: " + str(cluster_fact) + " and annotations in dir: " + operational_dir)
         # Check the annotations file format
-        check_response, annotations = check_input_format(request.FILES["annotations"], input_task_or_type='entityanno', verbose=False) # type: ignore
+        check_response, annotations = check_input_format(request.FILES["annotations"].read().decode("utf-8"), input_task_or_type='entityanno', verbose=False) # type: ignore
         if not check_response:
             return HttpResponseBadRequest("Error occurred while processing 'annotations' file. " + str(annotations) + ".")
         _save_text_file_to_dir(operational_dir, ENRICHMENTS_ANNO_FILENAME, annotations)

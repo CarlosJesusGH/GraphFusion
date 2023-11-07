@@ -1,3 +1,9 @@
+"""
+From the iCell paper:
+ This integrated network is obtained by thresholding the matrix G  GT by using rowand column-centric rules to preserve only the top 1% of the strongest relationships in each row and column.
+ In the co-clustering interpretation of NMTF, each row of G corresponds to a gene, each column of G corresponds to a cluster, and the value G[u][i] (in row u, column i) is the closeness of gene u to cluster i.
+"""
+
 import sys
 # import operator
 #import networkx as nx

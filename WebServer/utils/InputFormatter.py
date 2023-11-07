@@ -359,11 +359,11 @@ def check_factor_format(factor, verbose=False):
   return True, parsed_input
 
 def check_entityfile_format(entity_file, input_task_or_type, verbose=False):
-  file_content = unicodedata.normalize('NFKD', unicode(entity_file.read(), "utf-8")).encode('ascii', 'ignore')
+  file_content = unicodedata.normalize('NFKD', entity_file).encode('ascii', 'ignore')
   if verbose: print("input_task_or_type", input_task_or_type); print("file_content - start:\n", file_content)
   if input_task_or_type == 'entitylist':
     # Check if the file is a one-column file
-    print("len(file_content.split('\n')[0].split('\t')) == 1:", len(file_content.split('\n')[0].split('\t')) == 1)
+    print("len(file_content.split('\n')[0].split('\t'))", len(file_content.split('\n')[0].split('\t')))
     if len(file_content.split('\n')[0].split('\t')) == 1:
       # Parse the file as a list of entities as a list of strings
       file_content = file_content.split("\n")

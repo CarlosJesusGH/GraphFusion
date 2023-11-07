@@ -43,7 +43,14 @@ def _get_factor_shape(request_FILES, fact_name):
     factor = request_FILES[fact_name].read().decode("utf-8")
     request_FILES[fact_name].seek(0)
     n_rows = len([row for row in factor.split("\n") if len(row) > 0])
-    n_cols = len(factor.split("\n")[0].split("\t"))
+    first_row = factor.split("\n")[0]
+    n_cols = 0
+    if "\t" in first_row:
+        n_cols = len(factor.split("\n")[0].split("\t"))
+    elif "," in first_row:
+        n_cols = len(factor.split("\n")[0].split(","))
+    elif " " in first_row:
+        n_cols = len(factor.split("\n")[0].split(" "))
     return n_rows, n_cols
 
 def _check_input(max_iter, delta_min, facts, request_FILES):
@@ -175,16 +182,15 @@ def _check_input(max_iter, delta_min, facts, request_FILES):
                 upwards_shape = factorization_shapes[i+1][3]
             if upwards_shape is None:
                 return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". Cannot share factors in the downwards or upwards+downwards direction if the next row does not share factors in the upwards or upwards+downwards direction.")
-        print("downwards_shape", downwards_shape)
-        print("upwards_shape", upwards_shape)
-        print("fact_sharings", fact_sharings)
+        # print("downwards_shape", downwards_shape)
+        # print("upwards_shape", upwards_shape)
+        # print("fact_sharings", fact_sharings)
         if downwards_shape is not None and upwards_shape is not None and (downwards_shape[0] != upwards_shape[0] or downwards_shape[1] != upwards_shape[1]):
             return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". The shape of the factor shared downwards must be equal to the shape of the factor shared upwards in the next row. Factor shared downwards has shape " + str(downwards_shape) + ". Factor shared upwards has shape " + str(upwards_shape) + ".")
         # Check if there is any missmatched upwards sharing
         if (M1S == up or M1S == updown or M3S == up or M3S == updown) and (fact_sharings[i-1][0] != down and fact_sharings[i-1][0] != updown and fact_sharings[i-1][1] != down and fact_sharings[i-1][1] != updown):
             return HttpResponseBadRequest("Invalid shared factor in row " + str(i) + ". Cannot share factors in the upwards or upwards+downwards direction if the previous row does not share factors in the downwards or upwards+downwards direction.")
     LOGGER.info("All input checks passed")
-    # return HttpResponseBadRequest("No errors found. Not ready yet.")
     return False
 
 # from django.views.decorators.http import require_POST
@@ -319,6 +325,31 @@ def compute_psb_roc(request):
         LOGGER.error(e)
         return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
 
+def _compute_clusters_check_input(operational_dir, fact_name, request_FILES, request_filename):
+    print("_compute_clusters_check_input")
+    # Read cluster_fact from file
+    file_path = operational_dir + "/" + fact_name
+    # Read whole file a string
+    try:
+        with open(file_path, 'r') as f:
+            fact_str = f.read()    
+    except Exception as e:
+        return HttpResponseBadRequest("Error: Incorrect format in input file " + fact_name)
+    check_response, fact_str = check_input_format(fact_str, input_task_or_type='factor', verbose=False)
+    # Check input file format
+    if not check_response:
+        err_msg = "Error: Incorrect format in input file '" + fact_name + "'. " + (fact_str if fact_str is not None else "")
+        return HttpResponseBadRequest(err_msg)
+    # Check the entity list file format
+    check_response, entities = check_input_format(request_FILES[request_filename].read().decode("utf-8"), input_task_or_type='entitylist', verbose=False)
+    if not check_response:
+        return HttpResponseBadRequest("Error occurred while processing 'entity list' file. " + str(entities) + ".")
+    request_FILES[request_filename].seek(0)
+    # Check that the number of rows in the entity list file is the same as the number of rows in the cluster fact
+    if len(entities.split("\n")) != len(fact_str.split("\n")):
+        return HttpResponseBadRequest("Error: The number of rows in the entity list file must be the same as the number of rows in the cluster fact. Entity list has " + str(len(entities.split("\n"))) + " rows. Cluster fact has " + str(len(fact_str.split("\n"))) + " rows.")
+    return False
+
 def compute_clusters(request):
     print("start compute_clusters")
     try:
@@ -328,6 +359,11 @@ def compute_clusters(request):
         cluster_fact = data["cluster_fact"]
         task_dir = data["task_dir"]
         operational_dir = COMPUTATIONS_DIR + "/" + task_dir
+        # Check input for clustering
+        check_input_res = _compute_clusters_check_input(operational_dir, cluster_fact, request.FILES, "clusters_entitylist_file")
+        if check_input_res:
+            return check_input_res
+        # Excute clustering
         LOGGER.info("Executing clustering for fact: " + str(cluster_fact) + " in dir: " + str(task_dir))
         save_file_to_dir(operational_dir, CLUSTERS_ENTITYLIST_FILENAME, request.FILES["clusters_entitylist_file"])
         clusters_img = compute_clusters_for_factor(op_dir=operational_dir, fact_name=cluster_fact)
@@ -338,7 +374,16 @@ def compute_clusters(request):
         return HttpResponse(data)
     except Exception as e:
         LOGGER.error(e)
-        return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
+        return HttpResponseBadRequest(e.message)
+
+def _compute_enrichments_check_input(request_FILES):
+    print("_compute_enrichments_check_input")
+    # Check the annotations file format
+    check_response, annotations = check_input_format(request_FILES["annotations"].read().decode("utf-8"), input_task_or_type='entityanno', verbose=False) # type: ignore
+    if not check_response:
+        return HttpResponseBadRequest("Error occurred while processing 'annotations' file. " + str(annotations) + ".")
+    request_FILES["annotations"].seek(0)
+    return False
 
 def compute_enrichments(request):
     print("start compute_enrichments")
@@ -350,6 +395,15 @@ def compute_enrichments(request):
         # enrichments_anno = data["enrichments_anno"]
         task_dir = data["task_dir"]
         operational_dir = COMPUTATIONS_DIR + "/" + task_dir
+        # Check input for clustering in case of any change
+        # check_input_res = _compute_clusters_check_input(operational_dir, cluster_fact, request.FILES, "clusters_entitylist_file")
+        # if check_input_res:
+        #     return check_input_res
+        # Check input for enrichments
+        check_input_res = _compute_enrichments_check_input(request.FILES)
+        if check_input_res:
+            return check_input_res
+        # Excute enrichments
         LOGGER.info("Executing enrichments for fact: " + str(cluster_fact) + " and annotations in dir: " + str(task_dir))
         save_file_to_dir(operational_dir, ENRICHMENTS_ANNO_FILENAME, request.FILES["annotations"])
         enrichments_img = compute_enrichments_for_clusters(op_dir=operational_dir, fact_name=cluster_fact, enrichments_anno=ENRICHMENTS_ANNO_FILENAME)
@@ -362,6 +416,9 @@ def compute_enrichments(request):
         LOGGER.error(e)
         return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
 
+def _compute_icell_check_input(request_FILES):
+    pass
+
 def compute_icell(request):
     print("start compute_icell")
     try:
@@ -372,7 +429,12 @@ def compute_icell(request):
         task_dir = data["task_dir"]
         operational_dir = COMPUTATIONS_DIR + "/" + task_dir
         LOGGER.info("Computing iCell for fact: " + str(icell_fact) + " in dir: " + str(task_dir))
+        # Check input for icell
+        check_input_res = _compute_clusters_check_input(operational_dir, icell_fact, request.FILES, "genelist")
+        if check_input_res:
+            return check_input_res
         # print("result_make_system_call", make_system_call("rm " + operational_dir + "/" + ICELL_FILENAME))
+        # return HttpResponseBadRequest("No errors found. Not ready yet.")
         save_file_to_dir(operational_dir, ICELL_GENELIST_FILENAME, request.FILES["genelist"])
         icell_res = compute_icell_for_factor(op_dir=operational_dir, fact_name=icell_fact, genelist=ICELL_GENELIST_FILENAME, output_filename=ICELL_FILENAME)
         data = json.dumps({
@@ -490,13 +552,6 @@ def get_view_for_task(task, user):
         'task': task,
     })
     return HttpResponse(get_template("DataFusion/result.html").render(context))
-
-def delete_data_for_task(task):
-    operational_dir = COMPUTATIONS_DIR + "/" + task.operational_directory
-    if os.path.exists(operational_dir):
-        result = make_system_call("rm -r " + operational_dir)
-        return result.return_code == 0
-    return False
 
 def get_raw_data_for_task(task):
     return get_all_downloadable_results(task)
