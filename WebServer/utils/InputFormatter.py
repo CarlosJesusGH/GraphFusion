@@ -363,7 +363,7 @@ def check_entityfile_format(entity_file, input_task_or_type, verbose=False):
   if verbose: print("input_task_or_type", input_task_or_type); print("file_content - start:\n", file_content)
   if input_task_or_type == 'entitylist':
     # Check if the file is a one-column file
-    print("len(file_content.split('\n')[0].split('\t'))", len(file_content.split('\n')[0].split('\t')))
+    # print("len(file_content.split('\n')[0].split('\t'))", len(file_content.split('\n')[0].split('\t')))
     if len(file_content.split('\n')[0].split('\t')) == 1:
       # Parse the file as a list of entities as a list of strings
       file_content = file_content.split("\n")

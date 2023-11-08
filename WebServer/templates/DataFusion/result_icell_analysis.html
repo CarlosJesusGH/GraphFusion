@@ -271,7 +271,7 @@
           },
           error: function (xhr, textStatus, errorThrown) {
             console.log('ERRORS: ' + textStatus);
-            errorAlert("Error occurred while computing gdv similarity: " + xhr.responseText);
+            errorAlert(xhr.responseText);
           }
         });
       });

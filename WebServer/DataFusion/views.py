@@ -15,15 +15,11 @@ import os
 import csv
 import unicodedata
 from .DataFusionAnalysis import DataFusionAnalysis
-from .settings import * #DATA_FUSION_TASK, COMPUTATIONS_DIR, FACTORIZATION_TYPE, FACTOR_INIT_TYPE, FACTOR_SHARE_DIRECTION, ICELL_FILENAME, ICELL_GDV_FILENAME, GDV_SIMS_COMP_FOLDER, GDV_SIMS_FILENAME, GDV_GENELIST_FILENAME, ICELL_GENELIST_FILENAME, ENRICHMENTS_ANNO_FILENAME
+from .settings import *
 from utils.SystemCall import make_system_call
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage, FileSystemStorage
-from .DataFusionAnalysisResult import get_df_result_for_task as df_view_for_task
-# from .DataFusionAnalysisResult import get_all_results, get_all_downloadable_results
-# from .DataFusionAnalysisResult import compute_clusters_for_factor, compute_enrichments_for_clusters, compute_icell_for_factor, compute_gdv_for_icell, compute_gdv_similarities, compute_psb_roc_for_factor
 from .DataFusionAnalysisResult import *
-# from TaskFactory.views import get_task_view_objects_for_user
 from utils.InputFormatter import check_input_format, check_column_list_format
 
 LOGGER = logging.getLogger(__name__)
@@ -416,9 +412,6 @@ def compute_enrichments(request):
         LOGGER.error(e)
         return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
 
-def _compute_icell_check_input(request_FILES):
-    pass
-
 def compute_icell(request):
     print("start compute_icell")
     try:
@@ -470,12 +463,48 @@ def compute_gdvs(request):
         LOGGER.error(e)
         return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
 
+def _compute_gdv_sims_check_input(data, icell_tasks, request_FILES, gdv_files):
+    print("_compute_gdv_sims_check_input")
+    # Check that genelist is present
+    if "genelist" not in request_FILES.keys():
+        return HttpResponseBadRequest("Error: No genelist file found.")
+    # Check the entity list file format
+    check_response, entities = check_input_format(request_FILES["genelist"].read().decode("utf-8"), input_task_or_type='entitylist', verbose=False)
+    if not check_response:
+        return HttpResponseBadRequest("Error occurred while processing 'entity list' file. " + str(entities) + ".")
+    request_FILES["genelist"].seek(0)
+    # Get entities as a list
+    entities = entities.split("\n")
+    # Get unique entities
+    entities = list(set(entities))
+    # print("entities", entities)
+    # Get the entities from all the gdv files. They're in the first column
+    gdv_entities = []
+    for gdv_file in gdv_files:
+        with open(COMPUTATIONS_DIR + "/" + gdv_file + "/" + ICELL_GDV_FILENAME, 'rb') as f:
+            reader = csv.reader(f, delimiter=' ')
+            for i,row in enumerate(reader):
+                # print("row", row)
+                gdv_entities.append(row[0])
+    # Get unique entities
+    gdv_entities = list(set(gdv_entities))
+    # print("gdv_entities", gdv_entities)
+    # Check that gdv_entities are a subset of entities
+    if not set(gdv_entities).issubset(set(entities)):
+        # Print the entities that are in gdv_entities but not in entities
+        # print("gdv_entities", gdv_entities)
+        # print("entities", entities)
+        print("set(gdv_entities).difference(set(entities))", set(gdv_entities).difference(set(entities)))
+        return HttpResponseBadRequest("Error: The entities in the genelist file must be a subset of the entities in the gdv files.")
+    # return HttpResponseBadRequest("No errors found. Not ready yet.")
+    return False
+    
+
 def compute_gdv_sims(request):
     print("start compute_gdv_sims")
     try:
-        print("request.POST", request.POST)
-        print("request.FILES", request.FILES)
-        print("request.FILES['genelist']", request.FILES["genelist"])
+        # print("request.POST", request.POST)
+        # print("request.FILES", request.FILES)
         data = json.loads(request.POST["data"])
         icell_tasks = data["gdv_tasks"]
         gdv_files = []
@@ -484,6 +513,10 @@ def compute_gdv_sims(request):
             task_dir = task.operational_directory
             # gdv_files.append(COMPUTATIONS_DIR + "/" + task_dir + "/" + ICELL_GDV_FILE_NAME)
             gdv_files.append(task_dir)
+        # Check input for gdv_sims
+        check_input_res = _compute_gdv_sims_check_input(data, icell_tasks, request.FILES, gdv_files)
+        if check_input_res:
+            return check_input_res
         print("gdv_files", gdv_files)
         operational_dir = COMPUTATIONS_DIR + "/" + GDV_SIMS_COMP_FOLDER
         LOGGER.info("Executing GDV for task: " + str(task_id) + " in dir: " + str(task_dir))
@@ -523,7 +556,7 @@ def compute_gdv_sims(request):
         return HttpResponse(data)
     except Exception as e:
         LOGGER.error(e)
-        return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
+        return HttpResponseBadRequest(e.message)
 
 def save_file_to_dir(directory, filename, filedata):
     print("save_file_to_dir for file:", filename)
