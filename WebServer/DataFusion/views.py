@@ -477,26 +477,19 @@ def _compute_gdv_sims_check_input(data, icell_tasks, request_FILES, gdv_files):
     entities = entities.split("\n")
     # Get unique entities
     entities = list(set(entities))
-    # print("entities", entities)
     # Get the entities from all the gdv files. They're in the first column
     gdv_entities = []
     for gdv_file in gdv_files:
         with open(COMPUTATIONS_DIR + "/" + gdv_file + "/" + ICELL_GDV_FILENAME, 'rb') as f:
             reader = csv.reader(f, delimiter=' ')
             for i,row in enumerate(reader):
-                # print("row", row)
                 gdv_entities.append(row[0])
     # Get unique entities
     gdv_entities = list(set(gdv_entities))
-    # print("gdv_entities", gdv_entities)
     # Check that gdv_entities are a subset of entities
     if not set(gdv_entities).issubset(set(entities)):
-        # Print the entities that are in gdv_entities but not in entities
-        # print("gdv_entities", gdv_entities)
-        # print("entities", entities)
         print("set(gdv_entities).difference(set(entities))", set(gdv_entities).difference(set(entities)))
         return HttpResponseBadRequest("Error: The entities in the genelist file must be a subset of the entities in the gdv files.")
-    # return HttpResponseBadRequest("No errors found. Not ready yet.")
     return False
     
 
