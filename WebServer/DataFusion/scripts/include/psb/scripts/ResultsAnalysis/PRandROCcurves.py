@@ -19,8 +19,10 @@ def reconstructR(savePath, fact_type, G1_name, H12_name, G2_name):
 
     """
     if fact_type == "SNMF":
-        G2 = np.loadtxt(open(savePath + "/" + G2_name, "rb"), delimiter="\t", skiprows=0)
-        R_reconstruct = np.matmul(G2, np.transpose(G2))
+        # G2 = np.loadtxt(open(savePath + "/" + G2_name, "rb"), delimiter="\t", skiprows=0)
+        # R_reconstruct = np.matmul(G2, np.transpose(G2))
+        G1 = np.loadtxt(open(savePath + "/" + G1_name, "rb"), delimiter="\t", skiprows=0)
+        R_reconstruct = np.matmul(G1, np.transpose(G1))
     elif fact_type == "NMF":
         G1 = np.loadtxt(open(savePath + "/" + G1_name, "rb"), delimiter="\t", skiprows=0)
         G2 = np.loadtxt(open(savePath + "/" + G2_name, "rb"), delimiter="\t", skiprows=0) 
@@ -112,6 +114,10 @@ def computeROC(r23, R23_reconstruct):
     """
         
     gT = r23.flatten()
+    print("r23.flatten()", r23.flatten())
+    print("R23_reconstruct.flatten()", R23_reconstruct.flatten())
+    print("len(r23.flatten())", len(r23.flatten()))
+    print("len(R23_reconstruct.flatten())", len(R23_reconstruct.flatten()))
     fpr, tpr, thresholdsROC = roc_curve(gT, R23_reconstruct.flatten())
     roc_auc = roc_auc_score(gT, R23_reconstruct.flatten())
     

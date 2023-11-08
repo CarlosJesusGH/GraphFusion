@@ -37,7 +37,12 @@ print("type(facts[fact_id])", type(facts[fact_id]))
 print("facts[fact_id].keys()", facts[fact_id].keys())
 
 # Load matrices
-R_reconstruct = reconstructR(op_dir, facts[fact_id]["factType"], facts[fact_id]["M1_name"], facts[fact_id]["M2_name"], facts[fact_id]["M3_name"])
+# G1_name, H12_name, G2_name = facts[fact_id]["M1_name"], facts[fact_id]["M2_name"], facts[fact_id]["M3_name"]
+# If matrix name doesn't exist, use None
+G1_name = facts[fact_id]["M1_name"] if "M1_name" in facts[fact_id] else None
+H12_name = facts[fact_id]["M2_name"] if "M2_name" in facts[fact_id] else None
+G2_name = facts[fact_id]["M3_name"] if "M3_name" in facts[fact_id] else None
+R_reconstruct = reconstructR(op_dir, facts[fact_id]["factType"], G1_name, H12_name, G2_name)
 # r = np.load('../Data/Matrices/Matrix_R23.npy')
 # with h5py.File("./graphs/" + facts[0]["M0"], "r") as f:
 #     r = np.array(f.get('dataset'))

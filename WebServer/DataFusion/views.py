@@ -239,6 +239,29 @@ def submit_analysis(request):
         LOGGER.error(e)
         return HttpResponseBadRequest(e.message)
 
+def _compute_psb_matcomp_check_input(operational_dir, psb_matcomp_fact, request_FILES):
+    # Check that the input factor only includes ones and zeros or 1.0 and 0.0
+    check_input_res = _compute_psb_roc_check_input(operational_dir, psb_matcomp_fact)
+    if check_input_res:
+        return check_input_res
+    # Check the entity list file format and get the shapes
+    entitylist_shapes = []
+    for request_filename in ["psb_matcomp_entitylist_rows", "psb_matcomp_entitylist_cols"]:
+        check_response, entities = check_input_format(request_FILES[request_filename].read().decode("utf-8"), input_task_or_type='entitylist', verbose=False)
+        if not check_response:
+            return HttpResponseBadRequest("Error occurred while processing 'entity list' file. " + str(entities) + ".")
+        request_FILES[request_filename].seek(0)
+        # Get the shape of the entity list
+        entitylist_shapes.append(_get_factor_shape(request_FILES, request_filename))
+    print("entitylist_shapes", entitylist_shapes)
+    # Get the X factor
+    X = _get_xfactor_from_fact_id(operational_dir, psb_matcomp_fact)
+    print("X.shape", X.shape)
+    # Check that that X factor has the same number of rows and columns as the entity list
+    if X.shape[0] != entitylist_shapes[0][0] or X.shape[1] != entitylist_shapes[1][0]:
+        return HttpResponseBadRequest("Error: The entity lists must have the same number of rows as the rows and columns in the input factor used for the decomposition. Input factor has " + str(X.shape[0]) + " rows and " + str(X.shape[1]) + " columns. Entity list for rows has " + str(entitylist_shapes[0][0]) + " rows. Entity list for columns has " + str(entitylist_shapes[1][0]) + " rows.")
+    return False
+
 def compute_psb_matcomp(request):
     print("start compute_psb_matcomp")
     try:
@@ -249,10 +272,14 @@ def compute_psb_matcomp(request):
         task_dir = data["task_dir"]
         operational_dir = COMPUTATIONS_DIR + "/" + task_dir
         LOGGER.info("Executing psb_matcomp for fact: " + str(psb_matcomp_fact) + " in dir: " + str(task_dir))
+        # Check input for psb_matcomp
+        check_input_res = _compute_psb_matcomp_check_input(operational_dir, psb_matcomp_fact, request.FILES)
+        if check_input_res:
+            return check_input_res
         save_file_to_dir(operational_dir, PSB_MATCOMP_ENTITYLIST_ROWS, request.FILES["psb_matcomp_entitylist_rows"])
         save_file_to_dir(operational_dir, PSB_MATCOMP_ENTITYLIST_COLS, request.FILES["psb_matcomp_entitylist_cols"])
+        # Excute psb_matcomp
         psb_matcomp_img = compute_psb_matcomp_for_factor(op_dir=operational_dir, fact_name=psb_matcomp_fact)
-
         with open(operational_dir + "/" + PSB_MATCOMP_OUT_FILES[1], 'rb') as f:
             reader = csv.reader(f, delimiter=',')
             table_values = []
@@ -287,6 +314,11 @@ def compute_psb_pr(request):
         task_dir = data["task_dir"]
         operational_dir = COMPUTATIONS_DIR + "/" + task_dir
         LOGGER.info("Executing psb_pr for fact: " + str(psb_pr_fact) + " in dir: " + str(task_dir))
+        # Check input for psb_pr
+        check_input_res = _compute_psb_roc_check_input(operational_dir, psb_pr_fact)
+        if check_input_res:
+            return check_input_res
+        # Excute psb_pr
         psb_pr_img = compute_psb_pr_for_factor(op_dir=operational_dir, fact_name=psb_pr_fact)
         data = json.dumps({
         'msg': "Successfully computed psb_pr",
@@ -296,6 +328,27 @@ def compute_psb_pr(request):
     except Exception as e:
         LOGGER.error(e)
         return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
+
+def _get_xfactor_from_fact_id(operational_dir, fact_id):
+    # Load facts from pickle
+    facts = pickle.load(open(operational_dir + "/facts.pkl", "rb"))
+    # print("facts", facts)
+    fact_id = int(fact_id)
+    # print("facts[fact_id]", facts[fact_id])
+    # Load factor from file
+    M0_path = operational_dir + "/graphs/" + facts[fact_id]["M0"]
+    # print("M0_path", M0_path)
+    X = np.loadtxt(open(M0_path, "rb"), delimiter="\t", skiprows=0)
+    return X
+
+def _compute_psb_roc_check_input(operational_dir, fact_id):
+    X = _get_xfactor_from_fact_id(operational_dir, fact_id)
+    print("X.shape", X.shape)
+    # print("X", X)
+    # Check that the X factor only includes ones and zeros or 1.0 and 0.0
+    if not np.all(np.logical_or(X == 1.0, X == 0.0)):
+        return HttpResponseBadRequest("Error: To build the ROC curve, the input factor used for the decomposition must only include ones and zeros.")
+    return False
 
 def compute_psb_roc(request):
     print("start compute_psb_roc")
@@ -307,6 +360,11 @@ def compute_psb_roc(request):
         task_dir = data["task_dir"]
         operational_dir = COMPUTATIONS_DIR + "/" + task_dir
         LOGGER.info("Executing psb_roc for fact: " + str(psb_roc_fact) + " in dir: " + str(task_dir))
+        # Check input for psb_roc
+        check_input_res = _compute_psb_roc_check_input(operational_dir, psb_roc_fact)
+        if check_input_res:
+            return check_input_res
+        # Excute psb_roc
         psb_roc_img = compute_psb_roc_for_factor(op_dir=operational_dir, fact_name=psb_roc_fact)
         data = json.dumps({
         'msg': "Successfully computed psb_roc",
@@ -319,7 +377,7 @@ def compute_psb_roc(request):
         return HttpResponse(data)
     except Exception as e:
         LOGGER.error(e)
-        return HttpResponseBadRequest("Error occurred while processing request: " + e.message)
+        return HttpResponseBadRequest(e.message)
 
 def _compute_clusters_check_input(operational_dir, fact_name, request_FILES, request_filename):
     print("_compute_clusters_check_input")
@@ -427,7 +485,6 @@ def compute_icell(request):
         if check_input_res:
             return check_input_res
         # print("result_make_system_call", make_system_call("rm " + operational_dir + "/" + ICELL_FILENAME))
-        # return HttpResponseBadRequest("No errors found. Not ready yet.")
         save_file_to_dir(operational_dir, ICELL_GENELIST_FILENAME, request.FILES["genelist"])
         icell_res = compute_icell_for_factor(op_dir=operational_dir, fact_name=icell_fact, genelist=ICELL_GENELIST_FILENAME, output_filename=ICELL_FILENAME)
         data = json.dumps({
@@ -491,8 +548,7 @@ def _compute_gdv_sims_check_input(data, icell_tasks, request_FILES, gdv_files):
         print("set(gdv_entities).difference(set(entities))", set(gdv_entities).difference(set(entities)))
         return HttpResponseBadRequest("Error: The entities in the genelist file must be a subset of the entities in the gdv files.")
     return False
-    
-
+ 
 def compute_gdv_sims(request):
     print("start compute_gdv_sims")
     try:
