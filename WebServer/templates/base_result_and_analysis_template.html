@@ -6,7 +6,7 @@
   <div class="well">
     <ul class="nav nav-tabs">
       <li class="active"><a href="#analysis" data-toggle="tab">{% block ANALYSIS_TAB_HEADING %} {% endblock %}</a></li>
-      <li><a href="#previousResults" data-toggle="tab">Results</a></li>
+      <li><a href="#previousResults" data-toggle="tab" id="resultsTab">Results</a></li>
       {% block EXTRA_TABS %} {% endblock %}
     </ul>
     <div id="myTabContent" class="tab-content">
@@ -73,4 +73,10 @@
     // console.log("updateTaskList - {{ task_type }}");
     getSuccessfulTasksForUser("{{ task_type }}", $("#previouslyComputedTasksList"));
   }
+
+  // When the user clicks on the "Results" tab, it should automatically call the "updateTaskList()" method.
+  $("#resultsTab").click(updateTaskList);
+  
+  
 </script>
+

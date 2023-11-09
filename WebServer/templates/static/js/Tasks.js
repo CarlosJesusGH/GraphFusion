@@ -153,6 +153,10 @@ function removeTasks(tasksToDelete) {
     if (document.getElementById("dashboard-results-html")) {
       navigateTo("/dashboard/");
     }
+    // If we're on a result page with the 'updateTaskList' function, call it
+    try {
+      updateTaskList();
+    } catch (e) {}
   }
 }
 
