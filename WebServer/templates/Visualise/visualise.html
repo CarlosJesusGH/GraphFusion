@@ -40,14 +40,15 @@
     getAndAppendFinishedTasksForUser("{{ task_type }}", list);
   }
 
-  function getNetworkVisualization() {
+  function getNetworkVisualization(directed) {
     var data = {'Networks': [networkFiles[$networkNamesList.val()]]};
     Pace.restart();
     $.ajax({
       url: '/Visualise/network/',
       type: 'POST',
       data: {
-        'data': JSON.stringify(data)
+        'data': JSON.stringify(data),
+        'directed': directed
       },
       success: function (data) {
         $('#result').html(data);
@@ -87,7 +88,10 @@
     if ($networkNamesList.find(":selected").hasClass("task-result")) {
       getAlignmentVisualization();
     } else {
-      getNetworkVisualization();
+      // Check if we have a context variable called "directed" and if it is true or false
+      var directed = "{{ directed }}";
+      // console.log("visualize directed: " + directed);
+      getNetworkVisualization(directed);
     }
   }
 </script>

@@ -17,13 +17,18 @@ LOGGER = logging.getLogger(__name__)
 
 @login_required
 @ajax_required
-def home_page(request):
+def home_page(request, directed=False):
     context = Context({
-        'task_type': ALIGNMENT_TASK
+        'task_type': ALIGNMENT_TASK,
+        'directed': directed
     })
     context.update(csrf(request))
     return HttpResponse(get_template("Visualise/visualise.html").render(context))
 
+@login_required
+@ajax_required
+def home_page_directed(request):
+    return home_page(request, directed=True)
 
 @login_required
 @ajax_required
@@ -40,6 +45,8 @@ def visualize_alignment(request, task_id):
 def visualize(request):
     LOGGER.info("User " + str(request.user.username) + ", Visualization")
     networks = json.loads(request.POST["data"])["Networks"]
+    directed = request.POST["directed"]
+    print("directed", directed)
     # print("networks", networks)
     for network in networks:
         response = check_input_format(network[1], input_task_or_type='visualization', preferred_format='edgelist')
@@ -50,8 +57,19 @@ def visualize(request):
             network[1] = response[1] # type: ignore
             # print("Network " + network[0] + " converted to edgelist format.")
     nodes, edges = get_graph_nodes_and_edges(unicodedata.normalize('NFKD', networks[0][1]).encode('ascii', 'ignore'))
+    # Show warning if the network is too large
+    if len(nodes) > 500:
+        LOGGER.warning("User " + str(request.user.username) + ", Visualization, Network too large")
+        return HttpResponseBadRequest("Warning: Network too large to visualize.")
+    # Show warning if the network is too dense
+    density = len(edges) / (len(nodes) * (len(nodes) - 1))
+    if density > 0.1:
+        print("density", density)
+        LOGGER.warning("User " + str(request.user.username) + ", Visualization, Network too dense")
+        return HttpResponseBadRequest("Warning: Network too dense to visualize.")
     context = Context({
         'nodes': nodes,
-        'edges': edges
+        'edges': edges,
+        'directed': directed
     })
     return HttpResponse(get_template("Visualise/SingleNetworkVisualisation.html").render(context))

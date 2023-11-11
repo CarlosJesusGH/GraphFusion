@@ -38,7 +38,11 @@
         to: "{{ to }}"
       });
     {% endfor %}
+
+    // read context variable 'directed'
+    var directed = '{{ directed }}';
+    // console.log("single vis directed: " + directed);
     // From vis.js https://github.com/almende/vis
-    drawGraph(document.getElementById('visualization'), nodes, edges, network);
+    drawGraph(document.getElementById('visualization'), nodes, edges, network, directed);
   }
 </script>
