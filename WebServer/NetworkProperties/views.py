@@ -2,7 +2,8 @@ from django.http import HttpResponse
 from django.http.response import HttpResponseBadRequest
 from django.template import Context
 from django.template.loader import get_template
-from DataVsModelAnalysis.DataVsModelAnalysisResult import get_string_for_png
+# from DataVsModelAnalysis.DataVsModelAnalysisResult import get_string_for_png, get_string_for_svg
+from utils.ImageParser import get_string_for_svg
 from utils.InputFormatter import check_input_format
 from django.core.context_processors import csrf
 from .settings import NETWORK_PROPERTIES_COMPUTATIONS_DIR, NETWORK_PROPERTIES_TASK, NETWORKS_NAMES_MAPPINGS_FILE_NAME, \
@@ -59,11 +60,13 @@ def _save_deg_dist_image(lists, task):
     plt.ylabel('Number of Nodes')
     plt.xlabel('Degrees')
     sub_plot.set_title("Degree Distribution")
-    degree_distribution_file = NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + \
-                               DEGREE_DISTRIBUTION_FILE
-    fig.savefig(degree_distribution_file, format='png')
-    return get_string_for_png(degree_distribution_file)
-
+    degree_distribution_file = NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + DEGREE_DISTRIBUTION_FILE
+    # fig.savefig(degree_distribution_file, format='png')
+    # return get_string_for_png(degree_distribution_file)
+    # Save image as svg
+    fig.savefig(degree_distribution_file, format='svg')
+    string_from_svg = get_string_for_svg(degree_distribution_file)
+    return string_from_svg
 
 def get_view_for_task(task, user):
     file_path = NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + \
@@ -91,7 +94,7 @@ def analyse_networks(request):
             name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
             network_list = unicodedata.normalize('NFKD', networkData[1]).encode('ascii', 'ignore')
             networks.append((name, network_list))
-        if False: # Compute everything in the background
+        if False: # Old version which returned the template directly.
             heading, rows, deg_dists, gcm_raw_data, network_names, task = get_network_properties_for_graphs(
                 graphs=networks,
                 user=request.user,
@@ -130,6 +133,8 @@ def get_raw_data_for_task(task):
     mappings = ast.literal_eval(open(op_dir + "/" + NETWORKS_NAMES_MAPPINGS_FILE_NAME).read())
     for file_name, network_name in mappings:
         result.append((network_name + ".ndump2", open(op_dir + "/" + file_name + ".res.ndump2").read()))
-        result.append((network_name + ".png", open(op_dir + "/" + file_name + ".res_gcm73.png").read()))
-    result.append(("degree_distribution.png", open(op_dir + "/" + DEGREE_DISTRIBUTION_FILE).read()))
+        # result.append((network_name + ".png", open(op_dir + "/" + file_name + ".res_gcm73.png").read()))
+        result.append((network_name + "_GCM.svg", open(op_dir + "/" + file_name + ".res_gcm73.svg").read()))
+    # result.append(("degree_distribution.png", open(op_dir + "/" + DEGREE_DISTRIBUTION_FILE).read()))
+    result.append(("degree_distribution.svg", open(op_dir + "/" + DEGREE_DISTRIBUTION_FILE).read()))
     return result

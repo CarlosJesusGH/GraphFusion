@@ -25,6 +25,12 @@ def get_string_for_png(file_path):
     b64 = base64.b64encode(output_s)
     return '{0}'.format(b64)
 
+def get_string_for_svg(file_path):
+    img_file = open(file_path, "rb")
+    encoded_string = base64.b64encode(img_file.read())
+    # print(encoded_string.decode('utf-8'))
+    return encoded_string.decode('utf-8')
+
 
 class DataVsModelAnalysisResult:
     def __init__(self, title, graph_file_path):
