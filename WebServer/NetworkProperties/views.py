@@ -43,30 +43,36 @@ def __combine_deg_dist(data):
     return result
 
 
-def _save_deg_dist_image(lists, task):
+def _save_deg_dist_image(lists, task, log_log=False):
     fig = plt.figure()
     sub_plot = fig.add_subplot(111)
     x_upper_limit = -1
     y_upper_limit = -1
     for _, data in lists:
         dist = __combine_deg_dist(data)
+        if log_log:
+            plt.xscale("log")
+            plt.yscale("log")
         sub_plot.plot(dist)
         x_upper_limit = max(x_upper_limit, max(data))
         y_upper_limit = max(y_upper_limit, max(dist))
-    print("lists", lists)
+    # print("lists", lists)
     sub_plot.legend(list(zip(*lists)[0]), loc="upper right")
     sub_plot.set_xlim([x_upper_limit * -0.1, x_upper_limit * 1.1])
     sub_plot.set_ylim([y_upper_limit * -0.1, y_upper_limit * 1.1])
-    plt.ylabel('Number of Nodes')
-    plt.xlabel('Degrees')
-    sub_plot.set_title("Degree Distribution")
+    if log_log:
+        plt.ylabel('log(Number of Nodes)')
+        plt.xlabel('log(Degrees)')
+        sub_plot.set_title("Degree Distribution (log-log)")
+    else:
+        plt.ylabel('Number of Nodes')
+        plt.xlabel('Degrees')
+        sub_plot.set_title("Degree Distribution")
+    # ---
     degree_distribution_file = NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + DEGREE_DISTRIBUTION_FILE
-    # fig.savefig(degree_distribution_file, format='png')
-    # return get_string_for_png(degree_distribution_file)
-    # Save image as svg
     fig.savefig(degree_distribution_file, format='svg')
-    string_from_svg = get_string_for_svg(degree_distribution_file)
-    return string_from_svg
+    return get_string_for_svg(degree_distribution_file)
+    
 
 def get_view_for_task(task, user):
     file_path = NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + \

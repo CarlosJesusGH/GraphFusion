@@ -32,7 +32,7 @@ def _get_matrix_table_for_results(props):
             prop.diameter
         ])
         network_names.append(prop.name)
-        gcm_raw_data.append([prop.name, prop.get_gcm_matrix_png_data()])
+        gcm_raw_data.append([prop.name, prop.get_gcm_matrix_svg_data()])
     return heading, rows, gcm_raw_data, network_names
 
 
@@ -120,14 +120,14 @@ class DirectedNetworkPropertiesAnalysis(Task):
             'rows': rows,
             'gcm_raw_data': gcm_raw_data,
             'network_names': network_names,
-            'deg_dist': _save_deg_dist_image(self.deg_dists, task=self.task)
+            'deg_dist': _save_deg_dist_image(self.deg_dists, task=self.task),
+            'deg_dist_log_log': _save_deg_dist_image(self.deg_dists, task=self.task, log_log=True)
             })
             rendered_view = get_template("DirectedNetworks/networkProperties/properties.html").render(context)
             with open(DIRECTED_NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + self.task.operational_directory +
                             "/" + DIRECTED_NETWORK_RESULT_VIEW_FILE_NAME, "w") as f:
                 f.write(rendered_view)
             # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-            LOGGER.info("Finished parallel analysis for undirected network properties")
             # self.__set_task_finished()
             self.__save_task_finished()
         except Exception as e:

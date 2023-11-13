@@ -1,9 +1,10 @@
 from django.http import HttpResponse
+from django.http.response import HttpResponseBadRequest
 from django.template import Context
 from django.template.loader import get_template
-from DataVsModelAnalysis.DataVsModelAnalysisResult import get_string_for_png
+# from DataVsModelAnalysis.DataVsModelAnalysisResult import get_string_for_png, get_string_for_svg
+from utils.ImageParser import get_string_for_svg
 from utils.InputFormatter import check_input_format
-from django.http.response import HttpResponseBadRequest
 from django.core.context_processors import csrf
 from .settings import DIRECTED_NETWORK_PROPERTIES_COMPUTATIONS_DIR, DIRECTED_NETWORK_PROPERTIES_TASK, DIRECTED_NETWORKS_NAMES_MAPPINGS_FILE_NAME, \
     DIRECTED_NETWORK_RESULT_VIEW_FILE_NAME, DEGREE_DISTRIBUTION_FILE
@@ -42,27 +43,37 @@ def __combine_deg_dist(data):
     return result
 
 
-def _save_deg_dist_image(lists, task):
+def _save_deg_dist_image(lists, task, log_log=False):
     fig = plt.figure()
     sub_plot = fig.add_subplot(111)
     x_upper_limit = -1
     y_upper_limit = -1
     for _, data in lists:
         dist = __combine_deg_dist(data)
+        if log_log:
+            plt.xscale("log")
+            plt.yscale("log")
         sub_plot.plot(dist)
         x_upper_limit = max(x_upper_limit, max(data))
         y_upper_limit = max(y_upper_limit, max(dist))
+    # print("lists", lists)
     sub_plot.legend(list(zip(*lists)[0]), loc="upper right")
     sub_plot.set_xlim([x_upper_limit * -0.1, x_upper_limit * 1.1])
     sub_plot.set_ylim([y_upper_limit * -0.1, y_upper_limit * 1.1])
-    plt.ylabel('Number of Nodes')
-    plt.xlabel('Degrees')
-    sub_plot.set_title("Degree Distribution")
+    if log_log:
+        plt.ylabel('log(Number of Nodes)')
+        plt.xlabel('log(Degrees)')
+        sub_plot.set_title("Degree Distribution (log-log)")
+    else:
+        plt.ylabel('Number of Nodes')
+        plt.xlabel('Degrees')
+        sub_plot.set_title("Degree Distribution")
+    # ---
     degree_distribution_file = DIRECTED_NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + \
                                DEGREE_DISTRIBUTION_FILE
-    fig.savefig(degree_distribution_file, format='png')
-    return get_string_for_png(degree_distribution_file)
-
+    fig.savefig(degree_distribution_file, format='svg')
+    return get_string_for_svg(degree_distribution_file)
+    
 
 def get_view_for_task(task, user):
     file_path = DIRECTED_NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + \
@@ -88,7 +99,7 @@ def analyse_networks(request):
         name = unicodedata.normalize('NFKD', networkData[0]).encode('ascii', 'ignore')
         network_list = unicodedata.normalize('NFKD', networkData[1]).encode('ascii', 'ignore')
         networks.append((name, network_list))
-    if False: # Compute everything in the background
+    if False: # Old version which returned the template directly.
         heading, rows, deg_dists, gcm_raw_data, network_names, task = get_network_properties_for_graphs(
             graphs=networks,
             user=request.user,
@@ -125,6 +136,8 @@ def get_raw_data_for_task(task):
     mappings = ast.literal_eval(open(op_dir + "/" + DIRECTED_NETWORKS_NAMES_MAPPINGS_FILE_NAME).read())
     for file_name, network_name in mappings:
         result.append((network_name + ".ndump2", open(op_dir + "/" + file_name + ".res.ndump2").read()))
-        result.append((network_name + ".png", open(op_dir + "/" + file_name + ".res_gcm73.png").read()))
-    result.append(("degree_distribution.png", open(op_dir + "/" + DEGREE_DISTRIBUTION_FILE).read()))
+        # result.append((network_name + ".png", open(op_dir + "/" + file_name + ".res_gcm73.png").read()))
+        result.append((network_name + "_GCM.svg", open(op_dir + "/" + file_name + ".res_gcm73.svg").read()))
+    # result.append(("degree_distribution.png", open(op_dir + "/" + DEGREE_DISTRIBUTION_FILE).read()))
+    result.append(("degree_distribution.svg", open(op_dir + "/" + DEGREE_DISTRIBUTION_FILE).read()))
     return result

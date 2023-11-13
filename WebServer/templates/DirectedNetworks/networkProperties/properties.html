@@ -27,7 +27,8 @@
         <h3 class="panel-title"><i class="fa fa-line-chart"></i> Degree Distribution</h3>
       </div>
       <div class="panel-body">
-        <img width="100%" height="100%" src="data:image/png;base64,{{ deg_dist }}"/>
+        <img src="data:image/svg+xml;base64,{{ deg_dist }}" width="100%" height="100%"/>
+        <img src="data:image/svg+xml;base64,{{ deg_dist_log_log }}" width="100%" height="100%"/>
       </div>
     </div>
     {% for gcm_name, image_data in gcm_raw_data %}
@@ -38,11 +39,22 @@
         </div>
         <div class="panel-body" style="height: 700px">
           <div class="gddSignature{{ network.get_id }}" style="width: 100%; height: 100%;">
-            {% if image_data and image_data.strip %}
+            <!-- Check that image_data is not empty and is not equal to the word 'None'-->
+            {% if image_data != "None" and image_data and image_data.strip %}
               <img width="100%" height="100%" alt="heatmap_{{ network.get_id }}"
-                   src="data:image/png;base64,{{ image_data }}"/>
+                   src="data:image/svg+xml;base64,{{ image_data }}"/>
             {% else %}
               <h4> Error occurred while computing GCM Matrix</h4>
+              <!-- Include info about the possible problem reasons -->
+              <p> Possible reasons: </p>
+              <ul>
+                <li> The network contains duplicate undirected edges. </li>
+                <li> The network is too large. </li>
+                <li> The network is not connected. </li>
+                <li> The network has structural errors. </li>
+                <li> The network is empty. </li>
+              </ul>              
+              <p> Read the console log for more information. </p>
             {% endif %}
           </div>
         </div>

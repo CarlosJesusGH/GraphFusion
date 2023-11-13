@@ -120,7 +120,8 @@ class NetworkPropertiesAnalysis(Task):
             'rows': rows,
             'gcm_raw_data': gcm_raw_data,
             'network_names': network_names,
-            'deg_dist': _save_deg_dist_image(self.deg_dists, task=self.task)
+            'deg_dist': _save_deg_dist_image(self.deg_dists, task=self.task),
+            'deg_dist_log_log': _save_deg_dist_image(self.deg_dists, task=self.task, log_log=True)
             })
             rendered_view = get_template("networkProperties/properties.html").render(context)
             with open(NETWORK_PROPERTIES_COMPUTATIONS_DIR + "/" + self.task.operational_directory +

@@ -79,8 +79,7 @@ class NetworkProperties(Graph):
             f.write(ListToLeda(graph_list="\n".join(self.content)).convert_to_leda())
         f.close()
         print("log - self.graph_path", self.graph_path)
-        # try:
-        if True:
+        try:
             self.result.gdd_signatures = ORCAExecutable(self.graph_path).run()
             print("log - self.result.gdd_signatures", self.result)
             ndump_file = self.operational_dir + "/" + self.graph_name + ".res.ndump2"
@@ -93,16 +92,15 @@ class NetworkProperties(Graph):
                 if os.path.isfile(self.operational_dir + "/" + self.graph_name + ".res_gcm73.svg"):
                     self.result.gcm_matrix_svg_data = '{0}'.format(
                         get_string_for_svg(self.operational_dir + "/" + self.graph_name + ".res_gcm73.svg"))
-                    # LOGGER.info("PNG Data: " + str(len(self.result.gcm_matrix_svg_data)))
                 else:
                     self.result.error_while_gcm_matrix = True
             else:
                 self.result.error_while_gcm_matrix = True
-        # except Exception as e:
-        #     print("log - error while computing gcm matrix")
-        #     LOGGER.error(e)
-        #     self.result.error_while_gcm_matrix = True
-        #     raise Exception("Error while computing gcm matrix")
+        except Exception as e:
+            print("log - error while computing gcm matrix")
+            LOGGER.error(e)
+            self.result.error_while_gcm_matrix = True
+            raise Exception("Error while computing gcm matrix")
 
     @classmethod
     def __get_avg_path_length(cls, graph):
@@ -129,13 +127,8 @@ class NetworkProperties(Graph):
         self.result.degree_dist = sorted(nx.degree(self.graph).values(), reverse=True)
         self.result.number_of_edges = len(self.edges())
         self.result.number_of_nodes = len(self.nodes())
-        # try:
         self.evaluate_heat_map_for_gcm()
-        # except Exception as e:
-        #     LOGGER.error(e)
-        #     self.result.error_while_gcm_matrix = True
-        #     raise Exception("Error while computing gcm matrix")
-
+        
 
 class NetworkPropertiesResult:
     def __init__(self):

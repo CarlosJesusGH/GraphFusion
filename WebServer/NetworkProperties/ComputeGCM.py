@@ -72,7 +72,6 @@ def readSignatures(file, gcmType):
 
 # Compute the correlations among the orbits while avoiding isnan values
 def computeCorrelations(signatureList):
-    # print("log_signatureList", signatureList)
     length = len(signatureList[0])
 
     # To avoid isnan correlations, add a signature [1, 1, ..., 1]
@@ -221,13 +220,12 @@ if __name__ == '__main__':
     ndump2File = sys.argv[1]
     gcmType = sys.argv[2]
     orbitOrder = sys.argv[3]
-    print("log - ndump2File", ndump2File, "gcmType", gcmType, "orbitOrder", orbitOrder)
+    # print("log - ndump2File", ndump2File, "gcmType", gcmType, "orbitOrder", orbitOrder)
 
     inputErrorChecks(ndump2File, gcmType, orbitOrder)
 
     # Read the graphlet signatures
     (signList, orbitList) = readSignatures(ndump2File, gcmType)
-
 
     # Compute the correlation matrix
     correlMat = computeCorrelations(signList)
