@@ -24,7 +24,7 @@ CLUSTERS_SCRIPT_PATH = __SCRIPTS_PATH + "include/clusters/clusters_shell_script.
 ENRICHMENTS_SCRIPT_PATH = __SCRIPTS_PATH + "include/enrichments/enrichments_shell_script.sh"
 # for network properties
 COMPUTE_GCM_PATH = FILE_DIR + "/scripts/ComputeGCM.py"
-DEGREE_DISTRIBUTION_FILE = "Degree_Dist.png"
+DEGREE_DISTRIBUTION_FILE = "Degree_Dist.svg"
 NAMES_MAPPINGS_FILE = "mappings.txt"
 # options for selectors
 METHOD_TYPE = [  
@@ -41,8 +41,8 @@ RESULT_FILES = {
     'SCD.txt': "SCD (Simplet Correlation Distance)",
     }
 RESULT_IMAGE_FILES = {
-    'FDD.png': "FDD (Facet Distribution Distance)",
-    'SCD.png': "SCD (Simplet Correlation Distance)",
+    'FDD.svg': "FDD (Facet Distribution Distance)",
+    'SCD.svg': "SCD (Simplet Correlation Distance)",
 }
 # MODELS = {
 #     "RCC": "random clique complex",

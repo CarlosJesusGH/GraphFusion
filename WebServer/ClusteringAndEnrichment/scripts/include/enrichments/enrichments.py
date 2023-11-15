@@ -117,7 +117,7 @@ fig = dfEntitiesEnrichments.plot(kind='bar', rot=0, color=['#1f78b4', '#e31a1c',
 plt.ylabel('Percentage of enriched (%)')
 plt.title('Enrichments for Clusters of Entities')
 
-fig.savefig(op_dir + "/" + "enrichments_for_clusters.png")
+fig.savefig(op_dir + "/" + "enrichments_for_clusters.svg")
 
 import csv
 with open(op_dir + "/" + "clusters.csv", 'r') as f:

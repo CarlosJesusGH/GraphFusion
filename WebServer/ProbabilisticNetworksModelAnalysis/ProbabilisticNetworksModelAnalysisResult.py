@@ -23,7 +23,7 @@ def compute_template_extra_task(op_dir, fact_name):
     print("sys_call_result", sys_call_result)
     psb_matcomp_img = []
     if os.path.isfile(os.path.join(op_dir, PSB_MATCOMP_OUT_FILES[0])):
-        psb_matcomp_img.append('{0}'.format(get_string_for_png(os.path.join(op_dir, PSB_MATCOMP_OUT_FILES[0]))))
+        psb_matcomp_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, PSB_MATCOMP_OUT_FILES[0]))))
     return psb_matcomp_img
 
 def get_all_results(task):
@@ -48,14 +48,6 @@ def get_all_results(task):
     print("reader", reader)
     return reader, [output[0] for output in get_all_downloadable_results(task)]
 
-def get_string_for_png(file_path):
-    output = StringIO.StringIO()
-    im = Image.open(file_path)
-    im.save(output, format='PNG')
-    output.seek(0)
-    output_s = output.read()
-    b64 = base64.b64encode(output_s)
-    return '{0}'.format(b64)
 
 def get_all_downloadable_results(task):
     results = []

@@ -19,13 +19,13 @@ ICELL_SCRIPT_PATH = __SCRIPTS_PATH + "include/icell/icell_shell_script.sh"
 GDV_SCRIPT_PATH = __SCRIPTS_PATH + "include/gdv/gdv_shell_script.sh"
 GDVSIM_SCRIPT_PATH = __SCRIPTS_PATH + "include/gdvsim/pan_gdvsim_shell_script.sh"
 PSB_ROC_SCRIPT_PATH = __SCRIPTS_PATH + "include/psb/psb_roc_shell_script.sh"
-PSB_ROC_OUT_FILES = ["psb_roc_curve.png"]
+PSB_ROC_OUT_FILES = ["psb_roc_curve.svg"]
 PSB_PR_SCRIPT_PATH = __SCRIPTS_PATH + "include/psb/psb_pr_shell_script.sh"
-PSB_PR_OUT_FILES = ["psb_pr_curve.png"]
+PSB_PR_OUT_FILES = ["psb_pr_curve.svg"]
 PSB_F1SCORE_SCRIPT_PATH = __SCRIPTS_PATH + "include/psb/psb_f1score_shell_script.sh"
-PSB_F1SCORE_OUT_FILES = ["psb_f1score_computation.png"]
+PSB_F1SCORE_OUT_FILES = ["psb_f1score_computation.svg"]
 PSB_MATCOMP_SCRIPT_PATH = __SCRIPTS_PATH + "include/psb/psb_matcomp_shell_script.sh"
-PSB_MATCOMP_OUT_FILES = ["psb_matcomp_distribution.png", "psb_matcomp_predictions.csv"]
+PSB_MATCOMP_OUT_FILES = ["psb_matcomp_distribution.svg", "psb_matcomp_predictions.csv"]
 PSB_MATCOMP_ENTITYLIST_ROWS = "psb_matcomp_entitylist_rows.csv"
 PSB_MATCOMP_ENTITYLIST_COLS = "psb_matcomp_entitylist_cols.csv"
 # others

@@ -25,12 +25,12 @@ MODELS = OrderedDict([
 ])
 
 RESULT_IMAGE_FILES = {
-    'DGCD-13.png': "DGCD-13",
-    'DGCD-129.png': "DGCD-129",
-    "RDGF.png": "RDGF",
-    "gdda.png": "GDDA",
-    "gddg.png": "GDDG",
-    "Spectralv2.png": "Spectral",
-    "INDD.png": "In-degree distribution distances",
-    "OUTDD.png": "Out-degree distribution distances",
+    'DGCD-13.svg': "DGCD-13",
+    'DGCD-129.svg': "DGCD-129",
+    "RDGF.svg": "RDGF",
+    "gdda.svg": "GDDA",
+    "gddg.svg": "GDDG",
+    "Spectralv2.svg": "Spectral",
+    "INDD.svg": "In-degree distribution distances",
+    "OUTDD.svg": "Out-degree distribution distances",
 }

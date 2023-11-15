@@ -20,7 +20,7 @@ RESULT_VIEW_FILE = "result.html"
 REQUEST_FILES = []
 # for network properties
 COMPUTE_GCM_PATH = FILE_DIR + "/scripts/ComputeGCM.py"
-DEGREE_DISTRIBUTION_FILE = "Degree_Dist.png"
+DEGREE_DISTRIBUTION_FILE = "Degree_Dist.svg"
 NAMES_MAPPINGS_FILE = "mappings.txt"
 # options for selectors
 METHOD_TYPE = [  
@@ -37,8 +37,8 @@ RESULT_FILES = {
     'SCD.txt': "SCD (Simplet Correlation Distance)",
     }
 RESULT_IMAGE_FILES = {
-    'FDD.png': "FDD (Facet Distribution Distance)",
-    'SCD.png': "SCD (Simplet Correlation Distance)",
+    'FDD.svg': "FDD (Facet Distribution Distance)",
+    'SCD.svg': "SCD (Simplet Correlation Distance)",
 }
 # MODELS = {
 #     "RCC": "random clique complex",

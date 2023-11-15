@@ -10,7 +10,7 @@ echo -e "\tCONDA: "$CONDA_PREFIX
 # echo -e "\tPYTHON: "$(python --version)
 echo -e "\tPWD: "$(pwd)
 
-rm -f ./clusters.npy && rm -f ./clusters_from_factor.png
+rm -f ./clusters.npy && rm -f ./clusters_from_factor.svg
 
 # call python script
 python ../../scripts/include/clusters/clusterization.py "$@"

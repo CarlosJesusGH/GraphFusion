@@ -14,6 +14,7 @@ from django.template import Context
 from django.template.loader import get_template
 from .settings import * 
 from utils.SystemCall import make_system_call
+from utils.ImageParser import get_string_for_svg
 
 LOGGER = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ def compute_psb_matcomp_for_factor(op_dir, fact_name):
     # op_dir += "/.."
     psb_matcomp_img = []
     if os.path.isfile(os.path.join(op_dir, PSB_MATCOMP_OUT_FILES[0])):
-        psb_matcomp_img.append('{0}'.format(get_string_for_png(os.path.join(op_dir, PSB_MATCOMP_OUT_FILES[0]))))
+        psb_matcomp_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, PSB_MATCOMP_OUT_FILES[0]))))
     return psb_matcomp_img
 
 # def compute_psb_f1score_for_factor(op_dir, fact_name):
@@ -32,7 +33,7 @@ def compute_psb_matcomp_for_factor(op_dir, fact_name):
 #     op_dir += "/.."
 #     psb_f1score_img = []
 #     if os.path.isfile(os.path.join(op_dir, PSB_F1SCORE_OUT_FILES[0])):
-#         psb_f1score_img.append('{0}'.format(get_string_for_png(os.path.join(op_dir, PSB_F1SCORE_OUT_FILES[0]))))
+#         psb_f1score_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, PSB_F1SCORE_OUT_FILES[0]))))
 #     return psb_f1score_img
 
 def compute_psb_pr_for_factor(op_dir, fact_name):
@@ -41,7 +42,7 @@ def compute_psb_pr_for_factor(op_dir, fact_name):
     # op_dir += "/.."
     psb_pr_img = []
     if os.path.isfile(os.path.join(op_dir, PSB_PR_OUT_FILES[0])):
-        psb_pr_img.append('{0}'.format(get_string_for_png(os.path.join(op_dir, PSB_PR_OUT_FILES[0]))))
+        psb_pr_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, PSB_PR_OUT_FILES[0]))))
     return psb_pr_img
 
 def compute_psb_roc_for_factor(op_dir, fact_name):
@@ -50,23 +51,23 @@ def compute_psb_roc_for_factor(op_dir, fact_name):
     # op_dir += "/.."
     psb_roc_img = []
     if os.path.isfile(os.path.join(op_dir, PSB_ROC_OUT_FILES[0])):
-        psb_roc_img.append('{0}'.format(get_string_for_png(os.path.join(op_dir, PSB_ROC_OUT_FILES[0]))))
+        psb_roc_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, PSB_ROC_OUT_FILES[0]))))
     return psb_roc_img
 
 def compute_clusters_for_factor(op_dir, fact_name):
     sys_call_result = make_system_call("bash " + CLUSTERS_SCRIPT_PATH + " " + op_dir + " " + fact_name + " " + CLUSTERS_ENTITYLIST_FILENAME, working_dir=op_dir)
     print("sys_call_result", sys_call_result)
     clusters_img = []
-    if os.path.isfile(os.path.join(op_dir, "clusters_from_factor.png")):
-        clusters_img.append('{0}'.format(get_string_for_png(os.path.join(op_dir, "clusters_from_factor.png"))))
+    if os.path.isfile(os.path.join(op_dir, "clusters_from_factor.svg")):
+        clusters_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, "clusters_from_factor.svg"))))
     return clusters_img
     
 def compute_enrichments_for_clusters(op_dir, fact_name, enrichments_anno):
     sys_call_result = make_system_call("bash " + ENRICHMENTS_SCRIPT_PATH + " " + op_dir + " " + fact_name + " " + CLUSTERS_ENTITYLIST_FILENAME + " " + enrichments_anno, working_dir=op_dir)
     print("sys_call_result", sys_call_result)
     clusters_img = []
-    if os.path.isfile(os.path.join(op_dir, "enrichments_for_clusters.png")):
-        clusters_img.append('{0}'.format(get_string_for_png(os.path.join(op_dir, "enrichments_for_clusters.png"))))
+    if os.path.isfile(os.path.join(op_dir, "enrichments_for_clusters.svg")):
+        clusters_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, "enrichments_for_clusters.svg"))))
     return clusters_img
 
 def compute_icell_for_factor(op_dir, fact_name, genelist, output_filename):
@@ -103,21 +104,12 @@ def get_all_results(task):
         res_facts.append(DataFusionResult(title="Fact " + str(f_id), fact=fact))
 
     extra_res = []
-    if os.path.isfile(os.path.join(op_dir, "clusters_example.png")):
-        extra_res.append('{0}'.format(get_string_for_png(os.path.join(op_dir, "clusters_example.png"))))
-    if os.path.isfile(os.path.join(op_dir, "enrichment_example.png")):
-        extra_res.append('{0}'.format(get_string_for_png(os.path.join(op_dir, "enrichment_example.png"))))
+    if os.path.isfile(os.path.join(op_dir, "clusters_example.svg")):
+        extra_res.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, "clusters_example.svg"))))
+    if os.path.isfile(os.path.join(op_dir, "enrichment_example.svg")):
+        extra_res.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, "enrichment_example.svg"))))
 
     return res_facts, [output[0] for output in get_all_downloadable_results(task)], extra_res
-
-def get_string_for_png(file_path):
-    output = StringIO.StringIO()
-    im = Image.open(file_path)
-    im.save(output, format='PNG')
-    output.seek(0)
-    output_s = output.read()
-    b64 = base64.b64encode(output_s)
-    return '{0}'.format(b64)
 
 def get_all_downloadable_results(task):
     results = []
@@ -176,7 +168,7 @@ def __get_matrix_table_for_results(props):
             prop.diameter
         ])
         network_names.append(prop.name)
-        gcm_raw_data.append([prop.name, prop.get_gcm_matrix_png_data()])
+        gcm_raw_data.append([prop.name, prop.get_gcm_matrix_svg_data()])
     return heading, rows, gcm_raw_data, network_names
 
 class NetworkPropertiesResult:
@@ -186,7 +178,7 @@ class NetworkPropertiesResult:
         self.degree_dist = []
         self.name = ""
         self.id = None
-        self.gcm_matrix_png_data = None
+        self.gcm_matrix_svg_data = None
         self.error_while_gcm_matrix = False
         self.number_of_nodes = 0
         self.number_of_edges = 0
@@ -204,8 +196,8 @@ class NetworkPropertiesResult:
     def get_degree_dist(self):
         return self.degree_dist
 
-    def get_gcm_matrix_png_data(self):
-        return str(self.gcm_matrix_png_data)
+    def get_gcm_matrix_svg_data(self):
+        return str(self.gcm_matrix_svg_data)
 
     def did_error_occur_while_gcm_computation(self):
         return self.error_while_gcm_matrix

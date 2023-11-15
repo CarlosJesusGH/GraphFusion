@@ -34,9 +34,14 @@ def home_page(request):
 
 def get_view_for_task(task, user):
     results = get_all_results_for_task(task=task)
+    results_values = get_all_pairwise_analysis_results(task=task)
+    print("results_values", results_values)
     return HttpResponse(
-        get_template("DataVsModelAnalysis/data_vs_model_result.html").render(Context({'results': results})))
+        get_template("DataVsModelAnalysis/data_vs_model_result.html").render(Context({'results': results, 'results_values': results_values})))
 
+def get_all_pairwise_analysis_results(task):
+    result_values = get_all_results(task, directory=DATA_VS_MODEL_COMPUTATIONS_DIR)
+    return result_values
 
 def delete_data_for_task(task):
     operational_dir = DATA_VS_MODEL_COMPUTATIONS_DIR + "/" + task.operational_directory

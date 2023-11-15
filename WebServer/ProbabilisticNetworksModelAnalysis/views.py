@@ -43,10 +43,14 @@ def _check_input(request_POST, data):
         distribution_mean = float(data["distribution_mean"])
         distribution_variance = float(data["distribution_variance"])
         # distribution_empirical_file = data["distribution_empirical_file"]
-        distribution_empirical_file = json.loads(unicodedata.normalize('NFKD', data["distribution_empirical_file"]).encode('ascii', 'ignore'))[0]
+        if data["distribution_empirical_file"] == "" or data["distribution_empirical_file"] == "[]":
+            distribution_empirical_file = ""
+        else:
+            distribution_empirical_file = json.loads(unicodedata.normalize('NFKD', data["distribution_empirical_file"]).encode('ascii', 'ignore'))[0]
         # print("model_name", model_name, "distribution_name", distribution_name, "model_nodes", model_nodes, "model_radius", model_radius, "model_density", model_density, "distribution_mean", distribution_mean, "distribution_variance", distribution_variance, "distribution_empirical_file", distribution_empirical_file)
     except Exception as e:
         LOGGER.error(e)
+        print("request_POST, data", request_POST, data)
         return HttpResponseBadRequest("Error: Incorrect format in the values. Input could not be parsed.")
     if model_name == "hyper_geometric":
         # 1.1 Hyper Geometric:
@@ -194,8 +198,8 @@ def __save_deg_dist_image(lists, task):
     plt.xlabel('Degrees')
     sub_plot.set_title("Degree Distribution")
     degree_distribution_file = COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + DEGREE_DISTRIBUTION_FILE
-    fig.savefig(degree_distribution_file, format='png')
-    return get_string_for_png(degree_distribution_file)
+    fig.savefig(degree_distribution_file, format='svg')
+    return get_string_for_svg(degree_distribution_file)
 
 # ---------------------------------
 # tasks related functions

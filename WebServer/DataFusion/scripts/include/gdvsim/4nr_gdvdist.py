@@ -142,6 +142,6 @@ ofile.close()
 #plt.title("Rewired genes in %s cancer"%(sys.argv[6]))
 #plt.xlabel('GDV distance')
 #plt.ylabel('#Genes')
-#plt.savefig("%s_gdvs_dist.png"%(sys.argv[6]))
+#plt.savefig("%s_gdvs_dist.svg"%(sys.argv[6]))
 
 

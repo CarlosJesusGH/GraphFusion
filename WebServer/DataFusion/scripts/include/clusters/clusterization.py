@@ -89,4 +89,4 @@ np.save(op_dir + "/" + "clusters.npy", clusters)
 cluster_lens = [len(cluster) for cluster in clusters]
 plt.bar(range(len(cluster_lens)), sorted(cluster_lens, reverse=True))
 
-plt.savefig(op_dir + "/" + "clusters_from_factor.png")
+plt.savefig(op_dir + "/" + "clusters_from_factor.svg")

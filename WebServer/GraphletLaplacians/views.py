@@ -162,8 +162,8 @@ def __save_deg_dist_image(lists, task):
     plt.xlabel('Degrees')
     sub_plot.set_title("Degree Distribution")
     degree_distribution_file = COMPUTATIONS_DIR + "/" + task.operational_directory + "/" + DEGREE_DISTRIBUTION_FILE
-    fig.savefig(degree_distribution_file, format='png')
-    return get_string_for_png(degree_distribution_file)
+    fig.savefig(degree_distribution_file, format='svg')
+    return get_string_for_svg(degree_distribution_file)
 
 # ---------------------------------
 # tasks related functions

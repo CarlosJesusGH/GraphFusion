@@ -10,7 +10,7 @@ echo -e "\tCONDA: "$CONDA_PREFIX
 # echo -e "\tPYTHON: "$(python --version)
 echo -e "\tPWD: "$(pwd)
 
-rm -f ./enrichments_for_clusters.png
+rm -f ./enrichments_for_clusters.svg
 
 # call python script
 python ../../scripts/include/enrichments/enrichments.py "$@"

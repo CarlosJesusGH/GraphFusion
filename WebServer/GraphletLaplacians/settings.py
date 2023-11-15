@@ -17,7 +17,7 @@ RESULT_FILES = ["result_file01.txt"]
 REQUEST_FILES = []
 # for network properties
 COMPUTE_GCM_PATH = FILE_DIR + "/scripts/ComputeGCM.py"
-DEGREE_DISTRIBUTION_FILE = "Degree_Dist.png"
+DEGREE_DISTRIBUTION_FILE = "Degree_Dist.svg"
 NAMES_MAPPINGS_FILE = "mappings.txt"
 # options for selectors
 METHOD_TYPE = [  

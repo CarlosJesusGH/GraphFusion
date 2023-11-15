@@ -29,7 +29,7 @@ def __get_matrix_table_for_results(props):
             prop.diameter
         ])
         network_names.append(prop.name)
-        gcm_raw_data.append([prop.name, prop.get_gcm_matrix_png_data()])
+        gcm_raw_data.append([prop.name, prop.get_gcm_matrix_svg_data()])
     return heading, rows, gcm_raw_data, network_names
 
 

@@ -71,7 +71,7 @@ class SimpletsDvmResultGraphGenerator:
         xtick_names = plt.setp(sub_plot, xticklabels=x_labels)
         plt.setp(xtick_names)
         sub_plot.set_title(RESULT_FILES[f_name])
-        fig.savefig(self.operational_dir + "/" + f_name.replace("txt", "png"))
+        fig.savefig(self.operational_dir + "/" + f_name.replace("txt", "svg"))
 
     def generate_graph_images(self):
         results = get_all_results(task=self.task, directory=COMPUTATIONS_DIR)

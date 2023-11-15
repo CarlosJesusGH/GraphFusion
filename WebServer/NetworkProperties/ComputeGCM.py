@@ -174,7 +174,6 @@ def drawHeatmap(correlMat, orbitList, gcmType, orbitOrder, outputName):
     axcolor = fig.add_axes([0.9, 0.04, 0.02, 0.88])
     plt.colorbar(im, cax=axcolor)
     print "outputname is ", outputName
-    # fig.savefig(outputName, format='png')
     fig.savefig(outputName, format='svg')
 
 
@@ -235,6 +234,5 @@ if __name__ == '__main__':
     writeGCM(correlMat, orbitList, outputFile)
 
     # Draw the correlation matrix as requested
-    # drawFile = '{0}_gcm{1}.png'.format(ndump2File.rsplit('.', 1)[0], gcmType)
     drawFile = '{0}_gcm{1}.svg'.format(ndump2File.rsplit('.', 1)[0], gcmType)
     drawHeatmap(correlMat, orbitList, gcmType, orbitOrder, drawFile)

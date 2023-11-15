@@ -26,15 +26,15 @@ MODELS = OrderedDict([
 ])
 
 RESULT_IMAGE_FILES = {
-    'rgf.png': "RGF distance",
-    'gdda.png': "GDD Agreement Arithmetic",
-    'gddg.png': "GDD Agreement Geometric",
-    'degree_dists.png': "Degree distribution",
-    'clust_coef.png': "Clustering Coefficient",
-    'gcd58.png': "Graphlet Correlation distance with non-redundant 2-to-5 node graphlet orbits",
-    'gcd73.png': "Graphlet Correlation distance with all 2-to-5 node graphlet orbits",
-    'diameter.png': "Diameter",
-    'gcd11.png': "Graphlet Correlation distance with non-redundant 2-to-4 node graphlet orbits",
-    'gcd15.png': "Graphlet Correlation distance with all 2-to-4 node graphlet orbits",
-    'spectralDist.png': "Spectral distance using the eigenvalues of the Laplacian representation of the network"
+    'rgf.svg': "RGF distance",
+    'gdda.svg': "GDD Agreement Arithmetic",
+    'gddg.svg': "GDD Agreement Geometric",
+    'degree_dists.svg': "Degree distribution",
+    'clust_coef.svg': "Clustering Coefficient",
+    'gcd58.svg': "Graphlet Correlation distance with non-redundant 2-to-5 node graphlet orbits",
+    'gcd73.svg': "Graphlet Correlation distance with all 2-to-5 node graphlet orbits",
+    'diameter.svg': "Diameter",
+    'gcd11.svg': "Graphlet Correlation distance with non-redundant 2-to-4 node graphlet orbits",
+    'gcd15.svg': "Graphlet Correlation distance with all 2-to-4 node graphlet orbits",
+    'spectralDist.svg': "Spectral distance using the eigenvalues of the Laplacian representation of the network"
 }

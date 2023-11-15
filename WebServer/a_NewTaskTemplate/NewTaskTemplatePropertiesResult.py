@@ -11,6 +11,7 @@ import base64
 import StringIO
 import logging
 import os
+from utils.ImageParser import get_string_for_svg
 
 LOGGER = logging.getLogger(__name__)
 
@@ -51,16 +52,6 @@ class Graph():
         return self.graph.degree()
 
 
-def get_string_for_png(file_path):
-    output = StringIO.StringIO()
-    im = Image.open(file_path)
-    im.save(output, format='PNG')
-    output.seek(0)
-    output_s = output.read()
-    b64 = base64.b64encode(output_s)
-    return '{0}'.format(b64)
-
-
 class NewTaskTemplatePropertiesResult(Graph):
     def __init__(self, graph_name, operational_dir):
         Graph.__init__(self)
@@ -84,10 +75,10 @@ class NewTaskTemplatePropertiesResult(Graph):
             sys_result = make_system_call(command, working_dir=self.operational_dir)
             LOGGER.info(sys_result.stdout)
             LOGGER.error(sys_result.stderr)
-            if os.path.isfile(self.operational_dir + "/" + self.graph_name + ".res_gcm73.png"):
-                self.result.gcm_matrix_png_data = '{0}'.format(
-                    get_string_for_png(self.operational_dir + "/" + self.graph_name + ".res_gcm73.png"))
-                LOGGER.info("PNG Data: " + str(len(self.result.gcm_matrix_png_data)))
+            if os.path.isfile(self.operational_dir + "/" + self.graph_name + ".res_gcm73.svg"):
+                self.result.gcm_matrix_svg_data = '{0}'.format(
+                    get_string_for_svg(self.operational_dir + "/" + self.graph_name + ".res_gcm73.svg"))
+                LOGGER.info("svg Data: " + str(len(self.result.gcm_matrix_svg_data)))
             else:
                 self.result.error_while_gcm_matrix = True
         else:
@@ -128,7 +119,7 @@ class NetworkPropertiesResult:
         self.degree_dist = []
         self.name = ""
         self.id = None
-        self.gcm_matrix_png_data = None
+        self.gcm_matrix_svg_data = None
         self.error_while_gcm_matrix = False
         self.number_of_nodes = 0
         self.number_of_edges = 0
@@ -146,8 +137,8 @@ class NetworkPropertiesResult:
     def get_degree_dist(self):
         return self.degree_dist
 
-    def get_gcm_matrix_png_data(self):
-        return str(self.gcm_matrix_png_data)
+    def get_gcm_matrix_svg_data(self):
+        return str(self.gcm_matrix_svg_data)
 
     def did_error_occur_while_gcm_computation(self):
         return self.error_while_gcm_matrix

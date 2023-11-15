@@ -220,7 +220,12 @@ def check_simplicial_complex_format(network, preferred_format, verbose=False):
       # Write facets to a string with delimiter="\n" and preffered_format as separator between nodes
       if not preferred_format:
         preferred_format = " "
-      parsed_network = unicode("\n".join([preferred_format.join(map(str, facet)) for facet in facets]), "utf-8")
+      # lines = [preferred_format.join(map(str, facet)) for facet in facets]
+      # Change the line above to avoid the error: UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in position 0: ordinal not in range(128)
+      lines = [preferred_format.join(map(unicode, facet)) for facet in facets]
+      if verbose: print("lines[:10]", lines[:10])
+      # parsed_network = unicode("\n".join(lines), "utf-8")
+      parsed_network = "\n".join(lines)
       if verbose: print("parsed_network[:10] as facets", parsed_network.split("\n")[:10])
   except Exception as e:
     if verbose: print("Exception", e, "e.args", e.args)

@@ -26,6 +26,7 @@ import io
 from django.shortcuts import render
 import ast
 from django.template.response import TemplateResponse
+from utils.ImageParser import get_string_for_svg
 
 LOGGER = logging.getLogger(__name__)
 
@@ -133,7 +134,8 @@ def visualize_factor(request):
         # plt.title("Heatmap of the factor")
         # encode the plot as a base64 string
         flike = io.BytesIO()
-        plt.savefig(flike)
+        # Save figure as SVG
+        plt.savefig(flike, format='svg')
         b64 = base64.b64encode(flike.getvalue()).decode()
         # prepare response
         data = json.dumps({
@@ -226,8 +228,8 @@ def _compute_clusters_for_factor(op_dir, fact_name):
     sys_call_result = make_system_call("bash " + CLUSTERS_SCRIPT_PATH + " " + op_dir + " " + fact_name + " " + CLUSTERS_ENTITYLIST_FILENAME, working_dir=op_dir)
     print("sys_call_result", sys_call_result)
     clusters_img = []
-    if os.path.isfile(os.path.join(op_dir, "clusters_from_factor.png")):
-        clusters_img.append('{0}'.format(_get_string_for_png(os.path.join(op_dir, "clusters_from_factor.png"))))
+    if os.path.isfile(os.path.join(op_dir, "clusters_from_factor.svg")):
+        clusters_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, "clusters_from_factor.svg"))))
     # load numpy array from file
     # clusters = np.load(os.path.join(op_dir, "clusters.npy"), allow_pickle=True)
     # import numpy.lib.npyio as npyio
@@ -245,8 +247,8 @@ def _compute_enrichments_for_clusters(op_dir, fact_name, enrichments_anno):
     sys_call_result = make_system_call("bash " + ENRICHMENTS_SCRIPT_PATH + " " + op_dir + " " + fact_name + " " + CLUSTERS_ENTITYLIST_FILENAME + " " + enrichments_anno, working_dir=op_dir)
     print("sys_call_result", sys_call_result)
     clusters_img = []
-    if os.path.isfile(os.path.join(op_dir, "enrichments_for_clusters.png")):
-        clusters_img.append('{0}'.format(_get_string_for_png(os.path.join(op_dir, "enrichments_for_clusters.png"))))
+    if os.path.isfile(os.path.join(op_dir, "enrichments_for_clusters.svg")):
+        clusters_img.append('{0}'.format(get_string_for_svg(os.path.join(op_dir, "enrichments_for_clusters.svg"))))
     with open(os.path.join(op_dir, "clusters_enriched.csv"), 'r') as f:
         reader = csv.reader(f, delimiter='\t')
         clusters_enriched = list(reader)
@@ -269,12 +271,3 @@ def _save_blob_file_to_dir(directory, filename, filedata):
     fs = FileSystemStorage(directory) #defaults to   MEDIA_ROOT  
     filename_res = fs.save(filename, ContentFile(blob.read()))
     print("filename_res", filename_res)
-    
-def _get_string_for_png(file_path):
-    output = StringIO.StringIO()
-    im = Image.open(file_path)
-    im.save(output, format='PNG')
-    output.seek(0)
-    output_s = output.read()
-    b64 = base64.b64encode(output_s)
-    return '{0}'.format(b64)

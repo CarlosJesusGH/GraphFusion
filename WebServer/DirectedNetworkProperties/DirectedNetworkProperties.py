@@ -52,16 +52,6 @@ class Graph():
         return self.graph.degree()
 
 
-# def get_string_for_png(file_path):
-#     output = StringIO.StringIO()
-#     im = Image.open(file_path)
-#     im.save(output, format='PNG')
-#     output.seek(0)
-#     output_s = output.read()
-#     b64 = base64.b64encode(output_s)
-#     return '{0}'.format(b64)
-
-
 class DirectedNetworkProperties(Graph):
     def __init__(self, graph_name, operational_dir):
         Graph.__init__(self)

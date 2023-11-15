@@ -119,4 +119,4 @@ plt.xlabel("Clusters")
 plt.ylabel("Number of entities")
 plt.title("Histogram - Number of entities per cluster")
 
-plt.savefig(op_dir + "/" + "clusters_from_factor.png")
+plt.savefig(op_dir + "/" + "clusters_from_factor.svg")

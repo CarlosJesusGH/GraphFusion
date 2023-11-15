@@ -2,7 +2,7 @@
   <h5>Showing 10 most significant figures. You can download complete set of results by clicking on "Download
     Result"</h5>
 {% endif %} -->
-<!-- <img width="80%" height="80%" src="data:image/png;base64,{{ result.get_graph_image }}"/> -->
+<!-- <img width="80%" height="80%" src="data:image/svg+xml;base64,{{ result.get_graph_image }}"/> -->
 
 <!-- clusters -->
 <div class="panel panel-green">
@@ -63,7 +63,7 @@
     </div>
     <div class="row" style="display:hidden;">
       <div class="col-lg-12" id="enrichmentsImageDiv" style="display:none;">
-        <img id="enrichmentsImage" width="80%" height="80%" src="data:image/png;base64,{{ extra_res.1 }}"/>
+        <img id="enrichmentsImage" width="80%" height="80%" src="data:image/svg+xml;base64,{{ extra_res.1 }}"/>
       </div>
     </div>
   </div>
@@ -325,7 +325,7 @@
             var jsonparams = JSON.parse(params);
             var msg = jsonparams.msg;
             var clusters_img = jsonparams['clusters_img'];
-            document.getElementById('clusterImage').setAttribute('src', 'data:image/png;base64,' + clusters_img);
+            document.getElementById('clusterImage').setAttribute('src', 'data:image/svg+xml;base64,' + clusters_img);
             $("#clusterImageDiv").fadeIn();
             // refreshRunningTasks();
             successAlert(msg);
@@ -388,7 +388,7 @@
             var jsonparams = JSON.parse(params);
             var msg = jsonparams.msg;
             var enrichments_img = jsonparams['enrichments_img'];
-            document.getElementById('enrichmentsImage').setAttribute('src', 'data:image/png;base64,' + enrichments_img);
+            document.getElementById('enrichmentsImage').setAttribute('src', 'data:image/svg+xml;base64,' + enrichments_img);
             $("#enrichmentsImageDiv").fadeIn();
             // refreshRunningTasks();
             successAlert(msg);

@@ -111,4 +111,4 @@ fig = dfEntitiesEnrichments.plot(kind='bar', rot=0, color=['#1f78b4', '#e31a1c',
                             # figsize=(20, 16), fontsize=26
                             ).get_figure()
 
-fig.savefig(op_dir + "/" + "enrichments_for_clusters.png")
+fig.savefig(op_dir + "/" + "enrichments_for_clusters.svg")
