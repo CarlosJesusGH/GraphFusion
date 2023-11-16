@@ -57,16 +57,16 @@ def visualize(request):
             network[1] = response[1] # type: ignore
             # print("Network " + network[0] + " converted to edgelist format.")
     nodes, edges = get_graph_nodes_and_edges(unicodedata.normalize('NFKD', networks[0][1]).encode('ascii', 'ignore'))
-    # Show warning if the network is too large
-    if len(nodes) > 500:
-        LOGGER.warning("User " + str(request.user.username) + ", Visualization, Network too large")
-        return HttpResponseBadRequest("Warning: Network too large to visualize.")
-    # Show warning if the network is too dense
-    density = len(edges) / (len(nodes) * (len(nodes) - 1))
-    if density > 0.1:
-        print("density", density)
-        LOGGER.warning("User " + str(request.user.username) + ", Visualization, Network too dense")
-        return HttpResponseBadRequest("Warning: Network too dense to visualize.")
+    # # Show warning if the network is too large
+    # if len(nodes) > 500:
+    #     LOGGER.warning("User " + str(request.user.username) + ", Visualization, Network too large")
+    #     return HttpResponseBadRequest("Warning: Network too large to visualize.")
+    # # Show warning if the network is too dense
+    # density = len(edges) / (len(nodes) * (len(nodes) - 1))
+    # if density > 0.1:
+    #     print("density", density)
+    #     LOGGER.warning("User " + str(request.user.username) + ", Visualization, Network too dense")
+    #     return HttpResponseBadRequest("Warning: Network too dense to visualize.")
     context = Context({
         'nodes': nodes,
         'edges': edges,
