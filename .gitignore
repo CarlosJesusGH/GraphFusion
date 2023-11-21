@@ -1,6 +1,7 @@
 # old files kept for reference
 old_files/
 dev_utils/
+.vscode/
 
 # any computations
 WebServer/*/computations/*
