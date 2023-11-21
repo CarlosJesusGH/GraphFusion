@@ -11,6 +11,12 @@ docker pull carlosjesusgh/graphfusion:latest
 docker run -it --rm -p 8000:8000 --name gf_container carlosjesusgh/graphfusion:latest
 ```
 
+
+
+https://github.com/CarlosJesusGH/GraphFusion/assets/8160204/8eba00ff-9d83-467a-9112-d401a46c1006
+
+
+
 ## Run the application in a docker container for development
 ```bash
 docker run -it --rm -p 8000:8000 -v /home/bscuser/repos/GraphFusion:/home/GraphFusion_host --entrypoint "/home/init_script_dev.sh" --name gf_container carlosjesusgh/graphfusion:latest
