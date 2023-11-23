@@ -71,6 +71,9 @@ def download_networks(request):
         networks = []
         n_list = os.listdir("./uploaded_networks")
         for network_name in n_list:
+            # Avoid networks starting with . (hidden files)
+            if network_name.startswith("."):
+                continue
             edgelist_path = "./uploaded_networks/" + network_name
             f = open(edgelist_path, "r")
             network_data = f.read()
