@@ -115,13 +115,13 @@ def _check_input(max_iter, delta_min, facts, request_FILES):
             # SNMTF decomposes a symmetric matrix X E Rn*n in the product of two positive factors G E R+ n*k and S E R+ k*k , with k <= n, such that ||X-G*S*GT||F^2 is minimized.
             if m != n:
                 return HttpResponseBadRequest("Invalid input factor in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[4][1] + "', the factor must be square. Input factor has " + str(m) + " rows and " + str(n) + " columns.")
-            if len(ks) != 2:
+            if len(ks) != 1:
                 return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[4][1] + "', two ks are required.")
-            if int(ks[0]) > n or int(ks[1]) > n:
-                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[4][1] + "', k1 and k2 must be <= n. Input factor has " + str(m) + " rows and " + str(n) + " columns.")
+            if int(ks[0]) > n:
+                return HttpResponseBadRequest("Invalid ks in row " + str(counter) + ". For '" + FACTORIZATION_TYPE[4][1] + "', k must be <= n. Input factor has " + str(m) + " rows and " + str(n) + " columns.")
             # min||X-G*S*GT||F^2
             G_shape = (m, int(ks[0]))
-            S_shape = (int(ks[0]), int(ks[1]))
+            S_shape = (int(ks[0]), int(ks[0]))
             factorization_shapes.append((X_shape, None, S_shape, G_shape))
         # Check the shape of the contraint factors if present
         if "M1C" in fact.keys() and len(fact["M1C"]) > 0:
@@ -530,8 +530,9 @@ def _compute_gdv_sims_check_input(data, icell_tasks, request_FILES, gdv_files):
     if not check_response:
         return HttpResponseBadRequest("Error occurred while processing 'entity list' file. " + str(entities) + ".")
     request_FILES["genelist"].seek(0)
-    # Get entities as a list
+    # Get entities as a list and remove empty strings and trailing characters
     entities = entities.split("\n")
+    entities = [entity.strip() for entity in entities if entity.rstrip()]
     # Get unique entities
     entities = list(set(entities))
     # Get the entities from all the gdv files. They're in the first column
@@ -545,6 +546,9 @@ def _compute_gdv_sims_check_input(data, icell_tasks, request_FILES, gdv_files):
     gdv_entities = list(set(gdv_entities))
     # Check that gdv_entities are a subset of entities
     if not set(gdv_entities).issubset(set(entities)):
+    # if not set(entities).issubset(set(gdv_entities)):
+        print("gdv_entities", len(gdv_entities), gdv_entities)
+        print("entities", len(entities), entities)
         print("set(gdv_entities).difference(set(entities))", set(gdv_entities).difference(set(entities)))
         return HttpResponseBadRequest("Error: The entities in the genelist file must be a subset of the entities in the gdv files.")
     return False
