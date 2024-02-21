@@ -154,6 +154,8 @@ RUN conda install --name env_37 --yes pandas==1.3.4
 SHELL ["conda", "run", "-n", "env_37", "/bin/bash", "-c"]
 RUN python -m pip install gradco-0.0.2-cp37-cp37m-linux_x86_64.whl
 RUN python gradco_test_python_interface_p37.py
+# install pyvis
+RUN python -m pip install pip install pyvis
 
 RUN echo "-----------------------------------------------------------------------"
 # <!-- create environment with python 2.7 and install all the necessary packages -->
@@ -223,4 +225,4 @@ ENTRYPOINT ["/home/init_script.sh"]
 # docker run -it --rm --entrypoint "/bin/bash" carlosjesusgh/graphfusion:latest
 
 # to run image for development
-# docker run -it --rm -p 8000:8000 -v /home/bscuser/repos/GraphFusion:/home/GraphFusion_host --entrypoint "/home/init_script_dev.sh" carlosjesusgh/graphfusion:latest
+# docker run -it -p 8000:8000 -v /repos/GraphFusion:/home/GraphFusion_host --entrypoint "/home/init_script_dev.sh" --name gf_container carlosjesusgh/graphfusion:latest

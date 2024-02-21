@@ -28,6 +28,7 @@ from ClusteringAndEnrichment import urls as ClusteringAndEnrichment_urls
 from TopologicalAnalysis import urls as TopologicalAnalysis_urls
 from GraphletEigencentralities import urls as GraphletEigencentralities_urls
 from GraphletLaplacians import urls as GraphletLaplacians_urls
+from VisualizeSE import urls as VisualizeSE_urls
 # flag:NewTaskTemplate
 from a_NewTaskTemplate import urls as newtasktemplate_urls
 
@@ -65,6 +66,7 @@ urlpatterns = patterns(
     url(r'^TopologicalAnalysis/', include(TopologicalAnalysis_urls.urlpatterns)),
     url(r'^GraphletEigencentralities/', include(GraphletEigencentralities_urls.urlpatterns)),
     url(r'^GraphletLaplacians/', include(GraphletLaplacians_urls.urlpatterns)),
+    url(r'^VisualizeSE/', include(VisualizeSE_urls.urlpatterns)),
     # url(r'^/', include(_urls.urlpatterns)),
     # flag:NewTaskTemplate
     url(r'^NewTaskTemplate/', include(newtasktemplate_urls.urlpatterns)),

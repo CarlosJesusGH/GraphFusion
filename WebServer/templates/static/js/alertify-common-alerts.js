@@ -9,3 +9,9 @@ function successAlert(message) {
 function errorAlert(message) {
   alertify.error("<center style='font-size: medium'><i class='fa fa-lg fa-exclamation-triangle'></i>  " + message + "</center>");
 }
+
+// function to log including a timestamp
+function log_timestamp(location, message) {
+  var now = new Date();
+  console.log(now.toUTCString() + ". " + location + ". " + message);
+}

@@ -11,7 +11,6 @@
 <link href="{% static "css/plugins/morris.css" %}" rel="stylesheet">
 <link href="{% static "font-awesome/css/font-awesome.min.css" %}" rel="stylesheet">
 <link href="{% static "alertify/css/alertify-bootstrap-3.css" %}" rel="stylesheet">
-<link href="{% static "Vis/vis.min.css" %}" rel="stylesheet">
 <link href="{% static "Vex/css/vex.css" %}" rel="stylesheet">
 <link href="{% static "Vex/css/vex-theme-default.css" %}" rel="stylesheet">
 <link href="{% static "DataTables/css/jquery.dataTables.css" %}" rel="stylesheet">
@@ -20,6 +19,8 @@
 <link href="{% static "multiple-select/css/bootstrap-multiselect.css" %}" rel="stylesheet">
 <link href="{% static "animate/animate.css" %}" rel="stylesheet">
 <link href="{% static "fancybox/jquery.fancybox.css" %}" rel="stylesheet">
+<!-- <link href="{% static "Vis/vis.min.css" %}" rel="stylesheet"> -->
+<!-- <link href="{% static "vis-network/vis-9.1.2/vis-network.css" %}" rel="stylesheet"> -->
 
 <script type="text/javascript" src="{% static "js/jquery.js" %}"></script>
 <script type="text/javascript" src="{% static "list/list.js" %}"></script>
@@ -37,7 +38,6 @@
 <script type="text/javascript" src="{% static "js/visualisation.js" %}"></script>
 <script type="text/javascript" src="{% static "js/VexAlertMessages.js" %}"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
-<script type="text/javascript" src="{% static "Vis/vis.min.js" %}"></script>
 <script type="text/javascript" src="{% static "heatmap/heatmap.min.js" %}"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="{% static "alertify/js/alertify.js" %}"></script>
@@ -45,6 +45,9 @@
 <script type="text/javascript" src="{% static "multiple-select/js/bootstrap-multiselect.js" %}"></script>
 <script type="text/javascript" src="{% static "js/alertify-common-alerts.js" %}"></script>
 <script type="text/javascript" src="{% static "fancybox/jquery.fancybox.js" %}"></script>
+<!-- <script type="text/javascript" src="{% static "Vis/vis.min.js" %}"></script> -->
+<!-- <script type="text/javascript" src="{% static "vis-network/bindings/utils.js" %}"></script> -->
+<script type="text/javascript" src="{% static "vis-network/vis-9.1.2/vis-network.min.js" %}"></script>
 <script>
   google.load('visualization', '1.1', {packages: ['line']});
   vex.defaultOptions.className = 'vex-theme-default';

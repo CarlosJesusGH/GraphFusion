@@ -19,10 +19,10 @@ https://github.com/CarlosJesusGH/GraphFusion/assets/8160204/8eba00ff-9d83-467a-9
 
 ## Run the application in a docker container for development
 ```bash
-docker run -it --rm -p 8000:8000 -v /home/bscuser/repos/GraphFusion:/home/GraphFusion_host --entrypoint "/home/init_script_dev.sh" --name gf_container carlosjesusgh/graphfusion:latest
+docker run -it -p 8000:8000 -v /repos/GraphFusion:/home/GraphFusion_host --entrypoint "/home/init_script_dev.sh" --name gf_container carlosjesusgh/graphfusion:latest
 ```
 
-Note: The volume is mounted to the host folder /home/bscuser/repos/GraphFusion. Change it to your host folder.
+Note: The volume is mounted to the host folder /repos/GraphFusion. Change it to the host folder where you cloned the repository.
 
 To run bash in the running container: 
 ```bash

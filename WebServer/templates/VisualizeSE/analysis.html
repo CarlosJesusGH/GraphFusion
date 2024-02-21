@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block TITLE %}
-  <h3>NewTaskTemplate Networks - Properties</h3>
+  <h3>Visualization - Spring Embeddings</h3>
 {% endblock %}
 
 {% block ANALYSIS_TAB %}
   <div id="propsDiv">
-    <h5>Select networks to run the analysis.</h5>
+    <h5>Select network to visualize.</h5>
 
     <div class="row-fluid" style="padding:5px;">
       <div class="row-fluid">
@@ -21,7 +21,7 @@
                 <label class="control-label" for="networkNamesList">Networks</label>
               </div>
               <div class="col-lg-5">
-                <select id="networkNamesList" multiple class="form-control" style="min-width: 250px;">
+                <select id="networkNamesList" class="form-control" style="min-width: 250px;">
                 </select>
               </div>
             </div>
@@ -52,6 +52,7 @@
   <script type="text/javascript">
     updateNetworks();
     var $taskName = $("#taskNameInput");
+    $taskName.val(getDateBasedTaskName("NetworkVisualization"));
     var $resultDiv = $("#result");
     var $propsDiv = $("#propsDiv");
     $resultDiv.hide();
@@ -65,7 +66,7 @@
     function submitNetworkForAnalysis(list) {
       var data = {'Networks': []};
       var task_name = $taskName.val();
-      $taskName.val(getDateBasedTaskName("NewTaskTemplate"));
+      var directed = "{{ directed }}";
       list.find(":selected").each(function (i, selected) {
         data.Networks.push(networkFiles[$(selected).val()]);
       });
@@ -80,23 +81,27 @@
       Pace.track(function () {
         $.ajax({
           // flag:NewTaskTemplate
-          url: '/NewTaskTemplate/analysis',
+          url: '/VisualizeSE/visualize/',
           type: 'POST',
           data: {
             'data': JSON.stringify(data),
-            'task_name': task_name
+            'task_name': task_name,
+            'directed': directed
           },
           success: function (data) {
-            $propsDiv.hide();
-            $resultDiv.show();
+            // $propsDiv.hide();
+            // $resultDiv.show();
+            // refreshRunningTasks();
+            // $('#result').html(data);
             refreshRunningTasks();
-            $('#result').html(data);
+            successAlert(data);
           },
           beforeSend: function (xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
           },
           error: function (jqXHR, textStatus, errorThrown) {
             console.log('ERRORS: ' + textStatus);
+            errorAlert(jqXHR.responseText);
           }
         });
       })

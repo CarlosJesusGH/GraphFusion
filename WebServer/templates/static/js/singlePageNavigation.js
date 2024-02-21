@@ -32,6 +32,7 @@ function setUpUrlMappings() {
   var TopologicalAnalysis = "TopologicalAnalysis";
   var GraphletEigencentralities = "GraphletEigencentralities";
   var GraphletLaplacians = "GraphletLaplacians";
+  var VisualizeSE = "VisualizeSE";
   // var  = "";
   // flag:NewTaskTemplate
   var NewTaskTemplate = "NewTaskTemplate";
@@ -62,6 +63,7 @@ function setUpUrlMappings() {
   urlMappings["/" + TopologicalAnalysis + "/"] = TopologicalAnalysis;
   urlMappings["/" + GraphletEigencentralities + "/"] = GraphletEigencentralities;
   urlMappings["/" + GraphletLaplacians + "/"] = GraphletLaplacians;
+  urlMappings["/" + VisualizeSE + "/"] = VisualizeSE;
   // urlMappings["/" +  + "/"] = ;
   // flag:NewTaskTemplate
   urlMappings["/" + NewTaskTemplate + "/"] = NewTaskTemplate;

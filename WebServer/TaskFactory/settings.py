@@ -20,6 +20,7 @@ from SimpletsPairwiseAnalysis.settings import SIMPLETS_DVM_ANALYSIS_TASK
 from HyperGraphletsNetAnalysis.settings import HYPERGRAPHLETS_NET_ANALYSIS_TASK
 from GraphletEigencentralities.settings import GraphletEigencentralities_TASK
 from GraphletLaplacians.settings import GraphletLaplacians_TASK
+from VisualizeSE.settings import VISUALIZESE_TASK
 # flag:NewTaskTemplate
 from a_NewTaskTemplate.settings import NEWTASKTEMPLATE_TASK
 # ---
@@ -63,6 +64,8 @@ from GraphletEigencentralities.views import get_view_for_task as GraphletEigence
     delete_data_for_task as GraphletEigencentralities_delete, get_raw_data_for_task as GraphletEigencentralities_result
 from GraphletLaplacians.views import get_view_for_task as GraphletLaplacians_view, \
     delete_data_for_task as GraphletLaplacians_delete, get_raw_data_for_task as GraphletLaplacians_result
+from VisualizeSE.views import get_view_for_task as VisualizeSE_view, \
+    delete_data_for_task as VisualizeSE_delete, get_raw_data_for_task as VisualizeSE_result
 # flag:NewTaskTemplate
 from a_NewTaskTemplate.views import get_view_for_task as getview_newtasktemplate, \
     delete_data_for_task as deletedata_newtasktemplate, get_raw_data_for_task as getrawdata_newtasktemplate
@@ -73,7 +76,7 @@ TASK_TYPES = [PAIRWISE_ANALYSIS_TASK, NETWORK_PROPERTIES_TASK, ALIGNMENT_TASK, D
               DIRECTED_NETWORK_PAIRWISE_TASK, DIRECTED_NETWORK_DVM_TASK, MULTIPLE_ALIGNMENT_TASK,
               PROBABILISTIC_NETWORKS_PROPS_TASK, HYPER_GRAPHLETS_PROPS_TASK, SIMPLETS_PROPERTIES_TASK,
               PROBABILISTIC_NETWORKS_NET_ANALYSIS_TASK, PROBABILISTIC_NETWORKS_MODEL_ANALYSIS_TASK,
-              SIMPLETS_PAIRWISE_ANALYSIS_TASK, SIMPLETS_DVM_ANALYSIS_TASK, HYPERGRAPHLETS_NET_ANALYSIS_TASK, GraphletEigencentralities_TASK, GraphletLaplacians_TASK,
+              SIMPLETS_PAIRWISE_ANALYSIS_TASK, SIMPLETS_DVM_ANALYSIS_TASK, HYPERGRAPHLETS_NET_ANALYSIS_TASK, GraphletEigencentralities_TASK, GraphletLaplacians_TASK, VISUALIZESE_TASK,
               # flag:NewTaskTemplate
               NEWTASKTEMPLATE_TASK,]
 
@@ -98,6 +101,7 @@ VIEW_FUNCTION_MAPPINGS = {
     HYPERGRAPHLETS_NET_ANALYSIS_TASK: HyperGraphletsNetAnalysis_view,
     GraphletEigencentralities_TASK: GraphletEigencentralities_view,
     GraphletLaplacians_TASK: GraphletLaplacians_view,
+    VISUALIZESE_TASK: VisualizeSE_view,
     # flag:NewTaskTemplate
     NEWTASKTEMPLATE_TASK: getview_newtasktemplate,
 }
@@ -123,6 +127,7 @@ DOWNLOAD_RESULTS_FUNCTIONS = {
     HYPERGRAPHLETS_NET_ANALYSIS_TASK: HyperGraphletsNetAnalysis_result,
     GraphletEigencentralities_TASK: GraphletEigencentralities_result,
     GraphletLaplacians_TASK: GraphletLaplacians_result,
+    VISUALIZESE_TASK: VisualizeSE_result,
     # flag:NewTaskTemplate
     NEWTASKTEMPLATE_TASK: getrawdata_newtasktemplate,
 }
@@ -148,6 +153,7 @@ DELETE_TASK_FUNCTION_MAPPINGS = {
     HYPERGRAPHLETS_NET_ANALYSIS_TASK: HyperGraphletsNetAnalysis_delete,
     GraphletEigencentralities_TASK: GraphletEigencentralities_delete,
     GraphletLaplacians_TASK: GraphletLaplacians_delete,
+    VISUALIZESE_TASK: VisualizeSE_delete,
     # flag:NewTaskTemplate
     NEWTASKTEMPLATE_TASK: deletedata_newtasktemplate,
 }

@@ -11,7 +11,11 @@
 </div>
 <script>
   var network = null;
+
   draw();
+  // window.addEventListener("load", () => {
+  //   draw();
+  // });
 
   function destroy() {
     if (network !== null) {
@@ -21,7 +25,13 @@
   }
 
   function draw() {
+    log_timestamp("SingleNetworkVisualisation - draw", "start")
+
+    // TODO: check if this is needed
+    // destroy any previous network
     destroy();
+
+    log_timestamp("SingleNetworkVisualisation - draw", "after destroy")
 
     var nodes = [];
     var edges = [];
@@ -32,6 +42,8 @@
       });
     {% endfor %}
 
+    log_timestamp("SingleNetworkVisualisation - draw", "after loading nodes")
+
     {% for from,to in edges %}
       edges.push({
         from: "{{ from }}",
@@ -39,10 +51,16 @@
       });
     {% endfor %}
 
+    log_timestamp("SingleNetworkVisualisation - draw", "after loading edges")
+
     // read context variable 'directed'
     var directed = '{{ directed }}';
     // console.log("single vis directed: " + directed);
     // From vis.js https://github.com/almende/vis
+    // at WebServer/templates/static/js/visualisation.js
     drawGraph(document.getElementById('visualization'), nodes, edges, network, directed);
+
+    
+    log_timestamp("SingleNetworkVisualisation - draw", "end")
   }
 </script>
